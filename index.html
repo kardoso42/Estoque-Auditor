@@ -54,23 +54,38 @@
             user-select: text !important; -webkit-user-select: text !important;
         }
         
-        .app-header { text-align: center; margin-bottom: 24px; margin-top: 10px; position: relative; padding-right: 45px; }
-
-        .app-logo {
-            display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 16px auto; width: 90px; height: 90px;
-            background: var(--logo-bg); border-radius: 24px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-            border: 1px solid var(--border); overflow: hidden; 
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        /* Novo Layout SaaS do Top-Nav (Cabeçalho) */
+        .app-header { 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: space-between; 
+            align-items: center; 
+            text-align: left;
+            margin-bottom: 24px; 
+            margin-top: 5px; 
+            gap: 16px;
         }
-        .app-logo:hover { transform: scale(1.04); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1); }
-        .app-logo svg, .app-logo img { width: 100%; height: 100%; object-fit: contain; display: block; }
-
-        .app-header h2 { margin: 0; color: var(--blue-dark); font-weight: 800; font-size: 26px; letter-spacing: -0.5px; }
-        .app-header p { margin: 4px 0 0; font-size: 13px; color: var(--gray); font-weight: 500; }
         
-        .header-actions { position: absolute; right: 0; top: 0; display: flex; gap: 8px; }
+        .header-info { display: flex; gap: 12px; align-items: center; flex: 1; }
+        .header-info .app-logo { 
+            margin: 0; width: 52px; height: 52px; border-radius: 16px; flex-shrink: 0;
+            background: var(--logo-bg); display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06); border: 1px solid var(--border); overflow: hidden; 
+        }
+        .header-info .app-logo img { width: 100%; height: 100%; object-fit: contain; display: block; }
+        .header-info h2 { font-size: 18px; font-weight: 800; color: var(--blue-dark); margin: 0; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; letter-spacing: -0.5px; }
+        
+        .header-actions { display: flex; align-items: center; gap: 10px; position: static; }
+        .mini-stats-group { display: flex; gap: 8px; }
+        .mini-stat-card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+            padding: 6px 12px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02); transition: all 0.2s ease;
+        }
+        .mini-stat-card:hover { border-color: var(--blue); transform: translateY(-1px); box-shadow: 0 6px 15px rgba(0,0,0,0.05); }
+        .mini-stat-card span.label { font-size: 9px; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: 0.5px; }
+        .mini-stat-card span.value { font-size: 15px; font-weight: 800; color: var(--blue-dark); line-height: 1.1; }
+
         #btn-config {
             width: 44px; height: 44px; padding: 0; border-radius: 50%; background: var(--surface); 
             border: 1px solid var(--border); font-size: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); 
@@ -85,17 +100,6 @@
             box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); 
             margin-bottom: 20px; border: 1px solid var(--border); transition: all 0.3s ease;
         }
-        
-        .dash-container { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
-        .dash-card { 
-            background: var(--surface); padding: 20px 15px; border-radius: 20px; text-align: center; 
-            border-left: 5px solid var(--blue); box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.05);
-            border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .dash-card:hover { transform: translateY(-3px); box-shadow: 0 12px 25px -5px rgba(0, 0, 0, 0.08); }
-        .dash-card h4 { margin: 0; font-size: 12px; color: var(--gray); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
-        .dash-card p { margin: 10px 0 0; font-size: 24px; font-weight: 800; color: var(--blue-dark); letter-spacing: -0.5px; }
         
         .multi-select-box { border: 1px solid var(--border); border-radius: 12px; padding: 5px; max-height: 140px; overflow-y: auto; background: var(--bg); margin-top: 8px; }
         .multi-select-item { display: flex; align-items: center; gap: 10px; font-size: 12px; padding: 12px 14px; border-bottom: 1px solid var(--border); transition: background 0.2s; }
@@ -112,7 +116,39 @@
         }
         input[type="file"] { padding: 12px; font-size: 12px; background: var(--surface); border: 2px dashed var(--border); cursor: pointer; }
         input:focus, select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15); background: var(--surface); }
-        body.dark-mode input:focus, body.dark-mode select:focus { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); }
+        
+        /* CORREÇÃO FORÇADA: Visibilidade de Inputs e Autofill no Modo Escuro */
+        body.dark-mode input, 
+        body.dark-mode select {
+            color: #f8fafc !important;
+            background-color: var(--bg) !important;
+        }
+        body.dark-mode input:focus, 
+        body.dark-mode select:focus {
+            background-color: var(--surface) !important;
+            color: #f8fafc !important;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+        }
+        body.dark-mode input:-webkit-autofill,
+        body.dark-mode input:-webkit-autofill:hover, 
+        body.dark-mode input:-webkit-autofill:focus, 
+        body.dark-mode input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px var(--surface) inset !important;
+            -webkit-text-fill-color: #f8fafc !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        /* Classe para destacar a Qtd Física sem quebrar o Modo Escuro */
+        .highlight-input {
+            color: var(--blue-dark) !important;
+            background: #eff6ff !important;
+        }
+        body.dark-mode .highlight-input {
+            color: var(--orange) !important;
+            background: var(--surface) !important;
+            border-color: var(--orange) !important;
+        }
+
         input[type="text"] { text-transform: uppercase; }
         
         .grid-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
@@ -291,7 +327,7 @@
                 <img src="logo-smartestoque.png" alt="Logo" id="logo-login-img" onerror="tentarCarregarDuplo(this)">
             </div>
             
-            <h2 class="login-title">Acesso Seguro</h2>
+            <h2 class="login-title">Smart Estoque</h2>
             <p class="login-subtitle">Auditoria e Gestão de Inventário</p>
             
             <div class="input-group">
@@ -318,17 +354,40 @@
 
     <!-- APLICAÇÃO PRINCIPAL -->
     <div id="view-app" style="display:none;">
+        
+        <!-- HEADER TOP-NAV SAAS -->
         <div class="app-header">
-            <div class="app-logo" style="width: 80px; height: 80px;">
-                <img src="logo-smartestoque.png" alt="Logo" id="logo-header-img" onerror="tentarCarregarDuplo(this)">
+            <!-- Esquerda: Logo e Info -->
+            <div class="header-info">
+                <div class="app-logo">
+                    <img src="logo-smartestoque.png" alt="Logo" id="logo-header-img" onerror="tentarCarregarDuplo(this)">
+                </div>
+                <div>
+                    <h2>Smart Estoque <span class="cloud-badge" id="app-badge-mode">REAL-TIME</span></h2>
+                    <div class="print-hide" style="margin-top: 6px;">
+                        <span class="user-badge">👤 <span id="lbl-operador">Operador</span> (<span id="lbl-cargo" style="color: var(--orange);">...</span>) 
+                        <button onclick="fazerLogout()" style="background:none; border:none; color:rgba(255,255,255,0.8); padding:0 0 0 6px; margin:0; cursor:pointer; font-size:10px; font-weight:800; width:auto; box-shadow:none;">SAIR</button></span>
+                    </div>
+                </div>
             </div>
-            <h2>Smart Estoque <span class="cloud-badge" id="app-badge-mode">REAL-TIME</span></h2>
-            <p>Sincronização Ativa e Criptografada</p>
-            <div class="print-hide">
-                <span class="user-badge">👤 <span id="lbl-operador">Operador</span> (<span id="lbl-cargo" style="color: var(--orange);">...</span>) 
-                <button onclick="fazerLogout()" style="background:none; border:none; color:rgba(255,255,255,0.8); padding:0 0 0 8px; margin:0; cursor:pointer; font-size:11px; font-weight:800; width:auto; box-shadow:none;">SAIR</button></span>
-            </div>
+
+            <!-- Direita: Mini Dashboard e Menu -->
             <div class="header-actions print-hide">
+                <div class="mini-stats-group">
+                    <div class="mini-stat-card">
+                        <span class="label">Itens</span>
+                        <span class="value" id="dash-skus">0</span>
+                    </div>
+                    <div class="mini-stat-card">
+                        <span class="label">Peças</span>
+                        <span class="value" id="dash-pecas">0</span>
+                    </div>
+                    <!-- NOVO: Mini Cartão Financeiro (Visível apenas para Chefe) -->
+                    <div class="mini-stat-card" id="mini-stat-financeiro" style="display: none; border-color: var(--orange);">
+                        <span class="label" style="color: var(--orange);">Finanças</span>
+                        <span class="value" id="dash-financeiro">R$ 0,00</span>
+                    </div>
+                </div>
                 <button onclick="abrirModalConfig()" id="btn-config" title="Menu Principal">☰</button>
             </div>
         </div>
@@ -340,16 +399,7 @@
 
         <!-- ECRÃ DE AUDITORIA -->
         <div id="view-auditoria">
-            <div class="dash-container print-hide">
-                <div class="dash-card"><h4>Itens Contados</h4><p id="dash-skus">0</p></div>
-                <div class="dash-card"><h4>Volume (Peças)</h4><p id="dash-pecas">0</p></div>
-                <div class="dash-container-financeiro" id="dash-financeiro-container" style="grid-column: span 2; display: none; flex-direction: column;">
-                    <div class="dash-card" style="border-left-color: var(--orange);">
-                        <h4>Divergência Financeira</h4><p id="dash-financeiro">R$ 0,00</p>
-                    </div>
-                </div>
-            </div>
-
+            
             <div id="alerta-catalogo-vazio" class="card print-hide" style="display:block; background: rgba(245, 158, 11, 0.08); border: 2px dashed var(--orange); text-align: center;">
                 <p style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--orange);">⚠️ Base de Dados Local Vazia</p>
                 <p style="margin: 0 0 16px; font-size: 12px; color: var(--text);">Importe a planilha da Omie (Excel) para associar as contagens aos produtos corretos.</p>
@@ -447,13 +497,16 @@
                 </div>
             </div>
 
-            <!-- PRODUTOS PENDENTES -->
+            <!-- PRODUTOS PENDENTES COM BOTÕES CORRIGIDOS -->
             <div class="card print-hide">
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; flex-wrap: wrap; gap: 10px;">
                     <h3 style="margin: 0; font-size: 15px; color: var(--blue-dark);">
                         Itens Pendentes (<span id="qtd-pendentes-rel" style="color: var(--orange);">0</span>)
                     </h3>
-                    <button onclick="baixarPendentesExcel()" class="btn-outline" style="width: auto; padding: 6px 12px; margin: 0; font-size: 10px; border-color: var(--orange); color: var(--orange); border-radius: 8px;">📥 EXPORTAR EXCEL</button>
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="baixarPendentesExcel()" class="btn-outline" style="width: auto; padding: 6px 12px; margin: 0; font-size: 10px; border-color: var(--orange); color: var(--orange); border-radius: 8px;">📥 EXPORTAR</button>
+                        <button onclick="zerarNaoContados()" class="btn-outline" style="width: auto; padding: 6px 12px; margin: 0; font-size: 10px; border-color: var(--red); color: var(--red); border-radius: 8px; background: rgba(239, 68, 68, 0.05);">⚠️ ZERAR RESTANTES</button>
+                    </div>
                 </div>
                 <div style="max-height: 350px; overflow-y: auto; margin-top: 12px; border-radius: 12px; border: 1px solid var(--border);">
                     <table style="margin-top: 0; border: none;">
@@ -526,46 +579,57 @@
         </div>
     </div>
 
-    <!-- Modal de Configurações -->
+    <!-- Modal de Configurações Limpo e Otimizado -->
     <div id="modal-config" class="modal">
-        <div class="modal-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 16px;">
-                <h3 style="margin: 0; font-size: 18px; color: var(--blue-dark); font-weight: 800;">Opções do Sistema</h3>
-                <button onclick="fecharModalConfig()" style="background: var(--bg); border: 1px solid var(--border); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text); cursor: pointer;">✖</button>
-            </div>
+        <div class="modal-content" style="padding: 0; overflow: hidden; display: flex; flex-direction: column;">
             
-            <div class="switch-container" style="margin-top: 0; margin-bottom: 20px;">
-                <label for="modal-theme-toggle">Aparência Escura (Dark)</label>
-                <label class="switch"><input type="checkbox" id="modal-theme-toggle" onchange="toggleDarkMode()"><span class="slider"></span></label>
+            <div style="padding: 20px 24px; border-bottom: 1px solid var(--border); background: var(--surface); display: flex; justify-content: space-between; align-items: center; z-index: 10;">
+                <h3 style="margin: 0; font-size: 18px; color: var(--blue-dark); font-weight: 800; display: flex; align-items: center; gap: 8px;">⚙️ Opções do Sistema</h3>
+                <button onclick="fecharModalConfig()" style="background: var(--bg); border: 1px solid var(--border); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text); cursor: pointer; padding: 0; margin: 0; box-shadow: none;">✖</button>
             </div>
 
-            <div id="container-import-excel" style="margin-bottom: 20px; display: none; background: var(--bg); padding: 16px; border-radius: 16px; border: 1px solid var(--border);">
-                <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 8px; color: var(--blue-dark);">📂 CARREGAR EXCEL (OMIE):</label>
-                <input type="file" id="file-input" accept=".xlsx, .xls, .csv">
-                <button onclick="limparCacheLocal()" class="btn-outline" style="margin-top: 12px; font-size:11px; padding: 12px; color: var(--red); border-color: rgba(239,68,68,0.3);">🗑️ ZERAR CACHE LOCAL</button>
-            </div>
-            
-            <div id="status-catalog" style="font-size: 12px; font-weight: 700; color: var(--orange); margin-bottom: 20px; text-align: center; background: var(--bg); padding: 10px; border-radius: 12px;">☁️ A carregar estado da memória...</div>
+            <div style="padding: 24px; overflow-y: auto; max-height: calc(90vh - 140px); background: var(--bg);">
+                
+                <div style="background: var(--surface); padding: 16px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px;">
+                    <div class="switch-container" style="margin: 0; border: none; padding: 0; background: transparent;">
+                        <label for="modal-theme-toggle" style="font-size: 14px; color: var(--blue-dark);">🌙 Modo Escuro</label>
+                        <label class="switch"><input type="checkbox" id="modal-theme-toggle" onchange="toggleDarkMode()"><span class="slider"></span></label>
+                    </div>
+                </div>
 
-            <label style="font-size: 11px; font-weight: 700; color: var(--blue-dark); margin-bottom: 6px; display: block;">📍 FILTRAR POR LOCAIS:</label>
-            <div id="filtro-local-multi" class="multi-select-box" style="margin-bottom: 20px;"><small style="color:var(--gray); padding: 10px; display: block;">Importe o arquivo primeiro...</small></div>
-            
-            <label style="font-size: 11px; font-weight: 700; color: var(--blue-dark); margin-bottom: 6px; display: block;">📂 FILTRAR POR FAMÍLIAS:</label>
-            <div id="filtro-family-multi" class="multi-select-box" style="margin-bottom: 20px;"><small style="color:var(--gray); padding: 10px; display: block;">Importe o arquivo primeiro...</small></div>
-            
-            <div id="chefe-buttons-area" class="grid-buttons" style="display: none; border-top: 1px solid var(--border); padding-top: 20px;">
-                <button class="btn-outline" style="border-color: var(--orange); color: var(--orange);" onclick="verPendentes()">🔍 VER PENDENTES</button>
-                <button class="btn-outline" style="border-color: var(--red); color: var(--red);" onclick="zerarNaoContados()">⚠️ ZERAR RESTANTES</button>
-            </div>
+                <div id="container-import-excel" style="display: none; background: var(--surface); padding: 20px; border-radius: 16px; border: 2px dashed var(--border); margin-bottom: 20px; text-align: center;">
+                    <h4 style="margin: 0 0 16px 0; font-size: 13px; font-weight: 800; color: var(--blue-dark); text-transform: uppercase;">📦 Matriz de Produtos (Omie)</h4>
+                    
+                    <label for="file-input" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--blue); color: white; padding: 14px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(37,99,235,0.2); width: 100%; box-sizing: border-box;">
+                        📁 SELECIONAR FICHEIRO EXCEL
+                    </label>
+                    <!-- CORREÇÃO CHAVE: Usar opacity 0 em vez de display: none para garantir suporte ao clique no telemóvel -->
+                    <input type="file" id="file-input" accept=".xlsx, .xls, .csv" style="opacity: 0; position: absolute; z-index: -1; width: 0.1px; height: 0.1px;">
+                    
+                    <button onclick="limparCacheLocal()" class="btn-outline" style="margin-top: 12px; font-size:11px; padding: 12px; color: var(--red); border-color: rgba(239,68,68,0.3); width: 100%; background: var(--bg);">🗑️ ZERAR CACHE LOCAL</button>
+                </div>
+                
+                <div id="status-catalog" style="font-size: 12px; font-weight: 700; color: var(--orange); margin-bottom: 20px; text-align: center; background: var(--surface); padding: 14px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.02);">☁️ A carregar estado da memória...</div>
 
-            <div id="chefe-pin-change-area" style="display: none; border-top: 1px dashed var(--border); padding-top: 20px; margin-top: 20px;">
-                <label style="font-size: 11px; font-weight: 700; color: var(--red); display: block; margin-bottom: 10px;">🔑 ALTERAR PIN DE ACESSO:</label>
-                <input type="password" id="pin-antigo" placeholder="PIN Atual" style="margin-bottom: 10px;">
-                <input type="password" id="pin-novo" placeholder="Novo PIN Seguro" style="margin-bottom: 12px;">
-                <button onclick="alterarPinSeguranca()" class="btn-blue" style="padding: 14px;">GRAVAR NOVO PIN</button>
+                <div style="background: var(--surface); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px;">
+                    <h4 style="margin: 0 0 16px 0; font-size: 13px; font-weight: 800; color: var(--blue-dark); display: flex; align-items: center; gap: 6px;">📍 FILTROS DE AUDITORIA</h4>
+                    <label style="font-size: 11px; font-weight: 700; color: var(--gray); margin-bottom: 8px; display: block;">FILTRAR POR LOCAIS:</label>
+                    <div id="filtro-local-multi" class="multi-select-box" style="margin-bottom: 16px; background: var(--bg); border: 1px solid var(--border);"><small style="color:var(--gray); padding: 10px; display: block;">Importe o arquivo primeiro...</small></div>
+                    <label style="font-size: 11px; font-weight: 700; color: var(--gray); margin-bottom: 8px; display: block;">FILTRAR POR FAMÍLIAS:</label>
+                    <div id="filtro-family-multi" class="multi-select-box" style="margin-bottom: 0; background: var(--bg); border: 1px solid var(--border);"><small style="color:var(--gray); padding: 10px; display: block;">Importe o arquivo primeiro...</small></div>
+                </div>
+
+                <div id="chefe-pin-change-area" style="display: none; background: rgba(239, 68, 68, 0.05); padding: 20px; border-radius: 16px; border: 1px solid rgba(239,68,68,0.2); margin-bottom: 0;">
+                    <h4 style="margin: 0 0 16px 0; font-size: 13px; font-weight: 800; color: var(--red); display: flex; align-items: center; gap: 6px;">🔑 SEGURANÇA DO SETOR</h4>
+                    <input type="password" id="pin-antigo" placeholder="PIN Atual" style="margin-bottom: 12px; background: var(--surface);">
+                    <input type="password" id="pin-novo" placeholder="Novo PIN Seguro" style="margin-bottom: 16px; background: var(--surface);">
+                    <button onclick="alterarPinSeguranca()" class="btn-red" style="padding: 16px;">GRAVAR NOVO PIN</button>
+                </div>
             </div>
             
-            <button onclick="fecharModalConfig()" style="background: var(--text); color: var(--bg); margin-top: 24px;">Concluir e Fechar</button>
+            <div style="padding: 20px 24px; border-top: 1px solid var(--border); background: var(--surface); z-index: 10;">
+                <button class="btn-blue" onclick="fecharModalConfig()" style="margin: 0; width: 100%; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">✅ CONCLUIR E FECHAR</button>
+            </div>
         </div>
     </div>
 
@@ -645,13 +709,25 @@
         </div>
     </div>
 
+    <!-- Modal de Confirmação Customizado (Substitui o window.confirm bloqueado no iFrame) -->
+    <div id="modal-confirm" class="modal" style="z-index: 10005;">
+        <div class="modal-content" style="max-width: 340px; text-align: center; padding: 32px 24px;">
+            <div style="font-size: 40px; margin-bottom: 12px;">⚠️</div>
+            <h3 style="margin: 0 0 12px 0; font-size: 18px; color: var(--blue-dark); font-weight: 800;">Atenção</h3>
+            <p id="confirm-msg" style="font-size: 13px; color: var(--gray); margin-bottom: 24px; line-height: 1.5; font-weight: 500;"></p>
+            <div style="display: flex; gap: 12px;">
+                <button id="btn-confirm-cancel" class="btn-outline" style="margin: 0;">Cancelar</button>
+                <button id="btn-confirm-ok" class="btn-blue" style="margin: 0;">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- SCRIPT TIPO MÓDULO PARA IMPORTAR FIREBASE SDK CLIENT-SIDE -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
-        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDocs, writeBatch } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, writeBatch } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
-        // CHAVE DE DESENCRIPTAÇÃO DOS SEGREDOS LOCAIS
         const _HASH_V = "9f2b388c42a27b8761a20d4af0b23f2d01cebcba57f68c340b190f7a55280911";
 
         let firebaseConfig = {
@@ -673,28 +749,68 @@
         let baseDados = []; 
         let contagens = [];  
         let logAcoes = [];
-        let itemAtual = null; let indexEdicao = -1; let html5QrCode = null; let diasParaVencer = null;
-        
-        let operadorAtual = "";
-        let cargoAtual = "OPERADOR";
+        let itemAtual = null; let indexEdicao = -1; let html5QrCode = null;
+        let operadorAtual = ""; let cargoAtual = "OPERADOR"; let currentUser = null;
 
         try {
             const rawOp = localStorage.getItem('op_enc');
             const rawCargo = localStorage.getItem('cargo_enc');
-            if (rawOp) {
-                operadorAtual = CryptoJS.AES.decrypt(rawOp, _HASH_V).toString(CryptoJS.enc.Utf8) || "";
-            }
-            if (rawCargo) {
-                cargoAtual = CryptoJS.AES.decrypt(rawCargo, _HASH_V).toString(CryptoJS.enc.Utf8) || "OPERADOR";
-            }
-        } catch(e) {
-            console.warn("Segurança local redefinida por integridade.");
-        }
+            if (rawOp) operadorAtual = CryptoJS.AES.decrypt(rawOp, _HASH_V).toString(CryptoJS.enc.Utf8) || "";
+            if (rawCargo) cargoAtual = CryptoJS.AES.decrypt(rawCargo, _HASH_V).toString(CryptoJS.enc.Utf8) || "OPERADOR";
+        } catch(e) {}
 
-        let currentUser = null;
         window.gatilhoDisparado = false;
         window.gatilhoTimeout = null;
         window.html5QrCodeModal = null;
+
+        try {
+            const cachedCatalogEnc = localStorage.getItem('catalogo_local_enc');
+            if (cachedCatalogEnc) {
+                baseDados = JSON.parse(CryptoJS.AES.decrypt(cachedCatalogEnc, _HASH_V).toString(CryptoJS.enc.Utf8));
+            }
+        } catch (e) { }
+
+        // --- SISTEMA DE DIÁLOGO CUSTOMIZADO SEGURO ---
+        window.customConfirm = function(msg, onConfirm, confirmBtnClass = 'btn-blue') {
+            document.getElementById('confirm-msg').innerText = msg;
+            const btnOk = document.getElementById('btn-confirm-ok');
+            btnOk.className = confirmBtnClass;
+            const modal = document.getElementById('modal-confirm');
+            modal.style.display = 'flex';
+            
+            btnOk.onclick = function() {
+                modal.style.display = 'none';
+                if (onConfirm) onConfirm();
+            };
+            document.getElementById('btn-confirm-cancel').onclick = function() {
+                modal.style.display = 'none';
+            };
+        };
+
+        const initAuth = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch(e) { window.showToast("Erro de Autenticação", "error"); }
+        };
+        initAuth();
+
+        onAuthStateChanged(auth, (u) => {
+            currentUser = u;
+            if (currentUser) {
+                const colRefContagens = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
+                onSnapshot(colRefContagens, (snapshot) => {
+                    const newContagens = [];
+                    snapshot.forEach(docSnap => newContagens.push({ id: docSnap.id, ...docSnap.data() }));
+                    contagens = newContagens.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+                    if (operadorAtual) window.render();
+                });
+                window.atualizarFiltrosDOM();
+            }
+        });
 
         const removerAcentos = (str) => {
             if (!str) return '';
@@ -719,27 +835,18 @@
             const pinAtualSalvo = localStorage.getItem('smart_chefe_pin_enc') ? 
                 CryptoJS.AES.decrypt(localStorage.getItem('smart_chefe_pin_enc'), _HASH_V).toString(CryptoJS.enc.Utf8) : '1234';
 
-            if (pinAntigo !== pinAtualSalvo) {
-                return window.showToast("O PIN atual inserido está incorreto!", "error");
-            }
-            if (pinNovo.length < 4) {
-                return window.showToast("O novo PIN deve conter pelo menos 4 dígitos!", "warning");
-            }
+            if (pinAntigo !== pinAtualSalvo) return window.showToast("O PIN atual está incorreto!", "error");
+            if (pinNovo.length < 4) return window.showToast("O PIN deve conter pelo menos 4 dígitos!", "warning");
 
-            const encPin = CryptoJS.AES.encrypt(pinNovo, _HASH_V).toString();
-            localStorage.setItem('smart_chefe_pin_enc', encPin);
+            localStorage.setItem('smart_chefe_pin_enc', CryptoJS.AES.encrypt(pinNovo, _HASH_V).toString());
             document.getElementById('pin-antigo').value = '';
             document.getElementById('pin-novo').value = '';
-            window.showToast("PIN de segurança atualizado com sucesso!", "success");
-            window.addLog("Alterou o PIN de segurança", "warning");
+            window.showToast("PIN atualizado com sucesso!", "success");
         }
 
         window.inserirSimbolo = function(simbolo) {
             const inputQtd = document.getElementById('m-qtd');
-            if (inputQtd) {
-                inputQtd.value += simbolo;
-                inputQtd.focus();
-            }
+            if (inputQtd) { inputQtd.value += simbolo; inputQtd.focus(); }
         };
 
         window.toggleModoGatilho = function() {
@@ -766,58 +873,12 @@
                 btnG.innerText = "🎯 A AGUARDAR LEITURA...";
                 btnG.style.background = "var(--green)";
             }
-            
             if (window.gatilhoTimeout) clearTimeout(window.gatilhoTimeout);
             window.gatilhoTimeout = setTimeout(() => {
                 window.resetarEstadoGatilho();
                 window.showToast("Gatilho expirado. Tente disparar novamente.", "warning");
             }, 4000);
         }
-
-        try {
-            const cachedCatalogEnc = localStorage.getItem('catalogo_local_enc');
-            if (cachedCatalogEnc) {
-                const bytes = CryptoJS.AES.decrypt(cachedCatalogEnc, _HASH_V);
-                const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
-                if (decryptedData) {
-                    baseDados = JSON.parse(decryptedData);
-                }
-            }
-        } catch (e) { console.error("Erro ao ler cache do catálogo seguro:", e); }
-
-        const initAuth = async () => {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch(e) { 
-                console.error("Erro Auth:", e);
-                window.showToast("Erro de Autenticação: " + e.message, "error");
-            }
-        };
-        initAuth();
-
-        onAuthStateChanged(auth, (u) => {
-            currentUser = u;
-            if (currentUser) {
-                const colRefContagens = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
-                onSnapshot(colRefContagens, (snapshot) => {
-                    const newContagens = [];
-                    snapshot.forEach(docSnap => { 
-                        newContagens.push({
-                            id: docSnap.id,
-                            ...docSnap.data()
-                        }); 
-                    });
-                    contagens = newContagens.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
-                    if (operadorAtual) window.render();
-                }, (error) => { console.error("Erro ao escutar contagens:", error); });
-                
-                window.atualizarFiltrosDOM();
-            }
-        });
 
         window.atualizarFiltrosDOM = function() {
             let locs = new Set();
@@ -831,75 +892,78 @@
             const alertaEl = document.getElementById('alerta-catalogo-vazio');
             
             if (baseDados.length > 0) {
-                if (statusEl) {
-                    statusEl.innerText = `📂 Memória: ${baseDados.length} itens carregados.`;
-                    statusEl.style.color = 'var(--green)';
-                }
+                if (statusEl) { statusEl.innerText = `📂 Memória: ${baseDados.length} itens carregados.`; statusEl.style.color = 'var(--green)'; }
                 if (alertaEl) alertaEl.style.display = 'none';
-                
                 document.getElementById('filtro-local-multi').innerHTML = Array.from(locs).sort().map((l, i) => `<div class="multi-select-item"><input type="checkbox" class="check-l" id="loc-${i}" value="${l}" checked><label for="loc-${i}">${l}</label></div>`).join('');
                 document.getElementById('filtro-family-multi').innerHTML = Array.from(fams).sort().map((f, i) => `<div class="multi-select-item"><input type="checkbox" class="check-f" id="fam-${i}" value="${f}" checked><label for="fam-${i}">${f}</label></div>`).join('');
             } else {
-                if (statusEl) {
-                    statusEl.innerText = "☁️ Memória local vazia.";
-                    statusEl.style.color = 'var(--orange)';
-                }
+                if (statusEl) { statusEl.innerText = "☁️ Memória local vazia."; statusEl.style.color = 'var(--orange)'; }
                 if (alertaEl && operadorAtual) alertaEl.style.display = 'block';
-                
                 document.getElementById('filtro-local-multi').innerHTML = `<small style="color:var(--gray); padding: 5px;">Importe o arquivo para ver locais...</small>`;
                 document.getElementById('filtro-family-multi').innerHTML = `<small style="color:var(--gray); padding: 5px;">Importe o arquivo para ver famílias...</small>`;
             }
         }
 
         window.limparCacheLocal = function() {
-            if (confirm("Deseja apagar a planilha carregada na memória do seu telemóvel? As contagens salvas na nuvem continuam salvas.")) {
+            window.customConfirm("Deseja apagar a planilha carregada na memória do dispositivo? As contagens da nuvem continuarão intocadas.", () => {
                 baseDados = [];
                 localStorage.removeItem('catalogo_local_enc');
                 window.atualizarFiltrosDOM();
                 window.render();
                 window.showToast("Cache do catálogo removida!", "success");
                 window.fecharModalConfig();
-            }
+            }, "btn-red");
         }
 
         window.checkLogin = function() {
             if (operadorAtual) {
-                document.getElementById('view-login').style.display = 'none';
-                document.getElementById('view-app').style.display = 'block';
-                document.getElementById('lbl-operador').innerText = `${operadorAtual}`;
-                document.getElementById('lbl-cargo').innerText = cargoAtual === 'CHEFE' ? 'Gestão' : 'Auditor';
+                const elLogin = document.getElementById('view-login');
+                const elApp = document.getElementById('view-app');
+                if (elLogin) elLogin.style.display = 'none';
+                if (elApp) elApp.style.display = 'block';
                 
+                const lblOp = document.getElementById('lbl-operador');
+                if (lblOp) lblOp.innerText = `${operadorAtual}`;
+                
+                const lblCargo = document.getElementById('lbl-cargo');
+                if (lblCargo) lblCargo.innerText = cargoAtual === 'CHEFE' ? 'Gestão' : 'Auditor';
+                
+                const elsToToggle = [
+                    'tab-relatorios',
+                    'mini-stat-financeiro',
+                    'chefe-export-area',
+                    'chefe-limpar-btn',
+                    'chefe-pdf-btn',
+                    'chefe-pin-change-area',
+                    'container-import-excel'
+                ];
+
                 if (cargoAtual === 'CHEFE') {
-                    document.getElementById('tab-relatorios').style.display = 'block';
-                    document.getElementById('dash-financeiro-container').style.display = 'flex';
-                    document.getElementById('chefe-export-area').style.display = 'flex';
-                    document.getElementById('chefe-limpar-btn').style.display = 'block';
-                    document.getElementById('chefe-buttons-area').style.display = 'grid';
-                    document.getElementById('chefe-pdf-btn').style.display = 'block';
-                    document.getElementById('chefe-pin-change-area').style.display = 'block';
-                    document.getElementById('container-import-excel').style.display = 'block';
-                    document.getElementById('app-badge-mode').innerText = '🛡️ GESTÃO ATIVA';
-                    document.getElementById('app-badge-mode').style.background = 'var(--orange)';
+                    elsToToggle.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) {
+                            if (id === 'mini-stat-financeiro' || id === 'chefe-export-area') el.style.display = 'flex';
+                            else el.style.display = 'block';
+                        }
+                    });
+                    const badge = document.getElementById('app-badge-mode');
+                    if (badge) { badge.innerText = '🛡️ GESTÃO ATIVA'; badge.style.background = 'var(--orange)'; }
                 } else {
-                    document.getElementById('tab-relatorios').style.display = 'none';
-                    document.getElementById('dash-financeiro-container').style.display = 'none';
-                    document.getElementById('chefe-export-area').style.display = 'none';
-                    document.getElementById('chefe-limpar-btn').style.display = 'none';
-                    document.getElementById('chefe-buttons-area').style.display = 'none';
-                    document.getElementById('chefe-pdf-btn').style.display = 'none';
-                    document.getElementById('chefe-pin-change-area').style.display = 'none';
-                    document.getElementById('container-import-excel').style.display = 'none';
-                    document.getElementById('app-badge-mode').innerText = '👤 AUDITORIA';
-                    document.getElementById('app-badge-mode').style.background = 'var(--blue)';
-                    
+                    elsToToggle.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) el.style.display = 'none';
+                    });
+                    const badge = document.getElementById('app-badge-mode');
+                    if (badge) { badge.innerText = '👤 AUDITORIA'; badge.style.background = 'var(--blue)'; }
                     window.mudarAba('auditoria');
                 }
-
                 window.atualizarFiltrosDOM();
                 window.render();
             } else {
-                document.getElementById('view-login').style.display = 'flex';
-                document.getElementById('view-app').style.display = 'none';
+                const elLogin = document.getElementById('view-login');
+                const elApp = document.getElementById('view-app');
+                if (elLogin) elLogin.style.display = 'flex';
+                if (elApp) elApp.style.display = 'none';
             }
         }
         
@@ -909,21 +973,15 @@
             const pinDigitado = document.getElementById('login-pin').value;
             
             if (!nome) return window.showToast('Digite o seu nome ou matrícula!', 'warning');
-            
             if (cargo === 'CHEFE') {
-                const pinSegurancaSalvo = localStorage.getItem('smart_chefe_pin_enc') ? 
-                    CryptoJS.AES.decrypt(localStorage.getItem('smart_chefe_pin_enc'), _HASH_V).toString(CryptoJS.enc.Utf8) : '1234';
-                if (pinDigitado !== pinSegurancaSalvo) {
-                    window.playBeep('error');
-                    return window.showToast('Código PIN de Acesso incorreto!', 'error');
-                }
+                const pinSegurancaSalvo = localStorage.getItem('smart_chefe_pin_enc') ? CryptoJS.AES.decrypt(localStorage.getItem('smart_chefe_pin_enc'), _HASH_V).toString(CryptoJS.enc.Utf8) : '1234';
+                if (pinDigitado !== pinSegurancaSalvo) { window.playBeep('error'); return window.showToast('Código PIN de Acesso incorreto!', 'error'); }
                 cargoAtual = 'CHEFE';
             } else {
                 cargoAtual = 'OPERADOR';
             }
 
             operadorAtual = nome;
-            
             localStorage.setItem('op_enc', CryptoJS.AES.encrypt(operadorAtual, _HASH_V).toString());
             localStorage.setItem('cargo_enc', CryptoJS.AES.encrypt(cargoAtual, _HASH_V).toString());
             
@@ -933,7 +991,7 @@
         }
         
         window.fazerLogout = function() {
-            if(confirm("Deseja sair da sessão atual?")) {
+            window.customConfirm("Deseja sair de forma segura da sessão atual?", () => {
                 operadorAtual = '';
                 cargoAtual = 'OPERADOR';
                 localStorage.removeItem('op_enc');
@@ -941,7 +999,7 @@
                 document.getElementById('login-nome').value = '';
                 document.getElementById('login-pin').value = '';
                 window.checkLogin();
-            }
+            }, "btn-red");
         }
 
         window.toggleDarkMode = function() {
@@ -993,7 +1051,6 @@
 
         window.abrirModalConfig = function() { document.getElementById('modal-config').style.display = "flex"; }
         window.fecharModalConfig = function() { document.getElementById('modal-config').style.display = "none"; }
-        
         window.abrirModalLog = function() { document.getElementById('modal-log').style.display = "flex"; }
         window.fecharModalLog = function() { document.getElementById('modal-log').style.display = "none"; }
 
@@ -1001,102 +1058,66 @@
             window.desligarCamModal(); 
             document.getElementById('modal').style.display = "none"; 
             indexEdicao = -1; 
-            diasParaVencer = null; 
         }
 
         window.getLocsSel = function() { return Array.from(document.querySelectorAll('.check-l:checked')).map(cb => cb.value); }
 
-        window.verPendentes = function() {
-            if (cargoAtual !== 'CHEFE') return window.showToast("Erro de permissão!", "error");
-            if(baseDados.length === 0) return window.showToast("Importe primeiro o arquivo local!", "error");
-            const lS = window.getLocsSel(); const fS = Array.from(document.querySelectorAll('.check-f:checked')).map(cb => cb.value);
-            const pendentes = baseDados.filter(i => !contagens.some(c => c.codigo === i.codigo && c.local === i.local) && (lS.length === 0 || lS.includes(i.local)) && (fS.length === 0 || fS.includes(i.familia)));
-            const res = document.getElementById('resultados'); 
-            res.innerHTML = `<div style="padding:16px; font-weight:800; background:var(--orange); color:#fff; text-align:center; border-radius:12px; margin-bottom:12px; font-size: 14px; box-shadow: 0 4px 10px rgba(245,158,11,0.3);">LISTA DE PENDENTES (${pendentes.length})</div>`;
-            pendentes.slice(0, 30).forEach(i => { 
-                const d = document.createElement('div'); d.className = 'item-res'; 
-                d.innerHTML = `<strong>${i.descricao}</strong><br><small style="color:var(--red); font-weight:600;">PENDENTE EM: ${i.local}</small>`; 
-                d.onclick = () => { indexEdicao = -1; window.abrirModal(i, false); }; res.appendChild(d); 
-            });
-            document.getElementById('busca-input').value = ''; window.fecharModalConfig();
-        }
-
         window.zerarNaoContados = async function() {
-            if (cargoAtual !== 'CHEFE') return window.showToast("Erro: Apenas o Chefe de Setor pode realizar esta ação!", "error");
-            if (!currentUser) return window.showToast("Sem ligação à nuvem.", "error");
-            if(baseDados.length === 0) return window.showToast("Carregue o arquivo local primeiro!", "error");
-            const lS = window.getLocsSel(); const fS = Array.from(document.querySelectorAll('.check-f:checked')).map(cb => cb.value);
-            const pendentes = baseDados.filter(i => !contagens.some(c => c.codigo === i.codigo && c.local === i.local) && (lS.length === 0 || lS.includes(i.local)) && (fS.length === 0 || fS.includes(i.familia)));
-            if(pendentes.length === 0) return window.showToast("Nenhum produto pendente!", "info");
+            if (cargoAtual !== 'CHEFE') return window.showToast("Erro de permissão! Apenas chefias.", "error");
+            if (!currentUser) return window.showToast("Falha: Sem ligação à nuvem.", "error");
+            if(baseDados.length === 0) return window.showToast("O catálogo local está vazio!", "error");
             
-            if(confirm(`Zerar no sistema as contagens de ${pendentes.length} produtos pendentes na zona selecionada?`)) {
-                window.showToast("A registar zeramentos na nuvem...", "info");
+            const pendentes = baseDados.filter(i => !contagens.some(c => c.codigo === i.codigo && c.local === i.local));
+            if(pendentes.length === 0) return window.showToast("Perfeito! Não há produtos pendentes.", "info");
+            
+            window.customConfirm(`Atenção: Existem ${pendentes.length} produtos não auditados na base de dados. Confirma a inserção de QTD Zero nestes itens em lote?`, async () => {
+                window.showToast("A registar zeramentos em bloco...", "info");
                 const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
                 
                 let batch = writeBatch(db);
-                let opCount = 0;
-                let totalZeradados = 0;
+                let opCount = 0; let totalZeradados = 0;
 
                 for (const i of pendentes) {
                     const cleanCod = String(i.codigo || '').replace(/[^a-zA-Z0-9]/g, '');
                     const cleanLoc = String(i.local || '').replace(/[^a-zA-Z0-9]/g, '');
                     const docId = `${cleanCod}_${cleanLoc}`;
                     const payload = {
-                        codigo: i.codigo,
-                        descricao: i.descricao,
-                        local: i.local,
-                        sistema: i.sistema,
-                        unidade: i.unidade,
-                        familia: i.familia,
-                        cmc: i.cmc,
-                        fisico: 0, 
-                        dif: 0 - i.sistema, 
-                        cmc_unitario: i.cmc || 0, 
-                        gtin: i.gtin || '',
-                        lote: "", 
-                        validade: "", 
-                        obs: "PRODUTO NÃO ENCONTRADO", 
-                        operador: operadorAtual, 
-                        data: new Date().toLocaleString('pt-PT'), 
-                        timestamp: Date.now()
+                        codigo: i.codigo, descricao: i.descricao, local: i.local,
+                        sistema: i.sistema, unidade: i.unidade, familia: i.familia, cmc: i.cmc,
+                        fisico: 0, dif: 0 - i.sistema, cmc_unitario: i.cmc || 0, gtin: i.gtin || '',
+                        lote: "", validade: "", obs: "REGISTO ZERADO AUTOMATICAMENTE", 
+                        operador: operadorAtual, data: new Date().toLocaleString('pt-PT'), timestamp: Date.now()
                     };
                     
                     batch.set(doc(colRef, docId), payload);
-                    opCount++;
-                    totalZeradados++;
+                    opCount++; totalZeradados++;
 
                     if (opCount >= 100) {
                         await batch.commit();
-                        batch = writeBatch(db);
-                        opCount = 0;
+                        batch = writeBatch(db); opCount = 0;
                     }
                 }
+                if (opCount > 0) await batch.commit();
 
-                if (opCount > 0) {
-                    await batch.commit();
-                }
-
-                window.addLog(`Zerou ${totalZeradados} itens.`, 'warning'); 
-                window.showToast("Inventário restante zerado!", "success"); 
-                window.fecharModalConfig();
-            }
+                window.addLog(`Limpeza: Zerou ${totalZeradados} itens.`, 'warning'); 
+                window.showToast("Inventário restante zerado com sucesso!", "success"); 
+            }, "btn-red");
         }
 
         window.excluirContagemEspecifica = async function() { 
-            if (!currentUser) return window.showToast("Sem ligação à nuvem.", "error");
+            if (!currentUser) return window.showToast("Falha de rede. Nuvem inativa.", "error");
             if (indexEdicao !== -1) { 
                 const item = contagens[indexEdicao];
-                
                 if (cargoAtual !== 'CHEFE' && item.operador !== operadorAtual) {
                     window.playBeep('error');
-                    return window.showToast("Segurança: Não tem permissão para apagar contagens de outros operadores!", "error");
+                    return window.showToast("Violação: Edição exclusiva do criador do registo!", "error");
                 }
                 
-                if (confirm(`Tem a certeza absoluta que deseja APAGAR a contagem de "${item.descricao}" realizada por ${item.operador}?`)) { 
+                window.customConfirm(`Confirma a ELIMINAÇÃO PERMANENTE do registo auditado de "${item.descricao}" por ${item.operador}?`, async () => {
                     await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'contagens', item.id));
-                    window.addLog("Apagou registo: " + item.descricao, "error");
+                    window.addLog("Registo Apagado: " + item.descricao, "error");
                     window.fecharModal(); 
-                } 
+                }, "btn-red");
             } 
         }
 
@@ -1111,28 +1132,18 @@
             const readerDiv = document.getElementById('reader-modal');
             if (btn.innerText.includes("LER GTIN")) {
                 readerDiv.style.display = "block";
-                btn.innerText = "🛑 PARAR";
-                btn.className = "btn-red";
-                if (!window.html5QrCodeModal) {
-                    window.html5QrCodeModal = new Html5Qrcode("reader-modal");
-                }
+                btn.innerText = "🛑 PARAR"; btn.className = "btn-red";
+                if (!window.html5QrCodeModal) window.html5QrCodeModal = new Html5Qrcode("reader-modal");
                 try {
-                    await window.html5QrCodeModal.start(
-                        { facingMode: "environment" },
-                        { fps: 10, qrbox: 250 },
+                    await window.html5QrCodeModal.start( { facingMode: "environment" }, { fps: 10, qrbox: 250 },
                         (txt) => {
                             window.playBeep('success');
                             document.getElementById('m-gtin-edit').value = txt.trim().toUpperCase();
                             window.desligarCamModal();
                         }
                     );
-                } catch (err) {
-                    window.showToast("Acesso negado à câmara.", "error");
-                    window.desligarCamModal();
-                }
-            } else {
-                window.desligarCamModal();
-            }
+                } catch (err) { window.showToast("Acesso à câmara interrompido.", "error"); window.desligarCamModal(); }
+            } else { window.desligarCamModal(); }
         };
 
         window.desligarCamModal = function() {
@@ -1140,25 +1151,15 @@
                 const rDiv = document.getElementById('reader-modal');
                 if (rDiv) rDiv.style.display = "none";
                 const btn = document.getElementById('btn-ler-gtin-modal');
-                if (btn) {
-                    btn.innerText = "📷 LER GTIN";
-                    btn.className = "btn-orange";
-                }
+                if (btn) { btn.innerText = "📷 LER GTIN"; btn.className = "btn-orange"; }
             };
             if (window.html5QrCodeModal) {
                 try {
                     const stopPromise = window.html5QrCodeModal.stop();
-                    if (stopPromise) {
-                        stopPromise.then(() => resetUI()).catch(() => resetUI());
-                    } else {
-                        resetUI();
-                    }
-                } catch (err) {
-                    resetUI();
-                }
-            } else {
-                resetUI();
-            }
+                    if (stopPromise) stopPromise.then(() => resetUI()).catch(() => resetUI());
+                    else resetUI();
+                } catch (err) { resetUI(); }
+            } else { resetUI(); }
         };
 
         window.abrirModal = function(item, isNovo) {
@@ -1187,10 +1188,7 @@
             if (idxAnt !== -1) {
                 const itemContado = contagens[idxAnt];
                 alertDup.style.display = 'block';
-                alertDup.style.background = 'rgba(245, 158, 11, 0.15)';
-                alertDup.style.color = 'var(--orange)';
                 alertDup.innerHTML = `⚠️ JÁ CONTADO POR <strong>${itemContado.operador || 'OUTRO OPERADOR'}</strong><br>Qtd Atual Lançada: <strong>${itemContado.fisico} ${itemContado.unidade || 'UN'}</strong>`;
-                
                 document.getElementById('btn-salvar-normal').style.display = 'none';
                 document.getElementById('botoes-duplicado').style.display = 'flex';
             } else {
@@ -1200,10 +1198,8 @@
             }
 
             if (indexEdicao === -1) {
-                document.getElementById('m-qtd').value = ''; 
-                document.getElementById('m-lote').value = '';
-                document.getElementById('m-validade').value = ''; 
-                document.getElementById('m-obs').value = ''; 
+                document.getElementById('m-qtd').value = ''; document.getElementById('m-lote').value = '';
+                document.getElementById('m-validade').value = ''; document.getElementById('m-obs').value = ''; 
                 document.getElementById('btn-excluir-item').style.display = 'none';
             } else { 
                 document.getElementById('btn-excluir-item').style.display = 'block'; 
@@ -1212,10 +1208,10 @@
         }
 
         window.salvarFinal = function(modo) {
-            if (!currentUser) return window.showToast("A aguardar ligação à nuvem...", "error");
+            if (!currentUser) return window.showToast("Ligação à nuvem inativa.", "error");
             window.esteCalculo(document.getElementById('m-qtd')); 
             const qVal = document.getElementById('m-qtd').value; 
-            if (!qVal) return window.showToast("Digite a Quantidade Física apurada!", "warning");
+            if (!qVal) return window.showToast("Introduza a Quantidade Física aferida!", "warning");
             let novaQtd = parseFloat(qVal);
             
             itemAtual.descricao = document.getElementById('m-nome-edit').value.toUpperCase(); 
@@ -1223,7 +1219,6 @@
             
             let novoGtin = document.getElementById('m-gtin-edit').value.trim().toUpperCase();
             itemAtual.gtin = novoGtin;
-
             let obs = document.getElementById('m-obs').value.toUpperCase();
             
             const idxAnt = contagens.findIndex(c => c.codigo === itemAtual.codigo && c.local === itemAtual.local);
@@ -1232,14 +1227,12 @@
             if (indexEdicao !== -1) { 
                 targetId = contagens[indexEdicao].id; 
                 if (cargoAtual !== 'CHEFE' && contagens[indexEdicao].operador !== operadorAtual) {
-                    window.playBeep('error');
-                    return window.showToast("Segurança: Não tem permissão para alterar dados de outros operadores!", "error");
+                    window.playBeep('error'); return window.showToast("Segurança restringe edição alheia!", "error");
                 }
             } else if (idxAnt !== -1) { 
                 targetId = contagens[idxAnt].id; 
                 if (cargoAtual !== 'CHEFE' && contagens[idxAnt].operador !== operadorAtual) {
-                    window.playBeep('error');
-                    return window.showToast("Segurança: Este produto já foi contado por outro colega!", "error");
+                    window.playBeep('error'); return window.showToast("Produto previamente contabilizado por colega!", "error");
                 }
                 if(modo === 'somar') novaQtd += Number(contagens[idxAnt].fisico || 0); 
             }
@@ -1251,70 +1244,45 @@
             const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
 
             const payload = {
-                codigo: itemAtual.codigo,
-                descricao: itemAtual.descricao,
-                local: itemAtual.local,
-                sistema: itemAtual.sistema || 0,
-                unidade: itemAtual.unidade || 'UN',
-                familia: itemAtual.familia || 'SEM FAMÍLIA',
-                cmc: itemAtual.cmc || 0,
-                fisico: novaQtd, 
-                dif: novaQtd - (itemAtual.sistema || 0), 
-                cmc_unitario: itemAtual.cmc || 0, 
-                gtin: novoGtin, 
-                lote: document.getElementById('m-lote').value.toUpperCase(), 
-                validade: document.getElementById('m-validade').value, 
-                obs: obs, 
-                operador: operadorAtual, 
-                data: new Date().toLocaleString('pt-PT'), 
-                timestamp: Date.now()
+                codigo: itemAtual.codigo, descricao: itemAtual.descricao, local: itemAtual.local,
+                sistema: itemAtual.sistema || 0, unidade: itemAtual.unidade || 'UN', familia: itemAtual.familia || 'SEM FAMÍLIA',
+                cmc: itemAtual.cmc || 0, fisico: novaQtd, dif: novaQtd - (itemAtual.sistema || 0), 
+                cmc_unitario: itemAtual.cmc || 0, gtin: novoGtin, lote: document.getElementById('m-lote').value.toUpperCase(), 
+                validade: document.getElementById('m-validade').value, obs: obs, operador: operadorAtual, 
+                data: new Date().toLocaleString('pt-PT'), timestamp: Date.now()
             };
             
             const baseIdx = baseDados.findIndex(b => b.codigo === itemAtual.codigo && b.local === itemAtual.local);
             if (baseIdx !== -1) {
                 baseDados[baseIdx].gtin = novoGtin;
-                try {
-                    localStorage.setItem('catalogo_local_enc', CryptoJS.AES.encrypt(JSON.stringify(baseDados), _HASH_V).toString());
-                } catch (e) { console.error(e); }
+                try { localStorage.setItem('catalogo_local_enc', CryptoJS.AES.encrypt(JSON.stringify(baseDados), _HASH_V).toString()); } catch (e) { }
             }
 
             window.fecharModal(); 
-            const buscaInput = document.getElementById('busca-input');
-            if (buscaInput) buscaInput.value = '';
-            const resultados = document.getElementById('resultados');
-            if (resultados) resultados.innerHTML = '';
+            const buscaInput = document.getElementById('busca-input'); if (buscaInput) buscaInput.value = '';
+            const resultados = document.getElementById('resultados'); if (resultados) resultados.innerHTML = '';
             
-            window.showToast("A sincronizar com a nuvem...", "info");
+            window.showToast("A transferir dados...", "info");
 
             setDoc(doc(colRef, docId), payload).then(() => {
-                window.showToast("Registo Salvo com Sucesso", "success"); 
+                window.showToast("Gravação Confirmada", "success"); 
                 window.addLog(modo === 'somar' ? '+' : '' + " " + novaQtd + "x " + itemAtual.descricao);
-            }).catch((e) => {
-                console.error("Erro ao salvar contagem:", e);
-                window.showToast("Falha na comunicação com o banco de dados!", "error");
-            });
+            }).catch((e) => { window.showToast("Erro ao contatar os blocos de dados!", "error"); });
         }
 
         window.render = function() {
             if (!operadorAtual) return;
-            const b = document.getElementById('tabela-body'); 
-            if (!b) return;
+            const b = document.getElementById('tabela-body'); if (!b) return;
             const isCego = document.getElementById('modo-cego')?.checked;
             const colSistElements = document.querySelectorAll('.col-sist');
             colSistElements.forEach(el => el.style.display = isCego ? 'none' : 'table-cell');
 
-            let pT = 0; 
-            let financeiro = 0; 
-            let html = '';
+            let pT = 0; let financeiro = 0; let html = '';
             
             contagens.forEach((i, idx) => {
-                const fisico = Number(i.fisico) || 0;
-                const sistema = Number(i.sistema) || 0;
-                const dif = Number(i.dif) || (fisico - sistema);
-                const cmc = Number(i.cmc_unitario) || Number(i.cmc) || 0;
-                
-                pT += fisico; 
-                financeiro += (dif * cmc);
+                const fisico = Number(i.fisico) || 0; const sistema = Number(i.sistema) || 0;
+                const dif = Number(i.dif) || (fisico - sistema); const cmc = Number(i.cmc_unitario) || Number(i.cmc) || 0;
+                pT += fisico; financeiro += (dif * cmc);
                 
                 if (idx < 100) {
                     html += `<tr onclick="editarContagem(${idx})">
@@ -1329,17 +1297,14 @@
             if (contagens.length > 100) html += `<tr><td colspan="5" style="color:var(--gray); padding:20px; font-size: 11px;">Apenas as últimas 100 contagens são exibidas no ecrã.</td></tr>`;
             
             b.innerHTML = html; 
-            document.getElementById('dash-skus').innerText = contagens.length; 
-            document.getElementById('dash-pecas').innerText = pT.toFixed(2);
-            document.getElementById('dash-financeiro').innerText = isCego ? "🛡️ Oculto" : "R$ " + financeiro.toLocaleString('pt-PT', {minimumFractionDigits: 2});
+            if (document.getElementById('dash-skus')) document.getElementById('dash-skus').innerText = contagens.length; 
+            if (document.getElementById('dash-pecas')) document.getElementById('dash-pecas').innerText = pT.toFixed(2);
+            if (document.getElementById('dash-financeiro')) document.getElementById('dash-financeiro').innerText = isCego ? "🛡️ Oculto" : "R$ " + financeiro.toLocaleString('pt-PT', {minimumFractionDigits: 2});
             window.atualizarRelatorios();
         }
 
         window.mudarAba = function(aba) {
-            if (aba === 'relatorios' && cargoAtual !== 'CHEFE') {
-                window.showToast("Área restrita. Apenas a Gestão tem acesso aos relatórios!", "error");
-                return;
-            }
+            if (aba === 'relatorios' && cargoAtual !== 'CHEFE') return window.showToast("Área restrita à Gestão!", "error");
             document.getElementById('view-auditoria').style.display = aba === 'auditoria' ? 'block' : 'none';
             document.getElementById('view-relatorios').style.display = aba === 'relatorios' ? 'block' : 'none';
             document.getElementById('tab-auditoria').className = aba === 'auditoria' ? 'tab-btn active' : 'tab-btn';
@@ -1359,10 +1324,8 @@
 
             let sobraFin = 0, quebraFin = 0; 
             contagens.forEach(i => { 
-                const fisico = Number(i.fisico) || 0;
-                const sistema = Number(i.sistema) || 0;
-                const dif = Number(i.dif) || (fisico - sistema);
-                const cmc = Number(i.cmc_unitario) || Number(i.cmc) || 0;
+                const fisico = Number(i.fisico) || 0; const sistema = Number(i.sistema) || 0;
+                const dif = Number(i.dif) || (fisico - sistema); const cmc = Number(i.cmc_unitario) || Number(i.cmc) || 0;
                 const impacto = dif * cmc; 
                 if (dif > 0) sobraFin += impacto; 
                 else if (dif < 0) quebraFin += Math.abs(impacto); 
@@ -1373,27 +1336,16 @@
             const furosBody = document.getElementById('tabela-furos-body');
             if (furosBody) {
                 const topFuros = [...contagens].filter(i => {
-                    const fisico = Number(i.fisico) || 0;
-                    const sistema = Number(i.sistema) || 0;
-                    const dif = Number(i.dif) || (fisico - sistema);
-                    return dif !== 0;
+                    const fisico = Number(i.fisico) || 0; const sistema = Number(i.sistema) || 0;
+                    return (Number(i.dif) || (fisico - sistema)) !== 0;
                 }).sort((a, b) => {
-                    const difA = Number(a.dif) || 0;
-                    const cmcA = Number(a.cmc_unitario) || 0;
-                    const difB = Number(b.dif) || 0;
-                    const cmcB = Number(b.cmc_unitario) || 0;
-                    return Math.abs(difB * cmcB) - Math.abs(difA * cmcA);
+                    return Math.abs((Number(b.dif)||0) * (Number(b.cmc_unitario)||0)) - Math.abs((Number(a.dif)||0) * (Number(a.cmc_unitario)||0));
                 }).slice(0, 5);
 
-                if (topFuros.length === 0) {
-                    furosBody.innerHTML = `<tr><td colspan="3" style="color:var(--gray); padding:20px;">Auditoria perfeitamente alinhada. Sem divergências.</td></tr>`;
-                } else {
+                if (topFuros.length === 0) furosBody.innerHTML = `<tr><td colspan="3" style="color:var(--gray); padding:20px;">Auditoria perfeitamente alinhada. Sem divergências.</td></tr>`;
+                else {
                     furosBody.innerHTML = topFuros.map(i => { 
-                        const fisico = Number(i.fisico) || 0;
-                        const sistema = Number(i.sistema) || 0;
-                        const dif = Number(i.dif) || (fisico - sistema);
-                        const cmc = Number(i.cmc_unitario) || Number(i.cmc) || 0;
-                        const impacto = dif * cmc; 
+                        const dif = Number(i.dif) || 0; const impacto = dif * (Number(i.cmc_unitario) || 0); 
                         const fill = impacto > 0 ? 'color: var(--green)' : 'color: var(--red)'; 
                         return `<tr>
                             <td style="text-align: left; font-size: 11px;">${(i.descricao || '').substring(0, 30)}...</td>
@@ -1413,17 +1365,12 @@
                     familiasObj[fam] += (Number(i.fisico) || 0); 
                 });
                 const topFamilias = Object.keys(familiasObj).map(k => ({ familia: k, qtd: familiasObj[k] })).sort((a, b) => b.qtd - a.qtd).slice(0, 5);
-                if (topFamilias.length === 0) {
-                    chartContainer.innerHTML = '<p style="font-size:12px; color:var(--gray); text-align:center; margin: 0;">Sem atividade contabilizada.</p>';
-                } else { 
+                if (topFamilias.length === 0) chartContainer.innerHTML = '<p style="font-size:12px; color:var(--gray); text-align:center; margin: 0;">Sem atividade contabilizada.</p>';
+                else { 
                     const maxQtd = topFamilias[0].qtd; 
                     chartContainer.innerHTML = topFamilias.map(f => { 
                         const widthPct = maxQtd > 0 ? (f.qtd / maxQtd) * 100 : 0; 
-                        return `<div class="chart-row">
-                            <div class="chart-label" title="${f.familia}">${f.familia}</div>
-                            <div class="chart-bar-container"><div class="chart-bar" style="width: ${widthPct}%"></div></div>
-                            <div class="chart-value">${f.qtd.toLocaleString('pt-PT', {maximumFractionDigits: 2})}</div>
-                        </div>`; 
+                        return `<div class="chart-row"><div class="chart-label" title="${f.familia}">${f.familia}</div><div class="chart-bar-container"><div class="chart-bar" style="width: ${widthPct}%"></div></div><div class="chart-value">${f.qtd.toLocaleString('pt-PT', {maximumFractionDigits: 2})}</div></div>`; 
                     }).join(''); 
                 }
             }
@@ -1443,97 +1390,66 @@
                         pendentesBody.innerHTML = `<tr><td colspan="3" style="color:var(--green); font-weight:800; padding:30px; text-align:center; font-size: 14px;">Missão cumprida! Todos os produtos foram verificados. 🎉</td></tr>`;
                     } else {
                         const itemsToRender = pendentes.slice(0, 150);
-                        let htmlPendentes = itemsToRender.map(i => {
-                            return `<tr>
+                        let htmlPendentes = itemsToRender.map(i => `<tr>
                                 <td style="text-align: left; font-size: 11px; padding: 12px;">${(i.descricao || '').substring(0, 35)}...<br><small style="color:var(--gray); font-weight:normal;">Cód: ${i.codigo}</small></td>
                                 <td style="font-size: 11px; padding: 12px;">${i.local}</td>
                                 <td style="font-weight: 800; padding: 12px; color: var(--blue);">${i.sistema || 0}</td>
-                            </tr>`;
-                        }).join('');
-
-                        if (pendentes.length > 150) {
-                            htmlPendentes += `<tr><td colspan="3" style="color:var(--gray); font-size: 11px; padding:16px; text-align:center;">Estão visíveis os primeiros 150 registos pendentes de um total de ${pendentes.length}.</td></tr>`;
-                        }
+                            </tr>`).join('');
+                        if (pendentes.length > 150) htmlPendentes += `<tr><td colspan="3" style="color:var(--gray); font-size: 11px; padding:16px; text-align:center;">Estão visíveis os primeiros 150 registos pendentes de um total de ${pendentes.length}.</td></tr>`;
                         pendentesBody.innerHTML = htmlPendentes;
                     }
                 }
             }
 
-            // ATUALIZAR LISTAS DE VALIDADES (VENCIDOS E A VENCER)
             const vencidosBody = document.getElementById('tabela-vencidos-body');
-            const qtdVencidosRel = document.getElementById('qtd-vencidos-rel');
             const avencerBody = document.getElementById('tabela-avencer-body');
-            const qtdAvencerRel = document.getElementById('qtd-avencer-rel');
-
             if (vencidosBody && avencerBody) {
-                let listaVencidos = [];
-                let listaAVencer = [];
-                
-                const hoje = new Date();
-                hoje.setHours(0,0,0,0);
+                let listaVencidos = []; let listaAVencer = [];
+                const hoje = new Date(); hoje.setHours(0,0,0,0);
 
                 contagens.forEach(c => {
                     if (c.validade && c.validade.trim() !== '') {
-                        const parts = c.validade.split('-'); // Formato HTML Date é YYYY-MM-DD
+                        const parts = c.validade.split('-'); 
                         if (parts.length === 3) {
-                            const dataValidade = new Date(parts[0], parts[1] - 1, parts[2]);
-                            dataValidade.setHours(0,0,0,0);
-                            
-                            const diffTime = dataValidade.getTime() - hoje.getTime();
-                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                            
-                            const dataFormatada = `${parts[2]}/${parts[1]}/${parts[0]}`;
-                            const itemFormatado = { ...c, diffDays, dataFormatada };
-
-                            if (diffDays < 0) {
-                                listaVencidos.push(itemFormatado);
-                            } else if (diffDays <= 30) {
-                                listaAVencer.push(itemFormatado);
-                            }
+                            const dataValidade = new Date(parts[0], parts[1] - 1, parts[2]); dataValidade.setHours(0,0,0,0);
+                            const diffDays = Math.ceil((dataValidade.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24));
+                            const itemFormatado = { ...c, diffDays, dataFormatada: `${parts[2]}/${parts[1]}/${parts[0]}` };
+                            if (diffDays < 0) listaVencidos.push(itemFormatado);
+                            else if (diffDays <= 30) listaAVencer.push(itemFormatado);
                         }
                     }
                 });
 
-                // Ordenar: mais críticos primeiro (menor data)
                 listaVencidos.sort((a, b) => a.diffDays - b.diffDays);
                 listaAVencer.sort((a, b) => a.diffDays - b.diffDays);
 
-                qtdVencidosRel.innerText = listaVencidos.length;
-                qtdAvencerRel.innerText = listaAVencer.length;
+                document.getElementById('qtd-vencidos-rel').innerText = listaVencidos.length;
+                document.getElementById('qtd-avencer-rel').innerText = listaAVencer.length;
 
-                // Renderizar Produtos Vencidos
-                if (listaVencidos.length === 0) {
-                    vencidosBody.innerHTML = `<tr><td colspan="3" style="color:var(--green); font-weight:800; padding:20px; text-align:center;">Nenhum produto vencido registado! 🎉</td></tr>`;
-                } else {
-                    vencidosBody.innerHTML = listaVencidos.map(i => `<tr>
+                if (listaVencidos.length === 0) vencidosBody.innerHTML = `<tr><td colspan="3" style="color:var(--green); font-weight:800; padding:20px; text-align:center;">Nenhum produto vencido registado! 🎉</td></tr>`;
+                else vencidosBody.innerHTML = listaVencidos.map(i => `<tr>
                         <td style="text-align: left; font-size: 11px; padding: 12px;">${(i.descricao || '').substring(0, 30)}...<br><small style="color:var(--gray); font-weight:normal;">Qtd: <b>${i.fisico}</b> ${i.unidade || 'UN'}</small></td>
                         <td style="font-size: 11px; padding: 12px; font-weight:700;">${i.lote || '-'}</td>
                         <td style="font-weight: 800; padding: 12px; color: var(--red);">${i.dataFormatada}</td>
                     </tr>`).join('');
-                }
 
-                // Renderizar Produtos a Vencer
-                if (listaAVencer.length === 0) {
-                    avencerBody.innerHTML = `<tr><td colspan="3" style="color:var(--green); font-weight:800; padding:20px; text-align:center;">Nenhum produto a vencer em 30 dias! 🎉</td></tr>`;
-                } else {
-                    avencerBody.innerHTML = listaAVencer.map(i => `<tr>
+                if (listaAVencer.length === 0) avencerBody.innerHTML = `<tr><td colspan="3" style="color:var(--green); font-weight:800; padding:20px; text-align:center;">Nenhum produto a vencer em 30 dias! 🎉</td></tr>`;
+                else avencerBody.innerHTML = listaAVencer.map(i => `<tr>
                         <td style="text-align: left; font-size: 11px; padding: 12px;">${(i.descricao || '').substring(0, 30)}...<br><small style="color:var(--gray); font-weight:normal;">Qtd: <b>${i.fisico}</b> ${i.unidade || 'UN'}</small></td>
                         <td style="font-size: 11px; padding: 12px; font-weight:700;">${i.lote || '-'}</td>
                         <td style="padding: 12px; color: var(--orange);"><strong style="font-size: 12px;">${i.dataFormatada}</strong><br><small style="font-size: 9px; font-weight: 700;">(em ${i.diffDays} dias)</small></td>
                     </tr>`).join('');
-                }
             }
         }
 
         window.imprimirPDF = function() { 
-            if (cargoAtual !== 'CHEFE') return window.showToast("Operação não autorizada. Privilégio insuficiente.", "error");
-            document.getElementById('print-data').innerText = "Documento Oficial Gerado em: " + new Date().toLocaleString('pt-PT'); 
+            if (cargoAtual !== 'CHEFE') return window.showToast("Operação restrita. Privilégio insuficiente.", "error");
+            document.getElementById('print-data').innerText = "Documento Gerado em: " + new Date().toLocaleString('pt-PT'); 
             window.print(); 
         }
         
         window.editarContagem = function(idx) { 
-            indexEdicao = idx; 
-            window.abrirModal(contagens[idx], false); 
+            indexEdicao = idx; window.abrirModal(contagens[idx], false); 
             document.getElementById('m-qtd').value = contagens[idx].fisico; 
             document.getElementById('m-lote').value = contagens[idx].lote || ''; 
             document.getElementById('m-validade').value = contagens[idx].validade || ''; 
@@ -1545,80 +1461,51 @@
             if (contagens.length === 0) return window.showToast("A base de dados encontra-se vazia.", "warning"); 
             
             const dataToExport = (t === 'erros' ? contagens.filter(i => i.dif !== 0) : contagens).map(c => ({
-                "Código do Produto": c.codigo || '',
-                "Descrição do Produto": c.descricao || '',
-                "Família de Produto": c.familia || '',
-                "Código EAN / GTIN (Atualizado)": c.gtin || '', 
-                "Unidade": c.unidade || '',
-                "Quantidade Sistema": Number(c.sistema) || 0,
-                "Quantidade Física": Number(c.fisico) || 0,
-                "Diferença": Number(c.dif) || 0,
-                "CMC Unitário": Number(c.cmc_unitario) || 0,
-                "Impacto Financeiro": (Number(c.dif) || 0) * (Number(c.cmc_unitario) || 0),
-                "Local de Estoque": c.local || '',
-                "Lote": c.lote || '',
-                "Validade": c.validade || '',
-                "Observações": c.obs || '',
-                "Operador Auditor": c.operador || '',
-                "Registo Temporal": c.data || ''
+                "Código do Produto": c.codigo || '', "Descrição do Produto": c.descricao || '', "Família de Produto": c.familia || '',
+                "Código EAN / GTIN (Atualizado)": c.gtin || '', "Unidade": c.unidade || '', "Quantidade Sistema": Number(c.sistema) || 0,
+                "Quantidade Física": Number(c.fisico) || 0, "Diferença": Number(c.dif) || 0, "CMC Unitário": Number(c.cmc_unitario) || 0,
+                "Impacto Financeiro": (Number(c.dif) || 0) * (Number(c.cmc_unitario) || 0), "Local de Estoque": c.local || '',
+                "Lote": c.lote || '', "Validade": c.validade || '', "Observações": c.obs || '', "Operador Auditor": c.operador || '', "Registo Temporal": c.data || ''
             }));
 
-            const ws = XLSX.utils.json_to_sheet(dataToExport); 
-            const wb = XLSX.utils.book_new(); 
-            XLSX.utils.book_append_sheet(wb, ws, "Auditoria"); 
-            XLSX.writeFile(wb, `Inventario_Sincronizado_${new Date().toLocaleDateString('pt-PT').replace(/\//g,'-')}.xlsx`); 
+            const ws = XLSX.utils.json_to_sheet(dataToExport); const wb = XLSX.utils.book_new(); 
+            XLSX.utils.book_append_sheet(wb, ws, "Auditoria"); XLSX.writeFile(wb, `Inventario_Sincronizado_${new Date().toLocaleDateString('pt-PT').replace(/\//g,'-')}.xlsx`); 
         }
 
         window.baixarPendentesExcel = function() {
             if (cargoAtual !== 'CHEFE') return window.showToast("Operação bloqueada! Credenciais de gestão necessárias.", "error");
-            
             const pendentes = baseDados.filter(i => !contagens.some(c => c.codigo === i.codigo && c.local === i.local));
             if (pendentes.length === 0) return window.showToast("Não existem produtos pendentes para exportar.", "warning"); 
             
             const dataToExport = pendentes.map(p => ({
-                "Código do Produto": p.codigo || '',
-                "Descrição do Produto": p.descricao || '',
-                "Família de Produto": p.familia || '',
-                "Código EAN / GTIN": p.gtin || '', 
-                "Unidade": p.unidade || '',
-                "Quantidade Sistema": Number(p.sistema) || 0,
-                "Custo Unitário (CMC)": Number(p.cmc) || 0,
-                "Local de Estoque": p.local || ''
+                "Código do Produto": p.codigo || '', "Descrição do Produto": p.descricao || '', "Família de Produto": p.familia || '',
+                "Código EAN / GTIN": p.gtin || '', "Unidade": p.unidade || '', "Quantidade Sistema": Number(p.sistema) || 0,
+                "Custo Unitário (CMC)": Number(p.cmc) || 0, "Local de Estoque": p.local || ''
             }));
 
-            const ws = XLSX.utils.json_to_sheet(dataToExport); 
-            const wb = XLSX.utils.book_new(); 
-            XLSX.utils.book_append_sheet(wb, ws, "Pendentes"); 
-            XLSX.writeFile(wb, `Inventario_Pendentes_${new Date().toLocaleDateString('pt-PT').replace(/\//g,'-')}.xlsx`); 
+            const ws = XLSX.utils.json_to_sheet(dataToExport); const wb = XLSX.utils.book_new(); 
+            XLSX.utils.book_append_sheet(wb, ws, "Pendentes"); XLSX.writeFile(wb, `Inventario_Pendentes_${new Date().toLocaleDateString('pt-PT').replace(/\//g,'-')}.xlsx`); 
             window.showToast("Exportação de pendentes concluída!", "success");
         }
         
         window.limparTudo = async function() { 
             if (cargoAtual !== 'CHEFE') return window.showToast("Ação severa bloqueada! Apenas o gestor tem acesso.", "error");
             if (!currentUser) return window.showToast("Falha de conexão com os servidores na nuvem.", "error");
-            if(confirm("PERIGO: Ação Destrutiva!\n\nDeseja apagar permanentemente todas as contabilizações registadas na nuvem por toda a equipa?")) { 
+            
+            window.customConfirm("PERIGO: Ação Destrutiva!\n\nDeseja apagar permanentemente todas as contabilizações registadas na nuvem por toda a equipa?", async () => {
                 window.showToast("A processar a aniquilação dos registos da nuvem...", "info");
-                
-                let batch = writeBatch(db);
-                let opCount = 0;
+                let batch = writeBatch(db); let opCount = 0;
                 
                 for(const c of contagens) { 
                     batch.delete(doc(db, 'artifacts', appId, 'public', 'data', 'contagens', c.id));
                     opCount++;
-                    if (opCount >= 100) {
-                        await batch.commit();
-                        batch = writeBatch(db);
-                        opCount = 0;
-                    }
+                    if (opCount >= 100) { await batch.commit(); batch = writeBatch(db); opCount = 0; }
                 }
-                
-                if (opCount > 0) {
-                    await batch.commit();
-                }
+                if (opCount > 0) await batch.commit();
                 
                 window.addLog("Reiniciou toda a auditoria", "warning"); 
                 window.fecharModalConfig();
-            } 
+            }, "btn-red");
         }
 
         window.controlarCamera = async function() {
@@ -1626,31 +1513,19 @@
             if(audioCtx.state === 'suspended') audioCtx.resume();
             const btn = document.getElementById('btn-cam');
             if (btn.innerText.includes("INICIAR")) {
-                document.getElementById('reader').style.display = "block"; 
-                document.getElementById('scanner-controls').style.display = "flex"; 
-                btn.innerText = "🛑 PARAR CÂMERA"; 
-                btn.className = "btn-red";
-                
-                window.toggleModoGatilho(); 
+                document.getElementById('reader').style.display = "block"; document.getElementById('scanner-controls').style.display = "flex"; 
+                btn.innerText = "🛑 PARAR CÂMERA"; btn.className = "btn-red"; window.toggleModoGatilho(); 
 
                 if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
                 try {
                     await html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, async (txt) => {
                         if(window.lastScan === txt && Date.now() - window.lastScanTime < 2000) return;
-                        
                         const usarGatilho = document.getElementById('modo-gatilho').checked;
-                        if (usarGatilho && !window.gatilhoDisparado) {
-                            return; 
-                        }
+                        if (usarGatilho && !window.gatilhoDisparado) return; 
+                        if (usarGatilho) window.resetarEstadoGatilho();
 
-                        if (usarGatilho) {
-                            window.resetarEstadoGatilho();
-                        }
-
-                        window.lastScan = txt; 
-                        window.lastScanTime = Date.now();
-                        const cod = txt.trim().toUpperCase(); 
-                        const itemBase = baseDados.find(i => i.codigo === cod || i.gtin === cod);
+                        window.lastScan = txt; window.lastScanTime = Date.now();
+                        const cod = txt.trim().toUpperCase(); const itemBase = baseDados.find(i => i.codigo === cod || i.gtin === cod);
                         const isContinuo = document.getElementById('modo-continuo').checked;
 
                         if (isContinuo) {
@@ -1659,141 +1534,83 @@
                             const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
                             if (itemContado) {
                                 if (cargoAtual !== 'CHEFE' && itemContado.operador !== operadorAtual) {
-                                    window.playBeep('error');
-                                    return window.showToast("Violou a segurança: Este registo pertence a outro utilizador!", "error");
+                                    window.playBeep('error'); return window.showToast("Violou a segurança: Este registo pertence a outro utilizador!", "error");
                                 }
                                 const payload = {...itemContado, fisico: itemContado.fisico + 1, dif: (itemContado.fisico + 1) - itemContado.sistema, data: new Date().toLocaleString('pt-PT'), timestamp: Date.now(), operador: operadorAtual};
                                 await setDoc(doc(colRef, itemContado.id), payload);
-                                window.addLog(`+1 Auto: ${itemContado.descricao}`); 
-                                window.showToast(`+1 ${itemContado.descricao}`, 'success');
+                                window.addLog(`+1 Auto: ${itemContado.descricao}`); window.showToast(`+1 ${itemContado.descricao}`, 'success');
                             } else {
                                 let novoItem = itemBase || {codigo: cod, gtin: cod, descricao: "PRODUTO NÃO IDENTIFICADO", local: "SCAN DIRETO", sistema: 0, cmc: 0, unidade: "UN"};
                                 const docId = `${novoItem.codigo}_${novoItem.local}`.replace(/[^a-zA-Z0-9_-]/g, '');
                                 const payload = {
-                                    codigo: novoItem.codigo,
-                                    descricao: novoItem.descricao,
-                                    local: novoItem.local,
-                                    sistema: 0,
-                                    unidade: novoItem.unidade,
-                                    fisico: 1, 
-                                    dif: 1, 
-                                    cmc_unitario: novoItem.cmc || 0, 
-                                    gtin: novoItem.gtin || '',
-                                    lote: "", 
-                                    validade: "", 
-                                    obs: "INSERÇÃO VIA MODO CONTÍNUO", 
-                                    operador: operadorAtual, 
-                                    data: new Date().toLocaleString('pt-PT'), 
-                                    timestamp: Date.now()
+                                    codigo: novoItem.codigo, descricao: novoItem.descricao, local: novoItem.local, sistema: 0, unidade: novoItem.unidade,
+                                    fisico: 1, dif: 1, cmc_unitario: novoItem.cmc || 0, gtin: novoItem.gtin || '', lote: "", validade: "", 
+                                    obs: "INSERÇÃO VIA MODO CONTÍNUO", operador: operadorAtual, data: new Date().toLocaleString('pt-PT'), timestamp: Date.now()
                                 };
                                 await setDoc(doc(colRef, docId), payload);
-                                window.addLog(`Criou e +1 Auto: ${novoItem.descricao}`); 
-                                window.showToast(`Registado: ${novoItem.descricao}`, 'success');
+                                window.addLog(`Criou e +1 Auto: ${novoItem.descricao}`); window.showToast(`Registado: ${novoItem.descricao}`, 'success');
                             }
                         } else {
-                            window.playBeep('success'); 
-                            window.desligarCam(); 
-                            indexEdicao = -1; 
+                            window.playBeep('success'); window.desligarCam(); indexEdicao = -1; 
                             let itemModal = itemBase || {codigo: cod, gtin: cod, descricao: "NOVO PRODUTO", local: "NOVO REGISTO", sistema: 0, cmc: 0, unidade: "UN"};
                             window.abrirModal(itemModal, itemModal.descricao === "NOVO PRODUTO");
                         }
                     });
-                } catch (err) { 
-                    window.showToast("Falha na inicialização da câmara do dispositivo.", "error"); 
-                    window.desligarCam(); 
-                }
-            } else { 
-                window.desligarCam(); 
-            }
+                } catch (err) { window.showToast("Falha na inicialização da câmara do dispositivo.", "error"); window.desligarCam(); }
+            } else { window.desligarCam(); }
         }
         
         window.desligarCam = function() { 
             const resetUI = () => { 
-                document.getElementById('reader').style.display = "none"; 
-                document.getElementById('scanner-controls').style.display = "none"; 
-                document.getElementById('btn-cam').innerText = "📷 INICIAR SCANNER"; 
-                document.getElementById('btn-cam').className = "btn-blue"; 
+                document.getElementById('reader').style.display = "none"; document.getElementById('scanner-controls').style.display = "none"; 
+                document.getElementById('btn-cam').innerText = "📷 INICIAR SCANNER"; document.getElementById('btn-cam').className = "btn-blue"; 
                 window.resetarEstadoGatilho();
             };
             if (html5QrCode) { 
                 try { 
                     const stopPromise = html5QrCode.stop(); 
-                    if (stopPromise) { 
-                        stopPromise.then(() => resetUI()).catch(() => resetUI()); 
-                    } else { 
-                        resetUI(); 
-                    } 
-                } catch (err) { 
-                    resetUI(); 
-                } 
-            } else { 
-                resetUI(); 
-            }
+                    if (stopPromise) stopPromise.then(() => resetUI()).catch(() => resetUI()); 
+                    else resetUI(); 
+                } catch (err) { resetUI(); } 
+            } else { resetUI(); }
         }
 
         document.getElementById('busca-input').oninput = function() {
-            const rawT = this.value;
-            const t = removerAcentos(rawT.toUpperCase().trim()); 
-            const res = document.getElementById('resultados'); 
-            res.innerHTML = '';
+            const rawT = this.value; const t = removerAcentos(rawT.toUpperCase().trim()); 
+            const res = document.getElementById('resultados'); res.innerHTML = '';
             
             if (t.length < 1) return;
-            
             const lS = window.getLocsSel().map(v => removerAcentos(v.toUpperCase())); 
             const fS = Array.from(document.querySelectorAll('.check-f:checked')).map(cb => removerAcentos(cb.value.toUpperCase()));
             
             const fill = baseDados.filter(i => {
-                const desc = removerAcentos(String(i.descricao || '').toUpperCase());
-                const cod = removerAcentos(String(i.codigo || '').toUpperCase());
-                const gtin = removerAcentos(String(i.gtin || '').toUpperCase());
-                
+                const desc = removerAcentos(String(i.descricao || '').toUpperCase()); const cod = removerAcentos(String(i.codigo || '').toUpperCase()); const gtin = removerAcentos(String(i.gtin || '').toUpperCase());
                 const matchesSearch = desc.includes(t) || cod.includes(t) || gtin.includes(t);
-                
-                const itemLocal = removerAcentos(String(i.local || '').toUpperCase());
-                const itemFam = removerAcentos(String(i.familia || '').toUpperCase());
-                
-                const matchesLocal = lS.length === 0 || lS.includes(itemLocal);
-                const matchesFamily = fS.length === 0 || fS.includes(itemFam);
-                
+                const itemLocal = removerAcentos(String(i.local || '').toUpperCase()); const itemFam = removerAcentos(String(i.familia || '').toUpperCase());
+                const matchesLocal = lS.length === 0 || lS.includes(itemLocal); const matchesFamily = fS.length === 0 || fS.includes(itemFam);
                 return matchesSearch && matchesLocal && matchesFamily;
             });
             
             if (fill.length > 0) {
                 fill.slice(0, 15).forEach(i => {
-                    const d = document.createElement('div'); 
-                    d.className = 'item-res'; 
+                    const d = document.createElement('div'); d.className = 'item-res'; 
                     d.innerHTML = `<strong>${i.descricao}</strong><small style="color:var(--gray); font-size:11px; font-weight: 500;">${i.local} | No Sistema: <b>${i.sistema}</b></small>`;
-                    d.onclick = () => { indexEdicao = -1; window.abrirModal(i, false); }; 
-                    res.appendChild(d);
+                    d.onclick = () => { indexEdicao = -1; window.abrirModal(i, false); }; res.appendChild(d);
                 });
             } else {
-                const btnNovo = document.createElement('button'); 
-                btnNovo.className = 'btn-blue'; 
-                btnNovo.style.marginTop = '10px'; 
-                btnNovo.innerHTML = `➕ CADASTRAR NOVO: "${rawT}"`;
+                const btnNovo = document.createElement('button'); btnNovo.className = 'btn-blue'; btnNovo.style.marginTop = '10px'; btnNovo.innerHTML = `➕ CADASTRAR NOVO: "${rawT}"`;
                 btnNovo.onclick = () => { 
-                    indexEdicao = -1; 
-                    const tTrim = rawT.trim();
-                    const isNumeric = /^\d+$/.test(tTrim); 
+                    indexEdicao = -1; const tTrim = rawT.trim(); const isNumeric = /^\d+$/.test(tTrim); 
                     window.abrirModal({
-                        codigo: 'MAN_' + Date.now(), 
-                        gtin: isNumeric ? tTrim : '', 
-                        descricao: isNumeric ? '' : tTrim.toUpperCase(), 
-                        local: lS.length > 0 ? lS[0] : 'MANUAL', 
-                        familia: 'SEM FAMÍLIA', 
-                        sistema: 0, 
-                        cmc: 0, 
-                        unidade: 'UN'
+                        codigo: 'MAN_' + Date.now(), gtin: isNumeric ? tTrim : '', descricao: isNumeric ? '' : tTrim.toUpperCase(), 
+                        local: lS.length > 0 ? lS[0] : 'MANUAL', familia: 'SEM FAMÍLIA', sistema: 0, cmc: 0, unidade: 'UN'
                     }, true); 
-                }; 
-                res.appendChild(btnNovo);
+                }; res.appendChild(btnNovo);
             }
         };
 
         document.getElementById('file-input').onchange = function(e) {
-            if (cargoAtual !== 'CHEFE') {
-                return window.showToast("Operação bloqueada! Credenciais de gestão necessárias.", "error");
-            }
+            if (cargoAtual !== 'CHEFE') return window.showToast("Operação bloqueada! Credenciais de gestão necessárias.", "error");
             if (!e.target.files || e.target.files.length === 0) return;
             
             window.showToast("A injetar catálogo Omie no banco local...", "info"); 
@@ -1807,7 +1624,6 @@
                     for(let r=0; r<rows.length; r++) {
                         if(!rows[r]) continue; 
                         let line = rows[r].map(c => String(c || "").trim().toUpperCase());
-                        
                         if(line.includes("CÓDIGO DO PRODUTO") || line.includes("DESCRIÇÃO DO PRODUTO") || line.includes("LOCAL DE ESTOQUE")) {
                             hRow = r; 
                             line.forEach((cell, c) => {
@@ -1816,21 +1632,15 @@
                                 else if(norm === "CÓDIGO EAN" || norm === "EAN" || norm === "GTIN") idxGtin = c;
                                 if(norm === "DESCRIÇÃO DO PRODUTO" || norm === "DESCRIÇÃO") idxDesc = c; 
                                 if(norm === "FAMÍLIA DE PRODUTO" || norm === "FAMÍLIA") idxFam = c;
-                                
                                 if(norm === "QUANTIDADE" || norm === "QUANT" || norm === "SALDO") idxSist = c; 
                                 if(norm === "LOCAL DE ESTOQUE" || norm === "DESCRIÇÃO DO LOCAL" || norm === "LOCAL") idxLoc = c;
-                                
                                 if(norm === "CMC UNITÁRIO" || norm === "CUSTO UNITÁRIO" || norm === "CUSTO") idxCmc = c; 
                                 if(norm === "UNIDADE" || norm === "UNID" || norm === "UN") idxUn = c;
                             }); 
                             break; 
                         }
                     }
-                    
-                    if (idxDesc === -1) {
-                        window.showToast("Matriz Inválida: Não foi possível detetar a coluna DESCRIÇÃO.", "error");
-                        return;
-                    }
+                    if (idxDesc === -1) return window.showToast("Matriz Inválida: Não foi possível detetar a coluna DESCRIÇÃO.", "error");
 
                     const temporarios = [];
                     for(let r=hRow+1; r<rows.length; r++) {
@@ -1839,47 +1649,24 @@
                             const l = idxLoc !== -1 ? String(row[idxLoc] || 'ESTOQUE PRINCIPAL').trim().toUpperCase() : 'ESTOQUE PRINCIPAL'; 
                             const f = idxFam !== -1 ? String(row[idxFam] || 'SEM FAMÍLIA').trim().toUpperCase() : 'SEM FAMÍLIA';
                             const codRaw = idxCod !== -1 ? String(row[idxCod] || '').trim().toUpperCase() : '';
-                            
                             const sistemaVal = idxSist !== -1 ? parseFloat(String(row[idxSist] || '0').replace(',','.')) : 0;
                             const cmcVal = idxCmc !== -1 ? parseFloat(String(row[idxCmc] || '0').replace(',','.')) : 0;
-
                             temporarios.push({ 
-                                codigo: codRaw, 
-                                descricao: String(row[idxDesc]).trim().toUpperCase(), 
-                                gtin: idxGtin !== -1 ? String(row[idxGtin] || '').trim() : '', 
-                                familia: f, 
-                                local: l, 
-                                sistema: isNaN(sistemaVal) ? 0 : sistemaVal, 
-                                cmc: isNaN(cmcVal) ? 0 : cmcVal, 
-                                unidade: idxUn !== -1 ? String(row[idxUn] || 'UN').trim().toUpperCase() : 'UN'
+                                codigo: codRaw, descricao: String(row[idxDesc]).trim().toUpperCase(), gtin: idxGtin !== -1 ? String(row[idxGtin] || '').trim() : '', 
+                                familia: f, local: l, sistema: isNaN(sistemaVal) ? 0 : sistemaVal, cmc: isNaN(cmcVal) ? 0 : cmcVal, unidade: idxUn !== -1 ? String(row[idxUn] || 'UN').trim().toUpperCase() : 'UN'
                             });
                         }
                     }
-
-                    if (temporarios.length === 0) {
-                        window.showToast("Planilha submetida encontra-se sem itens registados.", "error");
-                        return;
-                    }
+                    if (temporarios.length === 0) return window.showToast("Planilha submetida encontra-se sem itens registados.", "error");
 
                     baseDados = temporarios;
-                    
                     try {
-                        const encryptedData = CryptoJS.AES.encrypt(JSON.stringify(baseDados), _HASH_V).toString();
-                        localStorage.setItem('catalogo_local_enc', encryptedData);
+                        localStorage.setItem('catalogo_local_enc', CryptoJS.AES.encrypt(JSON.stringify(baseDados), _HASH_V).toString());
                         window.showToast("Operação concluída. " + baseDados.length + " produtos trancados na memória local.", "success");
-                    } catch (e) { 
-                        console.warn("Espaço de cache permanente excedido. Executando em memória volátil isolada.", e); 
-                        window.showToast("Operação massiva: A base excedeu o limite mas foi forçada em memória temporária!", "warning");
-                    }
+                    } catch (e) { window.showToast("Operação massiva: A base excedeu o limite mas foi forçada em memória temporária!", "warning"); }
 
-                    window.atualizarFiltrosDOM();
-                    window.render();
-                    window.fecharModalConfig();
-
-                } catch (error) {
-                    console.error("Erro ao ler Excel:", error);
-                    window.showToast("O ficheiro foi corrompido ou negado pelo sistema.", "error");
-                }
+                    window.atualizarFiltrosDOM(); window.render(); window.fecharModalConfig();
+                } catch (error) { window.showToast("O ficheiro foi corrompido ou negado pelo sistema.", "error"); }
             };
             reader.readAsArrayBuffer(e.target.files[0]);
         };
