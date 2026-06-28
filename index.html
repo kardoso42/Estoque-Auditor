@@ -3,233 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Estoque V-46.0 - Local-Cloud Sinc</title>
+    <title>Smart Estoque V-48.0 - Premium Secure</title>
+    <!-- Bibliotecas de Terceiros Autorizadas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
+    <!-- CryptoJS para encriptação AES de dados locais -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
         /* Importação da tipografia oficial da marca: Poppins */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
         
         :root { 
-            /* Nova Paleta Smart Estoque - Modo Claro */
-            --blue: #1B263B;        /* Azul Marinho Médio (Botões principais) */
-            --blue-dark: #0D1B2A;   /* Azul Marinho Escuro (Títulos e Destaques) */
-            --green: #28A745;       /* Verde da Paleta */
-            --red: #ef4444; 
-            --gray: #64748b; 
-            --orange: #FF8C00;      /* Laranja da Paleta */
-            --bg: #F2F4F7;          /* Fundo Gelo da Paleta */
-            --surface: #ffffff;     /* Cartões brancos para contraste */
-            --text: #0D1B2A;        /* Texto em azul marinho muito escuro */
-            --border: #e2e8f0;
+            /* Paleta SaaS Premium - Modo Claro */
+            --blue: #2563eb;        /* Azul Vibrante Moderno */
+            --blue-dark: #0f172a;   /* Slate 900 - Textos principais */
+            --green: #10b981;       /* Emerald 500 */
+            --red: #ef4444;         /* Red 500 */
+            --gray: #64748b;        /* Slate 500 */
+            --orange: #f59e0b;      /* Amber 500 */
+            --bg: #f8fafc;          /* Slate 50 - Fundo super leve */
+            --surface: #ffffff;     /* Branco puro para os cartões */
+            --text: #1e293b;        /* Slate 800 */
+            --border: #e2e8f0;      /* Slate 200 - Bordas sutis */
             --logo-bg: #ffffff;
         }
 
         body.dark-mode {
-            /* Nova Paleta Smart Estoque - Modo Escuro */
-            --blue: #FF8C00;        /* Botões passam a Laranja para destaque no fundo escuro */
-            --blue-dark: #F2F4F7;   /* Títulos claros */
-            --green: #28A745; 
+            /* Paleta SaaS Premium - Modo Escuro */
+            --blue: #3b82f6;        
+            --blue-dark: #f8fafc;   
+            --green: #10b981; 
             --red: #f87171; 
             --gray: #94a3b8; 
-            --orange: #FF8C00; 
-            --bg: #0D1B2A;          /* Fundo principal passa a Azul Marinho Escuro */
-            --surface: #1B263B;     /* Cartões assumem o Azul Marinho Médio */
-            --text: #F2F4F7;        /* Texto claro */
-            --border: #2c3e50;      /* Linhas divisórias em tom marinho mesclado */
-            --logo-bg: #F2F4F7;     /* Fundo do logo sempre claro para o contraste do vetor */
+            --orange: #fbbf24; 
+            --bg: #0f172a;          /* Fundo Marinho muito escuro */
+            --surface: #1e293b;     /* Cartões escuros */
+            --text: #f1f5f9;        
+            --border: #334155;      
+            --logo-bg: #f8fafc;     
         }
         
         body { 
-            /* Aplicação da fonte Poppins em todo o sistema */
             font-family: 'Poppins', system-ui, -apple-system, sans-serif; 
             margin: 0; padding: 15px; background: var(--bg); color: var(--text); 
-            -webkit-font-smoothing: antialiased; transition: background-color 0.3s, color 0.3s;
+            -webkit-font-smoothing: antialiased; transition: background-color 0.3s ease, color 0.3s ease;
+            user-select: none; -webkit-user-select: none;
+        }
+
+        input, select, textarea, td, .selectable {
+            user-select: text !important; -webkit-user-select: text !important;
         }
         
-        .app-header { text-align: center; margin-bottom: 20px; margin-top: 10px; position: relative; padding-right: 45px; }
+        .app-header { text-align: center; margin-bottom: 24px; margin-top: 10px; position: relative; padding-right: 45px; }
 
-        /* Estilo premium e limpo para o contentor da logo */
         .app-logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 12px auto;
-            width: 90px;
-            height: 90px;
-            background: var(--logo-bg);
-            border-radius: 22px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            border: none;
-            overflow: hidden; /* Recorta cantos arredondados na imagem */
-            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 16px auto; width: 90px; height: 90px;
+            background: var(--logo-bg); border-radius: 24px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border); overflow: hidden; 
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .app-logo:hover {
-            transform: scale(1.04);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-        }
-        .app-logo svg, .app-logo img {
-            width: 100%; 
-            height: 100%; 
-            object-fit: contain; /* Ajusta a imagem da logo perfeitamente sem cortar */
-            display: block;
-        }
+        .app-logo:hover { transform: scale(1.04); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1); }
+        .app-logo svg, .app-logo img { width: 100%; height: 100%; object-fit: contain; display: block; }
 
-        .app-header h2 { margin: 0; color: var(--blue-dark); font-weight: 700; font-size: 22px; letter-spacing: -0.5px; }
-        .app-header p { margin: 4px 0 0; font-size: 12px; color: var(--gray); font-weight: 500; }
+        .app-header h2 { margin: 0; color: var(--blue-dark); font-weight: 800; font-size: 26px; letter-spacing: -0.5px; }
+        .app-header p { margin: 4px 0 0; font-size: 13px; color: var(--gray); font-weight: 500; }
         
         .header-actions { position: absolute; right: 0; top: 0; display: flex; gap: 8px; }
         #btn-config {
-            width: 40px; height: 40px; padding: 0; border-radius: 50%; background: var(--surface); border: 1px solid var(--border); 
-            font-size: 18px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); color: var(--text);
-            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s;
+            width: 44px; height: 44px; padding: 0; border-radius: 50%; background: var(--surface); 
+            border: 1px solid var(--border); font-size: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); 
+            color: var(--text); display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; transition: all 0.2s ease;
         }
-        #btn-config:hover { background: var(--border); }
+        #btn-config:hover { background: var(--bg); transform: scale(1.05); }
 
+        /* Estilo dos Cartões Redesenhado */
         .card { 
-            background: var(--surface); padding: 20px; border-radius: 16px; 
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05); 
-            margin-bottom: 15px; border: 1px solid var(--border); transition: background-color 0.3s, border-color 0.3s;
+            background: var(--surface); padding: 24px; border-radius: 24px; 
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); 
+            margin-bottom: 20px; border: 1px solid var(--border); transition: all 0.3s ease;
         }
         
-        .dash-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
+        .dash-container { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
         .dash-card { 
-            background: var(--surface); padding: 15px; border-radius: 12px; text-align: center; 
-            border-left: 4px solid var(--blue); box-shadow: 0 2px 4px rgb(0 0 0 / 0.02);
+            background: var(--surface); padding: 20px 15px; border-radius: 20px; text-align: center; 
+            border-left: 5px solid var(--blue); box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.05);
             border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
-            transition: background-color 0.3s, border-color 0.3s;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .dash-card h4 { margin: 0; font-size: 12px; color: var(--gray); text-transform: uppercase; font-weight: 600; }
-        .dash-card p { margin: 8px 0 0; font-size: 20px; font-weight: 700; color: var(--blue-dark); }
+        .dash-card:hover { transform: translateY(-3px); box-shadow: 0 12px 25px -5px rgba(0, 0, 0, 0.08); }
+        .dash-card h4 { margin: 0; font-size: 12px; color: var(--gray); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+        .dash-card p { margin: 10px 0 0; font-size: 24px; font-weight: 800; color: var(--blue-dark); letter-spacing: -0.5px; }
         
-        .multi-select-box { border: 1px solid var(--border); border-radius: 8px; padding: 5px; max-height: 140px; overflow-y: auto; background: var(--surface); margin-top: 8px; }
-        .multi-select-item { display: flex; align-items: center; gap: 10px; font-size: 12px; padding: 10px 12px; border-bottom: 1px solid var(--border); transition: background 0.2s; }
-        .multi-select-item:hover { opacity: 0.8; }
+        .multi-select-box { border: 1px solid var(--border); border-radius: 12px; padding: 5px; max-height: 140px; overflow-y: auto; background: var(--bg); margin-top: 8px; }
+        .multi-select-item { display: flex; align-items: center; gap: 10px; font-size: 12px; padding: 12px 14px; border-bottom: 1px solid var(--border); transition: background 0.2s; }
+        .multi-select-item:hover { background: var(--surface); border-radius: 8px; }
         .multi-select-item:last-child { border-bottom: none; }
         .multi-select-item input { margin: 0; width: 16px; height: 16px; cursor: pointer; accent-color: var(--blue); }
         .multi-select-item label { flex: 1; cursor: pointer; font-weight: 500; color: var(--text); margin: 0; }
         
-        input[type="text"], input[type="number"], input[type="date"], input[type="file"], select { 
-            width: 100%; box-sizing: border-box; padding: 14px; border: 1px solid var(--border); 
-            border-radius: 10px; font-size: 14px; background: var(--bg); color: var(--text); transition: all 0.2s; font-family: inherit;
+        /* Inputs unificados e modernos */
+        input[type="text"], input[type="number"], input[type="password"], input[type="date"], input[type="file"], select { 
+            width: 100%; box-sizing: border-box; padding: 16px; border: 1px solid var(--border); 
+            border-radius: 14px; font-size: 14px; background: var(--bg); color: var(--text); 
+            transition: all 0.2s ease; font-family: inherit; font-weight: 500;
         }
-        input[type="file"] { padding: 10px; font-size: 12px; background: var(--surface); border: 1px dashed var(--gray); cursor: pointer; }
-        input:focus, select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); background: var(--surface); }
+        input[type="file"] { padding: 12px; font-size: 12px; background: var(--surface); border: 2px dashed var(--border); cursor: pointer; }
+        input:focus, select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15); background: var(--surface); }
+        body.dark-mode input:focus, body.dark-mode select:focus { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); }
         input[type="text"] { text-transform: uppercase; }
         
-        .grid-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .grid-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+        
+        /* Botões Redesenhados */
         button { 
-            width: 100%; padding: 14px; border-radius: 10px; border: none; font-weight: 600; 
+            width: 100%; padding: 16px; border-radius: 14px; border: none; font-weight: 700; 
             cursor: pointer; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;
-            transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 6px;
+            transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px;
         }
         button:disabled { opacity: 0.5; cursor: not-allowed; }
+        button:hover:not(:disabled) { filter: brightness(1.05); transform: translateY(-1px); box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
         button:active:not(:disabled) { transform: scale(0.98); }
         
-        .btn-blue { background: var(--blue); color: white; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); }
-        .btn-green { background: var(--green); color: white; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2); }
-        .btn-orange { background: var(--orange); color: white; }
-        .btn-red { background: var(--red); color: white; }
-        .btn-outline { background: transparent; border: 1.5px solid var(--blue); color: var(--blue); font-size: 11px; padding: 12px; }
+        .btn-blue { background: var(--blue); color: white; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2); }
+        .btn-green { background: var(--green); color: white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); }
+        .btn-orange { background: var(--orange); color: white; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.2); }
+        .btn-red { background: var(--red); color: white; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2); }
+        .btn-outline { background: transparent; border: 2px solid var(--border); color: var(--text); font-size: 12px; padding: 14px; }
+        .btn-outline:hover { border-color: var(--blue); color: var(--blue); background: var(--surface); }
         
-        .calc-shortcuts {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 6px;
-            margin-top: 6px;
-            margin-bottom: 12px;
-        }
-        .btn-calc {
-            padding: 8px 4px;
-            font-size: 12px;
-            font-weight: 700;
-            background: var(--bg);
-            color: var(--text);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            text-transform: none;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-        .btn-calc:active {
-            background: var(--border);
-        }
+        .calc-shortcuts { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 8px; margin-bottom: 16px; }
+        .btn-calc { padding: 10px 4px; font-size: 14px; font-weight: 800; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 10px; text-transform: none; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .btn-calc:hover { background: var(--surface); border-color: var(--blue); color: var(--blue); }
+        .btn-calc:active { background: var(--border); }
 
-        #btn-gatilho {
-            font-size: 14px;
-            padding: 18px;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            font-weight: 700;
-            box-shadow: 0 4px 6px rgba(245, 158, 11, 0.25);
-            transition: background 0.2s, transform 0.1s;
-        }
-        #btn-gatilho:active {
-            transform: scale(0.97);
-        }
+        #btn-gatilho { font-size: 15px; padding: 20px; border-radius: 16px; margin-bottom: 12px; font-weight: 800; box-shadow: 0 6px 12px rgba(245, 158, 11, 0.2); }
 
-        table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 11px; margin-top: 15px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-        th { background: var(--bg); color: var(--gray); font-weight: 600; text-transform: uppercase; padding: 12px 8px; border-bottom: 1px solid var(--border); text-align: center; }
-        td { padding: 12px 8px; text-align: center; border-bottom: 1px solid var(--border); color: var(--text); font-weight: 500; }
-        tr:last-child td { border-bottom: none; }
-        tbody tr:hover { opacity: 0.8; cursor: pointer; }
+        /* Tabelas mais limpas */
+        table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 15px; border-radius: 16px; overflow: hidden; background: var(--surface); border: 1px solid var(--border); }
+        th { background: var(--bg); color: var(--gray); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 12px; border-bottom: 1px solid var(--border); text-align: center; }
+        td { padding: 16px 12px; text-align: center; border-bottom: 1px solid var(--border); color: var(--text); font-weight: 500; }
+        tbody tr { transition: background-color 0.2s ease; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background-color: var(--bg); cursor: pointer; }
         
-        .item-res { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; padding: 15px; cursor: pointer; text-align: left; background: var(--surface); transition: all 0.2s; }
-        .item-res strong { display: block; color: var(--blue-dark); margin-bottom: 4px; font-size: 13px; }
+        .item-res { border: 1px solid var(--border); border-radius: 14px; margin-bottom: 10px; padding: 16px; cursor: pointer; text-align: left; background: var(--surface); transition: all 0.2s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .item-res:hover { border-color: var(--blue); box-shadow: 0 4px 12px rgba(37,99,235,0.08); transform: translateY(-1px); }
+        .item-res strong { display: block; color: var(--blue-dark); margin-bottom: 6px; font-size: 14px; font-weight: 700; }
         
-        .switch-container { display: flex; align-items: center; justify-content: space-between; background: var(--surface); border: 1px solid var(--border); padding: 14px 16px; border-radius: 10px; margin-top: 10px; }
-        .switch-container label { font-size: 12px; font-weight: 600; color: var(--text); }
-        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch-container { display: flex; align-items: center; justify-content: space-between; background: var(--surface); border: 1px solid var(--border); padding: 16px 20px; border-radius: 16px; margin-top: 12px; transition: border-color 0.2s; }
+        .switch-container:hover { border-color: var(--blue); }
+        .switch-container label { font-size: 13px; font-weight: 600; color: var(--text); }
+        .switch { position: relative; display: inline-block; width: 48px; height: 26px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--gray); transition: .4s; border-radius: 24px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border); transition: .4s; border-radius: 26px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         input:checked + .slider { background-color: var(--green); }
-        input:checked + .slider:before { transform: translateX(20px); }
+        input:checked + .slider:before { transform: translateX(22px); }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); z-index: 10000; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box; }
-        .modal-content { background: var(--surface); width: 100%; max-width: 400px; padding: 24px; border-radius: 20px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3); border: 1px solid var(--border); }
-        .m-info-box { background: var(--bg); padding: 15px; border-radius: 12px; margin: 15px 0; border: 1px solid var(--border); border-left: 4px solid var(--blue); }
-        .m-info-box p { margin: 5px 0; }
+        /* Modal com fundo Blur */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 10000; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box; }
+        .modal-content { background: var(--surface); width: 100%; max-width: 420px; padding: 32px 24px; border-radius: 28px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); border: 1px solid var(--border); }
+        .m-info-box { background: var(--bg); padding: 16px 20px; border-radius: 16px; margin: 16px 0; border: 1px solid var(--border); border-left: 5px solid var(--blue); }
+        .m-info-box p { margin: 6px 0; }
         
-        #toast-container { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 10001; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-        .toast { background: rgba(0, 0, 0, 0.9); color: white; padding: 14px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; text-align: center; width: max-content; max-width: 90vw; transition: opacity 0.3s; }
-        .toast.success { background: var(--green); color: #fff; }
-        .toast.error { background: var(--red); color: #fff; }
+        #toast-container { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 10001; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { background: var(--blue-dark); color: white; padding: 16px 28px; border-radius: 30px; font-size: 14px; font-weight: 600; text-align: center; width: max-content; max-width: 90vw; transition: opacity 0.3s; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .toast.success { background: var(--green); }
+        .toast.error { background: var(--red); }
         .toast.warning { background: var(--orange); color: #fff; }
         
-        .vencido { background: rgba(239, 68, 68, 0.1) !important; color: var(--red); }
-        .vence-breve { background: rgba(245, 158, 11, 0.1) !important; color: var(--orange); }
-
-        .tabs { display: flex; background: var(--border); padding: 4px; border-radius: 12px; margin: 0 auto 20px; max-width: 400px; }
-        .tab-btn { flex: 1; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--gray); background: transparent; text-transform: none; letter-spacing: normal; transition: all 0.3s; }
-        .tab-btn.active { background: var(--surface); color: var(--blue-dark); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .tabs { display: flex; background: var(--bg); padding: 6px; border-radius: 18px; margin: 0 auto 24px; max-width: 400px; border: 1px solid var(--border); }
+        .tab-btn { flex: 1; padding: 12px; border-radius: 14px; font-size: 13px; font-weight: 700; color: var(--gray); background: transparent; text-transform: none; transition: all 0.3s ease; border: none; cursor: pointer; }
+        .tab-btn.active { background: var(--surface); color: var(--blue-dark); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
         
-        .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        .report-card { background: var(--surface); padding: 15px; border-radius: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .report-card h5 { margin: 0; color: var(--gray); font-size: 11px; text-transform: uppercase; }
+        .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+        .report-card { background: var(--surface); padding: 20px 15px; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .report-card h5 { margin: 0; color: var(--gray); font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
         .report-card.red p { color: var(--red); }
         .report-card.green p { color: var(--green); }
-        .report-card p { margin: 0; font-size: 18px; font-weight: 700; }
+        .report-card p { margin: 8px 0 0; font-size: 20px; font-weight: 800; }
         
-        .progress-container { width: 100%; background: var(--border); border-radius: 10px; height: 12px; margin-top: 10px; overflow: hidden; }
-        .progress-bar { height: 100%; background: var(--green); width: 0%; transition: width 0.5s ease; }
+        .progress-container { width: 100%; background: var(--border); border-radius: 12px; height: 14px; margin-top: 12px; overflow: hidden; }
+        .progress-bar { height: 100%; background: var(--green); width: 0%; transition: width 0.5s ease; border-radius: 12px; }
 
-        .chart-row { display: flex; align-items: center; margin-bottom: 10px; font-size: 11px; }
-        .chart-label { width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px; font-weight: 600; color: var(--text); text-align: right; }
-        .chart-bar-container { flex: 1; background: var(--border); border-radius: 6px; height: 16px; overflow: hidden; }
-        .chart-bar { height: 100%; background: var(--blue); border-radius: 6px; transition: width 0.5s ease; }
-        .chart-value { width: 45px; text-align: right; font-weight: 700; color: var(--blue-dark); padding-left: 8px; }
+        .chart-row { display: flex; align-items: center; margin-bottom: 12px; font-size: 12px; }
+        .chart-label { width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px; font-weight: 600; color: var(--text); text-align: right; }
+        .chart-bar-container { flex: 1; background: var(--border); border-radius: 8px; height: 18px; overflow: hidden; }
+        .chart-bar { height: 100%; background: var(--blue); border-radius: 8px; transition: width 0.5s ease; }
+        .chart-value { width: 50px; text-align: right; font-weight: 800; color: var(--blue-dark); padding-left: 10px; }
 
-        .log-entry { font-size: 11px; padding: 8px 0; border-bottom: 1px dashed var(--border); display: flex; justify-content: space-between; }
+        .log-entry { font-size: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .log-entry:last-child { border-bottom: none; }
-        .log-time { color: var(--gray); font-weight: 600; width: 60px; }
+        .log-time { color: var(--gray); font-weight: 700; width: 60px; font-size: 11px; }
         .log-msg { flex: 1; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .log-operador { font-weight: bold; color: var(--blue-dark); margin-right: 5px; }
+        .log-operador { font-weight: 800; color: var(--blue-dark); margin-right: 6px; }
 
-        #view-login { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 85vh; }
-        .login-card { background: var(--surface); padding: 30px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); border: 1px solid var(--border); width: 100%; max-width: 350px; text-align: center; }
-        .user-badge { background: var(--blue); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; }
-        .cloud-badge { background: var(--green); color: white; padding: 2px 8px; border-radius: 10px; font-size: 9px; vertical-align: middle; margin-left: 5px; }
+        /* Botão Flutuante de Histórico (Log) */
+        #btn-floating-log {
+            position: fixed; bottom: 24px; right: 24px; width: 60px; height: 60px; border-radius: 50%;
+            background: var(--blue-dark); color: white; display: flex; align-items: center; justify-content: center;
+            font-size: 24px; box-shadow: 0 8px 25px rgba(15, 23, 42, 0.3); border: none; cursor: pointer;
+            z-index: 999; transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s;
+        }
+        #btn-floating-log:hover { transform: scale(1.1); background: var(--blue); }
+        #btn-floating-log:active { transform: scale(0.95); }
 
+        /* ========================================================= */
+        /* ECRÃ DE LOGIN (SaaS Premium)                              */
+        /* ========================================================= */
+        #view-login { 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            min-height: 100vh; background: var(--bg);
+        }
+        .login-card { 
+            background: var(--surface); padding: 48px 36px; border-radius: 32px; 
+            box-shadow: 0 20px 50px -15px rgba(0,0,0,0.08); 
+            border: 1px solid var(--border); width: 100%; max-width: 400px; box-sizing: border-box;
+        }
+        .login-title { font-size: 30px; font-weight: 800; color: var(--blue-dark); margin: 0 0 6px 0; text-align: center; letter-spacing: -1px; }
+        .login-subtitle { font-size: 14px; color: var(--gray); margin: 0 0 36px 0; text-align: center; font-weight: 500; }
+        .input-group { margin-bottom: 22px; position: relative; text-align: left; }
+        .input-group label { display: block; font-size: 13px; font-weight: 700; color: var(--blue-dark); margin-bottom: 10px; }
+        .login-btn { width: 100%; padding: 18px; background: var(--blue); color: white; border: none; border-radius: 16px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; transition: all 0.2s; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25); }
+        .login-btn:hover { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 12px 25px rgba(37, 99, 235, 0.35); }
+        .login-btn:active { transform: scale(0.98); }
+
+        .user-badge { background: var(--blue-dark); color: white; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.1); }
+        .cloud-badge { background: var(--blue); color: white; padding: 3px 10px; border-radius: 12px; font-size: 10px; vertical-align: middle; margin-left: 6px; font-weight: 800; }
+
+        /* Proteção Visual */
+        #pantalla-bloqueada { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--blue-dark); color: #fff; z-index: 1000000; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; text-align: center; padding: 30px; }
         .print-only { display: none; }
         @media print {
             body { background: white; color: black; padding: 0; margin: 0; }
@@ -244,7 +250,6 @@
         }
     </style>
     <script>
-        // Função síncrona global executada imediatamente no erro de imagem para suporte robusto de extensões de arquivo
         window.tentarCarregarDuplo = function(imgEl) {
             if (!imgEl.dataset.attempt) {
                 imgEl.dataset.attempt = "1";
@@ -259,51 +264,69 @@
                 imgEl.style.display = "none";
             }
         };
+
+        (function() {
+            document.addEventListener('contextmenu', e => e.preventDefault());
+            document.addEventListener('keydown', e => {
+                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key)) || (e.ctrlKey && e.key === 'U')) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        })();
     </script>
 </head>
 <body>
 
-    <!-- TELA DE LOGIN -->
+    <div id="pantalla-bloqueada">
+        <h3 style="color: #ef4444; font-size: 24px;">🛡️ VIOLAÇÃO DE SEGURANÇA DETECTADA</h3>
+        <p>A aplicação "Smart Estoque" foi bloqueada para proteger a propriedade intelectual.</p>
+        <p style="font-size: 12px; color: var(--gray);">A tentativa de clonagem ou inspeção foi reportada.</p>
+    </div>
+
+    <!-- TELA DE LOGIN (SaaS Premium) -->
     <div id="view-login">
         <div class="login-card">
-            <!-- Logo Oficial via Fallback Inteligente -->
-            <div class="app-logo">
-                <img src="logo-smartestoque.png" alt="Logo Smart Estoque" id="logo-login-img" onerror="tentarCarregarDuplo(this)">
+            <div class="app-logo" style="margin-bottom: 24px; width: 100px; height: 100px; border-radius: 28px;">
+                <img src="logo-smartestoque.png" alt="Logo" id="logo-login-img" onerror="tentarCarregarDuplo(this)">
             </div>
-            <h2 style="color: var(--blue-dark); margin-top: 0; font-size: 24px;">Smart Estoque</h2>
-            <p style="color: var(--gray); font-size: 13px; margin-bottom: 20px;">Auditoria de Inventário com Ficheiro Local</p>
             
-            <input type="text" id="login-nome" placeholder="Seu Nome ou Matrícula" style="margin-bottom: 15px; text-align: center; font-weight: bold;">
-
-            <!-- Seletor de Cargo Seguro -->
-            <label style="font-size: 11px; font-weight: bold; display: block; margin-bottom: 5px; text-align: left; color: var(--gray);">FUNÇÃO NO INVENTÁRIO:</label>
-            <select id="login-cargo" onchange="toggleLoginPinField()" style="margin-bottom: 15px; font-weight: 600;">
-                <option value="OPERADOR" selected>👤 OPERADOR (Apenas Contagens)</option>
-                <option value="CHEFE">🔑 CHEFE DE SETOR (Acesso Total)</option>
-            </select>
-
-            <!-- Campo de PIN Ocultável e Seguro para Chefe de Setor - Centralizado para melhor harmonia -->
-            <div id="login-pin-container" style="display: none; margin-bottom: 20px; text-align: center;">
-                <label style="font-size: 11px; font-weight: bold; display: block; margin-bottom: 5px; text-align: center; color: var(--red);">CÓDIGO PIN DE ACESSO (Padrão: 1234):</label>
-                <!-- Usado input type="password" e inputmode="numeric" para ocultação e chamada de teclado numérico -->
-                <input type="password" id="login-pin" inputmode="numeric" maxlength="8" placeholder="Digite o PIN de Segurança" style="text-align: center; letter-spacing: 5px; font-size: 18px; font-weight: bold; border: 2px solid var(--red);">
+            <h2 class="login-title">Acesso Seguro</h2>
+            <p class="login-subtitle">Auditoria e Gestão de Inventário</p>
+            
+            <div class="input-group">
+                <label for="login-nome">Nome ou Matrícula</label>
+                <input type="text" id="login-nome" placeholder="Ex: João Silva ou 99182">
             </div>
 
-            <button class="btn-blue" onclick="fazerLogin()">Entrar no Sistema</button>
+            <div class="input-group">
+                <label for="login-cargo">Função no Inventário</label>
+                <select id="login-cargo" onchange="toggleLoginPinField()">
+                    <option value="OPERADOR" selected>👤 Operador (Contagens)</option>
+                    <option value="CHEFE">🔑 Chefe de Setor (Gestão)</option>
+                </select>
+            </div>
+
+            <div class="input-group" id="login-pin-container" style="display: none;">
+                <label for="login-pin" style="color: var(--red);">Código PIN Seguro</label>
+                <input type="password" id="login-pin" inputmode="numeric" maxlength="8" placeholder="••••" style="letter-spacing: 6px; font-size: 20px; font-weight: 800; border: 2px solid rgba(239, 68, 68, 0.4); text-align: center;">
+            </div>
+
+            <button class="login-btn" onclick="fazerLogin()">Entrar no Sistema</button>
         </div>
     </div>
 
     <!-- APLICAÇÃO PRINCIPAL -->
     <div id="view-app" style="display:none;">
         <div class="app-header">
-            <!-- Logo Oficial via Fallback Inteligente no Cabeçalho -->
             <div class="app-logo" style="width: 80px; height: 80px;">
-                <img src="logo-smartestoque.png" alt="Logo Smart Estoque" id="logo-header-img" onerror="tentarCarregarDuplo(this)">
+                <img src="logo-smartestoque.png" alt="Logo" id="logo-header-img" onerror="tentarCarregarDuplo(this)">
             </div>
-            <h2>Smart Estoque <span class="cloud-badge" id="app-badge-mode" style="background: var(--blue);">📄 LOCAL FILE</span></h2>
-            <p>Contagens Sincronizadas na Nuvem</p>
+            <h2>Smart Estoque <span class="cloud-badge" id="app-badge-mode">REAL-TIME</span></h2>
+            <p>Sincronização Ativa e Criptografada</p>
             <div class="print-hide">
-                <span class="user-badge" style="background: var(--blue-dark);">👤 <span id="lbl-operador">Operador</span> (<span id="lbl-cargo" style="color: var(--orange); font-weight: bold;">...</span>) <button onclick="fazerLogout()" style="background:none; border:none; color:rgba(255,255,255,0.7); padding:0; margin-left:8px; cursor:pointer; font-size:10px; font-weight:bold;">SAIR</button></span>
+                <span class="user-badge">👤 <span id="lbl-operador">Operador</span> (<span id="lbl-cargo" style="color: var(--orange);">...</span>) 
+                <button onclick="fazerLogout()" style="background:none; border:none; color:rgba(255,255,255,0.8); padding:0 0 0 8px; margin:0; cursor:pointer; font-size:11px; font-weight:800; width:auto; box-shadow:none;">SAIR</button></span>
             </div>
             <div class="header-actions print-hide">
                 <button onclick="abrirModalConfig()" id="btn-config" title="Menu Principal">☰</button>
@@ -312,85 +335,64 @@
 
         <div class="tabs print-hide">
             <button class="tab-btn active" id="tab-auditoria" onclick="mudarAba('auditoria')">🔍 Auditoria</button>
-            <!-- Separador de relatórios ocultável para operadores não autorizados -->
             <button class="tab-btn" id="tab-relatorios" onclick="mudarAba('relatorios')" style="display: none;">📊 Relatórios</button>
         </div>
 
         <!-- ECRÃ DE AUDITORIA -->
         <div id="view-auditoria">
             <div class="dash-container print-hide">
-                <div class="dash-card"><h4>Itens</h4><p id="dash-skus">0</p></div>
-                <div class="dash-card"><h4>Peças</h4><p id="dash-pecas">0</p></div>
+                <div class="dash-card"><h4>Itens Contados</h4><p id="dash-skus">0</p></div>
+                <div class="dash-card"><h4>Volume (Peças)</h4><p id="dash-pecas">0</p></div>
                 <div class="dash-container-financeiro" id="dash-financeiro-container" style="grid-column: span 2; display: none; flex-direction: column;">
-                    <div class="dash-card" style="border-top-color: var(--orange); width: 100%; box-sizing: border-box;">
+                    <div class="dash-card" style="border-left-color: var(--orange);">
                         <h4>Divergência Financeira</h4><p id="dash-financeiro">R$ 0,00</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Alerta Amigável para Operadores carregar catálogo via Excel local -->
-            <div id="alerta-catalogo-vazio" class="card print-hide" style="display:block; background: rgba(245, 158, 11, 0.1); border: 2px dashed var(--orange); text-align: center; padding: 20px; border-radius: 16px; margin-bottom: 15px;">
-                <p style="margin: 0 0 12px; font-size: 13px; font-weight: bold; color: var(--orange);">⚠️ Sem catálogo importado neste dispositivo!</p>
-                <p style="margin: 0 0 15px; font-size: 11px; color: var(--gray);">Para iniciar, clique no botão abaixo ou abra as opções para selecionar o arquivo Excel da Omie.</p>
-                <button class="btn-blue" onclick="abrirModalConfig()" style="max-width: 280px; margin: 0 auto; font-size: 11px; padding: 12px;">📁 SELECIONAR ARQUIVO EXCEL</button>
+            <div id="alerta-catalogo-vazio" class="card print-hide" style="display:block; background: rgba(245, 158, 11, 0.08); border: 2px dashed var(--orange); text-align: center;">
+                <p style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--orange);">⚠️ Base de Dados Local Vazia</p>
+                <p style="margin: 0 0 16px; font-size: 12px; color: var(--text);">Importe a planilha da Omie (Excel) para associar as contagens aos produtos corretos.</p>
+                <button class="btn-blue" onclick="abrirModalConfig()" style="max-width: 280px; margin: 0 auto; padding: 14px;">📁 CARREGAR PLANILHA</button>
             </div>
 
             <div class="card print-hide">
-                <button id="btn-cam" class="btn-blue" onclick="controlarCamera()">📷 LIGAR SCANNER</button>
-                
-                <!-- O visor do scanner de camera permanece centralizado -->
-                <div id="reader" style="display:none; width:100%; margin-top:10px; border-radius: 12px; overflow: hidden; border: 2px solid var(--blue);"></div>
-                
-                <!-- CONTAINER DE CONTROLES DO SCANNER: Ajustado para aparecer exclusivamente abaixo do leitor -->
-                <div id="scanner-controls" style="display: none; flex-direction: column; gap: 8px; margin-top: 10px;">
-                    <!-- Botão de Disparo Manual / Gatilho -->
-                    <button id="btn-gatilho" type="button" class="btn-orange" onclick="dispararLeitorGatilho()">⚡ DISPARAR LEITOR (GATILHO)</button>
-                    
-                    <!-- Interruptores de modos de leitura -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button id="btn-cam" class="btn-blue" onclick="controlarCamera()">📷 INICIAR SCANNER</button>
+                <div id="reader" style="display:none; width:100%; margin-top:16px; border-radius: 16px; overflow: hidden; border: 2px solid var(--blue);"></div>
+                <div id="scanner-controls" style="display: none; flex-direction: column; gap: 12px; margin-top: 16px;">
+                    <button id="btn-gatilho" type="button" class="btn-orange" onclick="dispararLeitorGatilho()">⚡ DISPARAR GATILHO MANUAL</button>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                         <div class="switch-container" style="margin-top: 0;">
-                            <label for="modo-continuo">Modo Contínuo (+1 Auto)</label>
+                            <label for="modo-continuo">Modo Contínuo (+1)</label>
                             <label class="switch"><input type="checkbox" id="modo-continuo"><span class="slider"></span></label>
                         </div>
                         <div class="switch-container" style="margin-top: 0;">
-                            <label for="modo-cego">Modo Cego (Ocultar Sist)</label>
+                            <label for="modo-cego">Modo Cego (Ocultar)</label>
                             <label class="switch"><input type="checkbox" id="modo-cego" onchange="render()"><span class="slider"></span></label>
                         </div>
                     </div>
-                    
-                    <!-- Novo Interruptor para o modo Gatilho -->
                     <div class="switch-container" style="margin-top: 0;">
-                        <label for="modo-gatilho">Usar Gatilho (Prevenir Leitura Acidental)</label>
+                        <label for="modo-gatilho">Usar Gatilho Físico/Botão</label>
                         <label class="switch"><input type="checkbox" id="modo-gatilho" onchange="toggleModoGatilho()"><span class="slider"></span></label>
                     </div>
                 </div>
 
-                <input type="text" id="busca-input" style="margin-top:15px; border: 2px solid var(--blue-dark);" placeholder="PESQUISAR NOME OU GTIN...">
-                <div id="resultados" style="max-height: 250px; overflow-y: auto;"></div>
-            </div>
-
-            <!-- Log Cronologico -->
-            <div class="card print-hide" style="padding: 12px 20px;">
-                <h4 style="margin: 0 0 8px 0; font-size: 11px; color: var(--gray); text-transform: uppercase;">🕒 Feed em Tempo Real</h4>
-                <div id="log-container">
-                    <div style="font-size:11px; color:var(--gray);">A aguardar contagens da equipa...</div>
-                </div>
+                <input type="text" id="busca-input" style="margin-top:20px; border: 2px solid var(--border);" placeholder="🔎 PESQUISAR NOME OU GTIN...">
+                <div id="resultados" style="max-height: 280px; overflow-y: auto; margin-top: 12px;"></div>
             </div>
 
             <div class="card print-hide">
-                <!-- Zona Reservada para Exportação (Apenas Chefe de Setor com verificação forte) -->
-                <div id="chefe-export-area" style="display:flex; gap:5px; margin-bottom: 15px;">
+                <div id="chefe-export-area" style="display:none; gap:12px; margin-bottom: 20px;">
                     <button class="btn-green" onclick="baixarExcel('tudo')">📥 EXPORTAR TUDO</button>
-                    <button class="btn-blue" onclick="baixarExcel('erros')">🚫 SÓ ERROS</button>
+                    <button class="btn-outline" style="border-color: var(--red); color: var(--red);" onclick="baixarExcel('erros')">🚫 SÓ DIVERGÊNCIAS</button>
                 </div>
                 <div style="overflow-x: auto;">
                     <table id="tabela">
-                        <thead><tr><th>Produto</th><th class="col-sist">Sist</th><th>Fis</th><th class="col-sist">Dif</th><th class="col-sist">Operador</th></tr></thead>
+                        <thead><tr><th style="text-align:left;">Produto</th><th class="col-sist">Sist</th><th>Fis</th><th class="col-sist">Dif</th><th class="col-sist">Auditor</th></tr></thead>
                         <tbody id="tabela-body"></tbody>
                     </table>
                 </div>
-                <!-- Limpar auditoria apenas disponível para o Chefe de Setor -->
-                <button id="chefe-limpar-btn" onclick="limparTudo()" style="margin-top:20px; color:var(--red); background:none; font-size:10px; border:none; width:100%; display:none;">🗑️ LIMPAR AUDITORIA NA NUVEM</button>
+                <button id="chefe-limpar-btn" onclick="limparTudo()" style="margin-top:24px; color:var(--red); background:rgba(239, 68, 68, 0.1); font-size:11px; width:100%; display:none;">🗑️ ZERAR TODA A AUDITORIA DA NUVEM</button>
             </div>
         </div>
 
@@ -400,10 +402,10 @@
             <p class="print-only" style="text-align: center; font-size: 12px; margin-top:-15px;" id="print-data"></p>
 
             <div class="card">
-                <h3 style="margin-top: 0; font-size: 14px; color: var(--blue-dark); border-bottom: 1px solid var(--border); padding-bottom: 10px;">Progresso da Auditoria</h3>
-                <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 600;">
+                <h3 style="margin-top: 0; font-size: 15px; color: var(--blue-dark); border-bottom: 1px solid var(--border); padding-bottom: 12px;">Progresso da Auditoria</h3>
+                <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: var(--text); margin-top: 12px;">
                     <span id="progresso-texto">0 / 0 Itens Contados</span>
-                    <span id="progresso-percentagem">0%</span>
+                    <span id="progresso-percentagem" style="color: var(--blue);">0%</span>
                 </div>
                 <div class="progress-container print-hide">
                     <div class="progress-bar" id="progresso-barra"></div>
@@ -411,170 +413,247 @@
             </div>
 
             <div class="card">
-                <h3 style="margin-top: 0; font-size: 14px; color: var(--blue-dark); border-bottom: 1px solid var(--border); padding-bottom: 10px;">Impacto Financeiro Global</h3>
-                <div class="report-grid">
+                <h3 style="margin-top: 0; font-size: 15px; color: var(--blue-dark); border-bottom: 1px solid var(--border); padding-bottom: 12px;">Balanço Financeiro Global</h3>
+                <div class="report-grid" style="margin-top: 16px;">
                     <div class="report-card green">
-                        <h5>Sobra (Positivo)</h5>
+                        <h5>Sobra Apurada</h5>
                         <p id="rel-sobra-fin">R$ 0,00</p>
-                        <small id="rel-sobra-qtd" style="font-size: 10px; color: var(--gray); margin-top: 5px;">0 Peças</small>
+                        <small id="rel-sobra-qtd" style="font-size: 11px; color: var(--gray); margin-top: 6px; font-weight: 600;">0 Peças</small>
                     </div>
                     <div class="report-card red">
-                        <h5>Quebra (Negativo)</h5>
+                        <h5>Quebra Apurada</h5>
                         <p id="rel-quebra-fin">R$ 0,00</p>
-                        <small id="rel-quebra-qtd" style="font-size: 10px; color: var(--gray); margin-top: 5px;">0 Peças</small>
+                        <small id="rel-quebra-qtd" style="font-size: 11px; color: var(--gray); margin-top: 6px; font-weight: 600;">0 Peças</small>
                     </div>
                 </div>
             </div>
 
             <div class="card">
-                <h3 style="margin-top: 0; font-size: 14px; color: var(--blue-dark); border-bottom: 1px solid var(--border); padding-bottom: 10px;">Top 5 Maiores Furos</h3>
-                <div style="overflow-x: auto;">
+                <h3 style="margin-top: 0; font-size: 15px; color: var(--blue-dark); border-bottom: 1px solid var(--border); padding-bottom: 12px;">Top 5 Maiores Divergências</h3>
+                <div style="overflow-x: auto; margin-top: 12px;">
                     <table id="tabela-top-furos">
-                        <thead><tr><th>Produto</th><th>Dif</th><th>Impacto</th></tr></thead>
+                        <thead><tr><th style="text-align:left;">Produto</th><th>Dif</th><th>Impacto</th></tr></thead>
                         <tbody id="tabela-furos-body">
-                            <tr><td colspan="3">A aguardar dados...</td></tr>
+                            <tr><td colspan="3" style="padding:20px; color:var(--gray);">A aguardar dados...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
             <div class="card print-hide">
-                <h3 style="margin-top: 0; font-size: 14px; color: var(--blue-dark); border-bottom: 1px solid var(--border); padding-bottom: 10px;">Top Famílias Contadas</h3>
-                <div id="chart-familias" style="margin-top: 15px;">
-                    <p style="font-size:12px; color:var(--gray); text-align:center; margin: 0;">A aguardar dados...</p>
+                <h3 style="margin-top: 0; font-size: 15px; color: var(--blue-dark); border-bottom: 1px solid var(--border); padding-bottom: 12px;">Famílias Mais Contadas</h3>
+                <div id="chart-familias" style="margin-top: 20px;">
+                    <p style="font-size:13px; color:var(--gray); text-align:center; margin: 0;">A aguardar dados...</p>
+                </div>
+            </div>
+
+            <!-- PRODUTOS PENDENTES -->
+            <div class="card print-hide">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+                    <h3 style="margin: 0; font-size: 15px; color: var(--blue-dark);">
+                        Itens Pendentes (<span id="qtd-pendentes-rel" style="color: var(--orange);">0</span>)
+                    </h3>
+                    <button onclick="baixarPendentesExcel()" class="btn-outline" style="width: auto; padding: 6px 12px; margin: 0; font-size: 10px; border-color: var(--orange); color: var(--orange); border-radius: 8px;">📥 EXPORTAR EXCEL</button>
+                </div>
+                <div style="max-height: 350px; overflow-y: auto; margin-top: 12px; border-radius: 12px; border: 1px solid var(--border);">
+                    <table style="margin-top: 0; border: none;">
+                        <thead style="position: sticky; top: 0; z-index: 1;"><tr><th style="text-align: left;">Descrição do Produto</th><th>Local</th><th>Sist</th></tr></thead>
+                        <tbody id="tabela-pendentes-body">
+                            <tr><td colspan="3" style="color:var(--gray); padding:20px; text-align:center;">Importe a planilha para visualizar.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- CONTROLO DE VALIDADES: VENCIDOS E A VENCER -->
+            <div class="report-grid print-hide" style="grid-template-columns: 1fr; gap: 20px;">
+                <!-- PRODUTOS VENCIDOS -->
+                <div class="card" style="margin-bottom: 0; border-color: rgba(239, 68, 68, 0.3); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.05);">
+                    <h3 style="margin-top: 0; font-size: 15px; color: var(--red); border-bottom: 1px solid rgba(239, 68, 68, 0.2); padding-bottom: 12px;">
+                        Produtos Vencidos (<span id="qtd-vencidos-rel" style="color: var(--red); font-weight: 800;">0</span>)
+                    </h3>
+                    <div style="max-height: 250px; overflow-y: auto; margin-top: 12px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2);">
+                        <table style="margin-top: 0; border: none;">
+                            <thead style="position: sticky; top: 0; z-index: 1; background: #fef2f2;"><tr><th style="text-align: left; color: var(--red);">Produto</th><th style="color: var(--red);">Lote</th><th style="color: var(--red);">Validade</th></tr></thead>
+                            <tbody id="tabela-vencidos-body">
+                                <tr><td colspan="3" style="color:var(--gray); padding:20px; text-align:center;">A aguardar dados...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- PRODUTOS A VENCER EM BREVE -->
+                <div class="card" style="margin-bottom: 0; border-color: rgba(245, 158, 11, 0.3); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.05);">
+                    <h3 style="margin-top: 0; font-size: 15px; color: var(--orange); border-bottom: 1px solid rgba(245, 158, 11, 0.2); padding-bottom: 12px;">
+                        A Vencer em Breve (≤ 30 dias) (<span id="qtd-avencer-rel" style="color: var(--orange); font-weight: 800;">0</span>)
+                    </h3>
+                    <div style="max-height: 250px; overflow-y: auto; margin-top: 12px; border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.2);">
+                        <table style="margin-top: 0; border: none;">
+                            <thead style="position: sticky; top: 0; z-index: 1; background: #fffbeb;"><tr><th style="text-align: left; color: var(--orange);">Produto</th><th style="color: var(--orange);">Lote</th><th style="color: var(--orange);">Validade</th></tr></thead>
+                            <tbody id="tabela-avencer-body">
+                                <tr><td colspan="3" style="color:var(--gray); padding:20px; text-align:center;">A aguardar dados...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
             <div class="print-only signature-block">
                 <div class="signature-line">Assinatura do Auditor</div>
-                <div class="signature-line">Assinatura do Gestor / Responsável</div>
+                <div class="signature-line">Visto da Gestão</div>
             </div>
 
-            <!-- Botão de impressão visível apenas ao chefe de setor -->
-            <button id="chefe-pdf-btn" class="btn-blue print-hide" onclick="imprimirPDF()" style="margin-top: 10px; display:none;">📄 GERAR RELATÓRIO PDF</button>
+            <button id="chefe-pdf-btn" class="btn-outline print-hide" onclick="imprimirPDF()" style="margin-top: 10px; display:none;">🖨️ IMPRIMIR RELATÓRIO OFICIAL</button>
         </div>
+        
+        <!-- Botão Flutuante de Log (Estilo App Nativo) -->
+        <button id="btn-floating-log" class="print-hide" onclick="abrirModalLog()" title="Ver Histórico">🕒</button>
+
     </div> <!-- FIM DO VIEW-APP -->
 
     <div id="toast-container"></div>
 
-    <!-- Modal de Menu/Importação -->
-    <div id="modal-config" class="modal">
-        <div class="modal-content">
-            <h3 style="margin-top: 0; font-size: 16px; color: var(--blue-dark); border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px;">☰ Opções e Ficheiro</h3>
-            
-            <div class="switch-container" style="margin-top: 0; margin-bottom: 15px;">
-                <label for="modal-theme-toggle">Modo Escuro (Dark Mode)</label>
-                <label class="switch"><input type="checkbox" id="modal-theme-toggle" onchange="toggleDarkMode()"><span class="slider"></span></label>
+    <!-- Modal de Log / Histórico -->
+    <div id="modal-log" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 16px;">
+                <h3 style="margin: 0; font-size: 18px; color: var(--blue-dark); font-weight: 800;">Histórico da Sessão</h3>
+                <button onclick="fecharModalLog()" style="background: var(--bg); border: 1px solid var(--border); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text); cursor: pointer;">✖</button>
             </div>
-
-            <!-- Importação de Planilha Local (Ocultável para Operadores não autorizados) -->
-            <div id="container-import-excel" style="margin-bottom: 15px; display: none;">
-                <label style="font-size: 11px; font-weight: bold; display: block; margin-bottom: 5px; color: var(--blue-dark);">📂 CARREGAR EXCEL DA OMIE (LOCAL):</label>
-                <input type="file" id="file-input" accept=".xlsx, .xls, .csv" style="margin-top: 5px;">
-                
-                <!-- Novo Botão para Limpar Planilha Carregada / Cache Local -->
-                <button onclick="limparCacheLocal()" class="btn-red" style="margin-top: 12px; font-size:11px; padding: 10px; width: 100%;">🗑️ LIMPAR PLANILHA LOCAL (Zerar Cache)</button>
+            <div id="log-container" style="max-height: 60vh; overflow-y: auto; padding-right: 8px;">
+                <div style="font-size:12px; color:var(--gray); text-align:center; padding:30px;">O histórico está vazio.</div>
             </div>
-            
-            <div id="status-catalog" style="font-size: 11px; font-weight: bold; color: var(--orange); margin-bottom: 15px;">☁️ A carregar estado do catálogo...</div>
-
-            <label style="font-size: 10px; font-weight: bold; color: var(--gray);">📍 LOCAIS (FILTRAR):</label>
-            <div id="filtro-local-multi" class="multi-select-box" style="margin-bottom: 15px;"><small style="color:var(--gray); padding: 5px;">Importe o arquivo para ver locais...</small></div>
-            
-            <label style="font-size: 10px; font-weight: bold; color: var(--gray);">📂 FAMÍLIAS (FILTRAR):</label>
-            <div id="filtro-family-multi" class="multi-select-box" style="margin-bottom: 15px;"><small style="color:var(--gray); padding: 5px;">Importe o arquivo para ver famílias...</small></div>
-            
-            <!-- Botões Administrativos -->
-            <div id="chefe-buttons-area" class="grid-buttons" style="display: none;">
-                <button class="btn-outline" style="border-color: var(--orange); color: var(--orange);" onclick="verPendentes()">🔍 PENDENTES</button>
-                <button class="btn-outline" style="border-color: var(--red); color: var(--red);" onclick="zerarNaoContados()">⚠️ ZERAR RESTANTES</button>
-            </div>
-
-            <!-- Segurança: Alteração de PIN de Segurança (Apenas Visível para Chefe de Setor) -->
-            <div id="chefe-pin-change-area" style="display: none; border-top: 2px dashed var(--border); padding-top: 15px; margin-top: 15px;">
-                <label style="font-size: 10px; font-weight: bold; color: var(--red); display: block; margin-bottom: 5px;">🔑 ALTERAR PIN DE SEGURANÇA:</label>
-                <input type="password" id="pin-antigo" placeholder="PIN Atual" style="padding: 10px; margin-bottom: 8px; font-size: 12px;">
-                <input type="password" id="pin-novo" placeholder="Novo PIN" style="padding: 10px; margin-bottom: 8px; font-size: 12px;">
-                <button onclick="alterarPinSeguranca()" class="btn-orange" style="padding: 10px; font-size: 11px;">GRAVAR NOVO PIN</button>
-            </div>
-            
-            <button onclick="fecharModalConfig()" style="background: var(--blue); color: white; margin-top: 20px; border: none; width: 100%; border-radius: 10px; padding: 14px; font-weight: 700; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2); transition: background 0.2s;">Fechar Menu</button>
         </div>
     </div>
 
-    <!-- Modal de Contagem -->
+    <!-- Modal de Configurações -->
+    <div id="modal-config" class="modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 16px;">
+                <h3 style="margin: 0; font-size: 18px; color: var(--blue-dark); font-weight: 800;">Opções do Sistema</h3>
+                <button onclick="fecharModalConfig()" style="background: var(--bg); border: 1px solid var(--border); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text); cursor: pointer;">✖</button>
+            </div>
+            
+            <div class="switch-container" style="margin-top: 0; margin-bottom: 20px;">
+                <label for="modal-theme-toggle">Aparência Escura (Dark)</label>
+                <label class="switch"><input type="checkbox" id="modal-theme-toggle" onchange="toggleDarkMode()"><span class="slider"></span></label>
+            </div>
+
+            <div id="container-import-excel" style="margin-bottom: 20px; display: none; background: var(--bg); padding: 16px; border-radius: 16px; border: 1px solid var(--border);">
+                <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 8px; color: var(--blue-dark);">📂 CARREGAR EXCEL (OMIE):</label>
+                <input type="file" id="file-input" accept=".xlsx, .xls, .csv">
+                <button onclick="limparCacheLocal()" class="btn-outline" style="margin-top: 12px; font-size:11px; padding: 12px; color: var(--red); border-color: rgba(239,68,68,0.3);">🗑️ ZERAR CACHE LOCAL</button>
+            </div>
+            
+            <div id="status-catalog" style="font-size: 12px; font-weight: 700; color: var(--orange); margin-bottom: 20px; text-align: center; background: var(--bg); padding: 10px; border-radius: 12px;">☁️ A carregar estado da memória...</div>
+
+            <label style="font-size: 11px; font-weight: 700; color: var(--blue-dark); margin-bottom: 6px; display: block;">📍 FILTRAR POR LOCAIS:</label>
+            <div id="filtro-local-multi" class="multi-select-box" style="margin-bottom: 20px;"><small style="color:var(--gray); padding: 10px; display: block;">Importe o arquivo primeiro...</small></div>
+            
+            <label style="font-size: 11px; font-weight: 700; color: var(--blue-dark); margin-bottom: 6px; display: block;">📂 FILTRAR POR FAMÍLIAS:</label>
+            <div id="filtro-family-multi" class="multi-select-box" style="margin-bottom: 20px;"><small style="color:var(--gray); padding: 10px; display: block;">Importe o arquivo primeiro...</small></div>
+            
+            <div id="chefe-buttons-area" class="grid-buttons" style="display: none; border-top: 1px solid var(--border); padding-top: 20px;">
+                <button class="btn-outline" style="border-color: var(--orange); color: var(--orange);" onclick="verPendentes()">🔍 VER PENDENTES</button>
+                <button class="btn-outline" style="border-color: var(--red); color: var(--red);" onclick="zerarNaoContados()">⚠️ ZERAR RESTANTES</button>
+            </div>
+
+            <div id="chefe-pin-change-area" style="display: none; border-top: 1px dashed var(--border); padding-top: 20px; margin-top: 20px;">
+                <label style="font-size: 11px; font-weight: 700; color: var(--red); display: block; margin-bottom: 10px;">🔑 ALTERAR PIN DE ACESSO:</label>
+                <input type="password" id="pin-antigo" placeholder="PIN Atual" style="margin-bottom: 10px;">
+                <input type="password" id="pin-novo" placeholder="Novo PIN Seguro" style="margin-bottom: 12px;">
+                <button onclick="alterarPinSeguranca()" class="btn-blue" style="padding: 14px;">GRAVAR NOVO PIN</button>
+            </div>
+            
+            <button onclick="fecharModalConfig()" style="background: var(--text); color: var(--bg); margin-top: 24px;">Concluir e Fechar</button>
+        </div>
+    </div>
+
+    <!-- Modal de Contagem (Otimizado) -->
     <div id="modal" class="modal">
         <div class="modal-content">
-            <div id="m-aviso-dup" style="display:none; background:#fef08a; color:#854d0e; padding:10px; border-radius:8px; margin-bottom:10px; text-align:center; font-size: 12px;"></div>
-            <label style="font-size: 11px; font-weight: bold;">PRODUTO:</label>
-            <input type="text" id="m-nome-edit" style="margin-bottom:10px; font-weight:bold;">
+            <div id="m-aviso-dup" style="display:none; background:rgba(245, 158, 11, 0.15); color:var(--orange); padding:16px; border-radius:16px; margin-bottom:16px; text-align:center; font-size: 13px; font-weight: 700; border: 1px solid rgba(245,158,11,0.3);"></div>
             
-            <!-- Campo de Código de Barras Editável + Botão de Câmera específico para o GTIN -->
-            <div style="display:flex; gap:10px; margin-bottom:10px; align-items:flex-end;">
+            <label style="font-size: 12px; font-weight: 700; color: var(--blue-dark); margin-bottom: 6px; display: block;">PRODUTO EM AUDITORIA:</label>
+            <input type="text" id="m-nome-edit" style="margin-bottom:16px; font-weight:800; font-size: 15px; color: var(--blue-dark); background: var(--bg); border: none;">
+            
+            <label style="font-size:12px; font-weight:700; color: var(--blue-dark); display:block; margin-bottom:6px;">CÓDIGO DE BARRAS (EAN):</label>
+            
+            <!-- GTIN View Mode -->
+            <div id="m-gtin-view-mode" style="display:none; gap:12px; margin-bottom:16px; align-items:center; background: var(--bg); padding: 14px 18px; border-radius: 14px; border: 1px solid var(--border);">
+                <div style="flex:1; font-weight:800; font-size: 17px; letter-spacing: 2px; color: var(--text);" id="m-gtin-display"></div>
+                <button type="button" class="btn-outline" onclick="habilitarEdicaoGtin()" style="padding:8px 14px; font-size:11px; width:auto; margin:0;">✏️ ALTERAR</button>
+            </div>
+
+            <!-- GTIN Edit Mode -->
+            <div id="m-gtin-edit-mode" style="display:flex; gap:12px; margin-bottom:16px; align-items:flex-end;">
                 <div style="flex:1;">
-                    <label style="font-size:11px; font-weight:bold;">CÓDIGO DE BARRAS (GTIN/EAN):</label>
-                    <input type="text" id="m-gtin-edit" placeholder="Nenhum código cadastrado" style="margin-top:4px;">
+                    <input type="text" id="m-gtin-edit" placeholder="Sem código registado" style="margin-top:0;">
                 </div>
-                <button type="button" class="btn-orange" id="btn-ler-gtin-modal" onclick="controlarCameraModal()" style="padding:14px 6px; font-size:11px; width:95px; margin:0; text-transform:none; height:46px;">📷 LER GTIN</button>
+                <button type="button" class="btn-orange" id="btn-ler-gtin-modal" onclick="controlarCameraModal()" style="padding:16px 8px; font-size:11px; width:100px; margin:0; text-transform:none;">📷 LER GTIN</button>
             </div>
             
-            <!-- Visor de câmara específico para ler o GTIN dentro do modal de contagem -->
-            <div id="reader-modal" style="display:none; width:100%; margin-bottom:10px; border-radius: 8px; overflow: hidden; border: 2px solid var(--orange);"></div>
+            <div id="reader-modal" style="display:none; width:100%; margin-bottom:16px; border-radius: 16px; overflow: hidden; border: 2px solid var(--orange);"></div>
 
             <div class="m-info-box">
-                <p id="m-gtin" style="font-size:11px; margin:0; color:var(--orange); font-weight:bold;"></p>
-                <p id="m-loc-cod" style="font-size:11px; margin:4px 0; color:var(--gray);"></p>
-                <div id="modal-sist-area">
-                    <p id="m-sist-val" style="font-size:13px; font-weight:bold; color:var(--blue); margin:5px 0;"></p>
-                    <p id="m-cmc-val" style="font-size:11px; color:var(--red); margin:0; font-weight:bold;"></p>
+                <p id="m-gtin" style="display:none;"></p> 
+                <p id="m-loc-cod" style="font-size:12px; margin:4px 0; font-weight: 600; color:var(--gray);"></p>
+                <div id="modal-sist-area" style="margin-top: 8px;">
+                    <p id="m-sist-val" style="font-size:14px; font-weight:800; color:var(--blue); margin:5px 0;"></p>
+                    <p id="m-cmc-val" style="font-size:12px; color:var(--red); margin:0; font-weight:700;"></p>
                 </div>
             </div>
-            <div style="display:flex; gap:10px; margin-bottom:4px;">
+
+            <div style="display:flex; gap:12px; margin-bottom:8px; align-items: flex-end;">
                 <div style="flex:1">
-                    <label style="font-size:11px; font-weight:bold;">QTD FÍSICA (ACEITA CÁLCULOS):</label>
-                    <!-- Adicionado o atributo inputmode="decimal" para chamar o teclado numérico no telemóvel mantendo a compatibilidade com fórmulas inline -->
-                    <input type="text" inputmode="decimal" id="m-qtd" placeholder="Ex: 3*12+4" onblur="esteCalculo(this)" style="font-size:20px; font-weight:bold; border:2px solid var(--blue);">
+                    <label style="font-size:12px; font-weight:700; color: var(--blue-dark); margin-bottom:6px; display:block;">QTD FÍSICA:</label>
+                    <input type="text" inputmode="decimal" id="m-qtd" placeholder="Ex: 3*12+4" onblur="esteCalculo(this)" class="highlight-input" style="font-size:22px; font-weight:800; border:2px solid var(--blue); text-align: center;">
                 </div>
-                <div style="width:75px"><label style="font-size:11px; font-weight:bold;">UN:</label><input type="text" id="m-un-edit"></div>
+                <div style="width:80px">
+                    <label style="font-size:12px; font-weight:700; color: var(--blue-dark); margin-bottom:6px; display:block;">UNID:</label>
+                    <input type="text" id="m-un-edit" style="text-align: center; font-weight: 700;">
+                </div>
             </div>
             
-            <!-- MiniTeclado Virtual com atalhos de operações matemáticas para agilizar digitação no telemóvel -->
             <div class="calc-shortcuts">
                 <button type="button" class="btn-calc" onclick="inserirSimbolo('+')">+</button>
                 <button type="button" class="btn-calc" onclick="inserirSimbolo('-')">-</button>
-                <button type="button" class="btn-calc" onclick="inserirSimbolo('*')">*</button>
-                <button type="button" class="btn-calc" onclick="inserirSimbolo('/')">/</button>
+                <button type="button" class="btn-calc" onclick="inserirSimbolo('*')">×</button>
+                <button type="button" class="btn-calc" onclick="inserirSimbolo('/')">÷</button>
                 <button type="button" class="btn-calc" onclick="inserirSimbolo('(')">(</button>
                 <button type="button" class="btn-calc" onclick="inserirSimbolo(')')">)</button>
             </div>
 
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <div><label style="font-size:11px;">Lote:</label><input type="text" id="m-lote"></div>
-                <div><label style="font-size:11px;">Validade:</label><input type="date" id="m-validade"></div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top: 16px;">
+                <div><label style="font-size:11px; font-weight:600;">Lote:</label><input type="text" id="m-lote" style="padding: 12px; font-size: 13px;"></div>
+                <div><label style="font-size:11px; font-weight:600;">Validade:</label><input type="date" id="m-validade" style="padding: 12px; font-size: 13px;"></div>
             </div>
-            <div id="m-venc-alerta-red" style="display:none; font-size:10px; font-weight:bold; color:var(--red); margin-top:5px;">⚠️ PRODUTO VENCIDO!</div>
-            <div id="m-venc-alerta-orange" style="display:none; font-size:10px; font-weight:bold; color:var(--orange); margin-top:5px;">⚠️ VENCE EM BREVE (30 DIAS)</div>
-            <div style="margin-top:10px;"><label style="font-size:11px;">OBSERVAÇÕES:</label><input type="text" id="m-obs"></div>
+            <div id="m-venc-alerta-red" style="display:none; font-size:11px; font-weight:800; color:var(--red); margin-top:8px; text-align: center;">⚠️ PRODUTO VENCIDO!</div>
+            <div id="m-venc-alerta-orange" style="display:none; font-size:11px; font-weight:800; color:var(--orange); margin-top:8px; text-align: center;">⚠️ VENCE EM BREVE (30 DIAS)</div>
             
-            <div style="margin-top:20px;">
-                <button id="btn-salvar-normal" type="button" class="btn-green" onclick="salvarFinal('substituir')">☁️ GUARDAR NA NUVEM</button>
-                <div id="botoes-duplicado" style="display:none; gap:10px;"><button type="button" class="btn-blue" onclick="salvarFinal('somar')">➕ SOMAR</button><button type="button" class="btn-orange" onclick="salvarFinal('substituir')">🔄 TROCAR</button></div>
-                <!-- Excluir contagem individual disponibilizado de forma segura -->
-                <button id="btn-excluir-item" type="button" class="btn-red" style="display:none; margin-top:10px;" onclick="excluirContagemEspecifica()">🗑️ APAGAR CONTAGEM</button>
+            <div style="margin-top:16px;">
+                <label style="font-size:11px; font-weight:600; margin-bottom: 6px; display: block;">Observações Adicionais:</label>
+                <input type="text" id="m-obs" placeholder="Escreva aqui..." style="font-size: 13px;">
             </div>
-            <button onclick="fecharModal()" type="button" style="background:none; color:var(--gray); margin-top:5px; border:none; width:100%;">CANCELAR</button>
+            
+            <div style="margin-top:28px;">
+                <button id="btn-salvar-normal" type="button" class="btn-green" onclick="salvarFinal('substituir')">☁️ GUARDAR NA NUVEM</button>
+                <div id="botoes-duplicado" style="display:none; gap:12px;"><button type="button" class="btn-blue" onclick="salvarFinal('somar')">➕ SOMAR QTD</button><button type="button" class="btn-orange" onclick="salvarFinal('substituir')">🔄 SUBSTITUIR</button></div>
+                <button id="btn-excluir-item" type="button" class="btn-outline" style="display:none; margin-top:12px; color: var(--red); border-color: rgba(239,68,68,0.2);" onclick="excluirContagemEspecifica()">🗑️ ELIMINAR REGISTO</button>
+            </div>
+            <button onclick="fecharModal()" type="button" style="background:none; color:var(--gray); margin-top:10px; border:none; width:100%; box-shadow: none;">Voltar sem guardar</button>
         </div>
     </div>
 
-    <!-- SCRIPT TIPO MÓDULO PARA IMPORTAR FIREBASE -->
+    <!-- SCRIPT TIPO MÓDULO PARA IMPORTAR FIREBASE SDK CLIENT-SIDE -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
         import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDocs, writeBatch } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
-        // =========================================================================
-        // CONFIGURAÇÃO DO FIREBASE
-        // =========================================================================
+        // CHAVE DE DESENCRIPTAÇÃO DOS SEGREDOS LOCAIS
+        const _HASH_V = "9f2b388c42a27b8761a20d4af0b23f2d01cebcba57f68c340b190f7a55280911";
+
         let firebaseConfig = {
             apiKey: "AIzaSyCUqfEuvJNSKERsE-Cj1U3ysbJ6GB_4IGg",
             authDomain: "auditor-estoque.firebaseapp.com",
@@ -591,30 +670,37 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // VARIÁVEIS GLOBAIS DA APLICAÇÃO
-        let baseDados = []; // Armazena a planilha lida localmente no telemóvel do utilizador
-        let contagens = [];  // Escuta em tempo real as contagens salvas na nuvem
+        let baseDados = []; 
+        let contagens = [];  
         let logAcoes = [];
         let itemAtual = null; let indexEdicao = -1; let html5QrCode = null; let diasParaVencer = null;
         
-        let operadorAtual = localStorage.getItem('operador_atual') || '';
-        let cargoAtual = localStorage.getItem('cargo_atual') || 'OPERADOR'; 
-        
-        let currentUser = null;
+        let operadorAtual = "";
+        let cargoAtual = "OPERADOR";
 
-        // Estado do Gatilho Manual
+        try {
+            const rawOp = localStorage.getItem('op_enc');
+            const rawCargo = localStorage.getItem('cargo_enc');
+            if (rawOp) {
+                operadorAtual = CryptoJS.AES.decrypt(rawOp, _HASH_V).toString(CryptoJS.enc.Utf8) || "";
+            }
+            if (rawCargo) {
+                cargoAtual = CryptoJS.AES.decrypt(rawCargo, _HASH_V).toString(CryptoJS.enc.Utf8) || "OPERADOR";
+            }
+        } catch(e) {
+            console.warn("Segurança local redefinida por integridade.");
+        }
+
+        let currentUser = null;
         window.gatilhoDisparado = false;
         window.gatilhoTimeout = null;
-        window.html5QrCodeModal = null; // Scanner do modal de edição/cadastramento de GTIN
+        window.html5QrCodeModal = null;
 
-        // Função de remoção automática de acentos para busca inteligente e sem falhas e sanitização básica
         const removerAcentos = (str) => {
             if (!str) return '';
-            // Sanitização básica contra injeções de scripts maliciosos nos inputs
             return String(str).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[<>]/g, "");
         };
 
-        // Função para mostrar/ocultar campo de PIN no login
         window.toggleLoginPinField = function() {
             const cargo = document.getElementById('login-cargo').value;
             const pinContainer = document.getElementById('login-pin-container');
@@ -627,11 +713,11 @@
             }
         }
 
-        // Função de alteração do PIN de administrador de forma segura
         window.alterarPinSeguranca = function() {
             const pinAntigo = document.getElementById('pin-antigo').value;
             const pinNovo = document.getElementById('pin-novo').value.trim();
-            const pinAtualSalvo = localStorage.getItem('smart_chefe_pin') || '1234';
+            const pinAtualSalvo = localStorage.getItem('smart_chefe_pin_enc') ? 
+                CryptoJS.AES.decrypt(localStorage.getItem('smart_chefe_pin_enc'), _HASH_V).toString(CryptoJS.enc.Utf8) : '1234';
 
             if (pinAntigo !== pinAtualSalvo) {
                 return window.showToast("O PIN atual inserido está incorreto!", "error");
@@ -640,14 +726,14 @@
                 return window.showToast("O novo PIN deve conter pelo menos 4 dígitos!", "warning");
             }
 
-            localStorage.setItem('smart_chefe_pin', pinNovo);
+            const encPin = CryptoJS.AES.encrypt(pinNovo, _HASH_V).toString();
+            localStorage.setItem('smart_chefe_pin_enc', encPin);
             document.getElementById('pin-antigo').value = '';
             document.getElementById('pin-novo').value = '';
-            window.showToast("PIN de segurança updated com sucesso!", "success");
-            window.addLog("Alterou o PIN de segurança administrativa", "warning");
+            window.showToast("PIN de segurança atualizado com sucesso!", "success");
+            window.addLog("Alterou o PIN de segurança", "warning");
         }
 
-        // Função de inserção de caracteres rápidos de cálculo no input
         window.inserirSimbolo = function(simbolo) {
             const inputQtd = document.getElementById('m-qtd');
             if (inputQtd) {
@@ -656,14 +742,12 @@
             }
         };
 
-        // Ativar/Desativar botão de disparo do gatilho dependendo da checkbox
         window.toggleModoGatilho = function() {
             const usarGatilho = document.getElementById('modo-gatilho').checked;
             document.getElementById('btn-gatilho').style.display = usarGatilho ? "block" : "none";
             window.resetarEstadoGatilho();
         }
 
-        // Reseta o estado do gatilho
         window.resetarEstadoGatilho = function() {
             window.gatilhoDisparado = false;
             if (window.gatilhoTimeout) clearTimeout(window.gatilhoTimeout);
@@ -674,17 +758,15 @@
             }
         }
 
-        // Ativa o leitor temporariamente
         window.dispararLeitorGatilho = function() {
             window.gatilhoDisparado = true;
-            window.playBeep('success'); // bip sutil para indicar gatilho armado
+            window.playBeep('success'); 
             const btnG = document.getElementById('btn-gatilho');
             if (btnG) {
-                btnG.innerText = "🎯 AGUARDANDO CÓDIGO...";
+                btnG.innerText = "🎯 A AGUARDAR LEITURA...";
                 btnG.style.background = "var(--green)";
             }
             
-            // Cancela após 4 segundos se nada for lido para prevenir leituras indesejadas mais tarde
             if (window.gatilhoTimeout) clearTimeout(window.gatilhoTimeout);
             window.gatilhoTimeout = setTimeout(() => {
                 window.resetarEstadoGatilho();
@@ -692,15 +774,17 @@
             }, 4000);
         }
 
-        // Tenta carregar o último arquivo importado localmente neste telemóvel para não ter de importar sempre
         try {
-            const cachedCatalog = localStorage.getItem('catalogo_local');
-            if (cachedCatalog) {
-                baseDados = JSON.parse(cachedCatalog);
+            const cachedCatalogEnc = localStorage.getItem('catalogo_local_enc');
+            if (cachedCatalogEnc) {
+                const bytes = CryptoJS.AES.decrypt(cachedCatalogEnc, _HASH_V);
+                const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+                if (decryptedData) {
+                    baseDados = JSON.parse(decryptedData);
+                }
             }
-        } catch (e) { console.error("Erro ao ler cache do catálogo:", e); }
+        } catch (e) { console.error("Erro ao ler cache do catálogo seguro:", e); }
 
-        // INICIA AUTENTICAÇÃO INVISÍVEL
         const initAuth = async () => {
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -718,7 +802,6 @@
         onAuthStateChanged(auth, (u) => {
             currentUser = u;
             if (currentUser) {
-                // 1. Escuta as Contagens salvas na nuvem em Tempo Real
                 const colRefContagens = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
                 onSnapshot(colRefContagens, (snapshot) => {
                     const newContagens = [];
@@ -736,7 +819,6 @@
             }
         });
 
-        // Sincronizar filtros na tela com os dados locais
         window.atualizarFiltrosDOM = function() {
             let locs = new Set();
             let fams = new Set();
@@ -750,7 +832,7 @@
             
             if (baseDados.length > 0) {
                 if (statusEl) {
-                    statusEl.innerText = `📂 Planilha Local: ${baseDados.length} itens carregados.`;
+                    statusEl.innerText = `📂 Memória: ${baseDados.length} itens carregados.`;
                     statusEl.style.color = 'var(--green)';
                 }
                 if (alertaEl) alertaEl.style.display = 'none';
@@ -759,7 +841,7 @@
                 document.getElementById('filtro-family-multi').innerHTML = Array.from(fams).sort().map((f, i) => `<div class="multi-select-item"><input type="checkbox" class="check-f" id="fam-${i}" value="${f}" checked><label for="fam-${i}">${f}</label></div>`).join('');
             } else {
                 if (statusEl) {
-                    statusEl.innerText = "☁️ Sem planilha carregada localmente neste aparelho.";
+                    statusEl.innerText = "☁️ Memória local vazia.";
                     statusEl.style.color = 'var(--orange)';
                 }
                 if (alertaEl && operadorAtual) alertaEl.style.display = 'block';
@@ -769,27 +851,24 @@
             }
         }
 
-        // LIMPAR CACHE/PLANILHA LOCAL DO DISPOSITIVO
         window.limparCacheLocal = function() {
-            if (confirm("Deseja apagar a planilha local carregada neste dispositivo? As contagens salvas na nuvem continuam salvas.")) {
+            if (confirm("Deseja apagar a planilha carregada na memória do seu telemóvel? As contagens salvas na nuvem continuam salvas.")) {
                 baseDados = [];
-                localStorage.removeItem('catalogo_local');
+                localStorage.removeItem('catalogo_local_enc');
                 window.atualizarFiltrosDOM();
                 window.render();
-                window.showToast("Catálogo local removido com sucesso!", "success");
+                window.showToast("Cache do catálogo removida!", "success");
                 window.fecharModalConfig();
             }
         }
 
-        // LOGIN E CONTEXTO DE CARGO COM VERIFICAÇÃO DE SEGURANÇA
         window.checkLogin = function() {
             if (operadorAtual) {
                 document.getElementById('view-login').style.display = 'none';
                 document.getElementById('view-app').style.display = 'block';
                 document.getElementById('lbl-operador').innerText = `${operadorAtual}`;
-                document.getElementById('lbl-cargo').innerText = cargoAtual === 'CHEFE' ? 'Chefe de Setor' : 'Operador';
+                document.getElementById('lbl-cargo').innerText = cargoAtual === 'CHEFE' ? 'Gestão' : 'Auditor';
                 
-                // Aplicação Dinâmica de Permissões de Segurança baseadas em Função (RBAC)
                 if (cargoAtual === 'CHEFE') {
                     document.getElementById('tab-relatorios').style.display = 'block';
                     document.getElementById('dash-financeiro-container').style.display = 'flex';
@@ -799,7 +878,7 @@
                     document.getElementById('chefe-pdf-btn').style.display = 'block';
                     document.getElementById('chefe-pin-change-area').style.display = 'block';
                     document.getElementById('container-import-excel').style.display = 'block';
-                    document.getElementById('app-badge-mode').innerText = '🛡️ CHEFE CLOUD';
+                    document.getElementById('app-badge-mode').innerText = '🛡️ GESTÃO ATIVA';
                     document.getElementById('app-badge-mode').style.background = 'var(--orange)';
                 } else {
                     document.getElementById('tab-relatorios').style.display = 'none';
@@ -810,10 +889,9 @@
                     document.getElementById('chefe-pdf-btn').style.display = 'none';
                     document.getElementById('chefe-pin-change-area').style.display = 'none';
                     document.getElementById('container-import-excel').style.display = 'none';
-                    document.getElementById('app-badge-mode').innerText = '👤 OPERADOR CLOUD';
+                    document.getElementById('app-badge-mode').innerText = '👤 AUDITORIA';
                     document.getElementById('app-badge-mode').style.background = 'var(--blue)';
                     
-                    // Se estiver na aba relatórios e for despromovido a operador, volta para auditoria por segurança
                     window.mudarAba('auditoria');
                 }
 
@@ -833,10 +911,11 @@
             if (!nome) return window.showToast('Digite o seu nome ou matrícula!', 'warning');
             
             if (cargo === 'CHEFE') {
-                const pinSegurancaSalvo = localStorage.getItem('smart_chefe_pin') || '1234';
+                const pinSegurancaSalvo = localStorage.getItem('smart_chefe_pin_enc') ? 
+                    CryptoJS.AES.decrypt(localStorage.getItem('smart_chefe_pin_enc'), _HASH_V).toString(CryptoJS.enc.Utf8) : '1234';
                 if (pinDigitado !== pinSegurancaSalvo) {
                     window.playBeep('error');
-                    return window.showToast('Código PIN de Administrador incorreto!', 'error');
+                    return window.showToast('Código PIN de Acesso incorreto!', 'error');
                 }
                 cargoAtual = 'CHEFE';
             } else {
@@ -844,20 +923,21 @@
             }
 
             operadorAtual = nome;
-            localStorage.setItem('operador_atual', operadorAtual);
-            localStorage.setItem('cargo_atual', cargoAtual);
             
-            document.getElementById('login-pin').value = ''; // Limpa o campo do PIN por segurança
+            localStorage.setItem('op_enc', CryptoJS.AES.encrypt(operadorAtual, _HASH_V).toString());
+            localStorage.setItem('cargo_enc', CryptoJS.AES.encrypt(cargoAtual, _HASH_V).toString());
+            
+            document.getElementById('login-pin').value = ''; 
             window.checkLogin(); 
-            window.showToast(`Autenticado como ${operadorAtual} (${cargoAtual === 'CHEFE' ? 'Chefe' : 'Operador'})`, 'success');
+            window.showToast(`Sessão iniciada como ${operadorAtual}`, 'success');
         }
         
         window.fazerLogout = function() {
             if(confirm("Deseja sair da sessão atual?")) {
                 operadorAtual = '';
                 cargoAtual = 'OPERADOR';
-                localStorage.removeItem('operador_atual');
-                localStorage.removeItem('cargo_atual');
+                localStorage.removeItem('op_enc');
+                localStorage.removeItem('cargo_enc');
                 document.getElementById('login-nome').value = '';
                 document.getElementById('login-pin').value = '';
                 window.checkLogin();
@@ -880,7 +960,7 @@
         window.addLog = function(msg, type='info', op=operadorAtual) {
             const time = new Date().toLocaleTimeString('pt-PT', {hour: '2-digit', minute:'2-digit'});
             logAcoes.unshift({time, msg, type, op});
-            if(logAcoes.length > 5) logAcoes.pop();
+            if(logAcoes.length > 20) logAcoes.pop();
             const container = document.getElementById('log-container');
             if(container) {
                 container.innerHTML = logAcoes.map(l => `<div class="log-entry"><span class="log-time">${l.time}</span><span class="log-msg"><span class="log-operador">${l.op}:</span> ${l.msg}</span></div>`).join('');
@@ -913,6 +993,10 @@
 
         window.abrirModalConfig = function() { document.getElementById('modal-config').style.display = "flex"; }
         window.fecharModalConfig = function() { document.getElementById('modal-config').style.display = "none"; }
+        
+        window.abrirModalLog = function() { document.getElementById('modal-log').style.display = "flex"; }
+        window.fecharModalLog = function() { document.getElementById('modal-log').style.display = "none"; }
+
         window.fecharModal = function() { 
             window.desligarCamModal(); 
             document.getElementById('modal').style.display = "none"; 
@@ -924,14 +1008,14 @@
 
         window.verPendentes = function() {
             if (cargoAtual !== 'CHEFE') return window.showToast("Erro de permissão!", "error");
-            if(baseDados.length === 0) return window.showToast("Importe primeiro o seu arquivo do Omie local!", "error");
+            if(baseDados.length === 0) return window.showToast("Importe primeiro o arquivo local!", "error");
             const lS = window.getLocsSel(); const fS = Array.from(document.querySelectorAll('.check-f:checked')).map(cb => cb.value);
             const pendentes = baseDados.filter(i => !contagens.some(c => c.codigo === i.codigo && c.local === i.local) && (lS.length === 0 || lS.includes(i.local)) && (fS.length === 0 || fS.includes(i.familia)));
             const res = document.getElementById('resultados'); 
-            res.innerHTML = `<div style="padding:10px; font-weight:bold; background:var(--orange); color:#fff; text-align:center; border-radius:8px; margin-bottom:5px;">PENDENTES (${pendentes.length})</div>`;
+            res.innerHTML = `<div style="padding:16px; font-weight:800; background:var(--orange); color:#fff; text-align:center; border-radius:12px; margin-bottom:12px; font-size: 14px; box-shadow: 0 4px 10px rgba(245,158,11,0.3);">LISTA DE PENDENTES (${pendentes.length})</div>`;
             pendentes.slice(0, 30).forEach(i => { 
                 const d = document.createElement('div'); d.className = 'item-res'; 
-                d.innerHTML = `<strong>${i.descricao}</strong><br><small style="color:var(--red);">PENDENTE EM: ${i.local}</small>`; 
+                d.innerHTML = `<strong>${i.descricao}</strong><br><small style="color:var(--red); font-weight:600;">PENDENTE EM: ${i.local}</small>`; 
                 d.onclick = () => { indexEdicao = -1; window.abrirModal(i, false); }; res.appendChild(d); 
             });
             document.getElementById('busca-input').value = ''; window.fecharModalConfig();
@@ -940,13 +1024,13 @@
         window.zerarNaoContados = async function() {
             if (cargoAtual !== 'CHEFE') return window.showToast("Erro: Apenas o Chefe de Setor pode realizar esta ação!", "error");
             if (!currentUser) return window.showToast("Sem ligação à nuvem.", "error");
-            if(baseDados.length === 0) return window.showToast("Carregue o arquivo local do Omie primeiro!", "error");
+            if(baseDados.length === 0) return window.showToast("Carregue o arquivo local primeiro!", "error");
             const lS = window.getLocsSel(); const fS = Array.from(document.querySelectorAll('.check-f:checked')).map(cb => cb.value);
             const pendentes = baseDados.filter(i => !contagens.some(c => c.codigo === i.codigo && c.local === i.local) && (lS.length === 0 || lS.includes(i.local)) && (fS.length === 0 || fS.includes(i.familia)));
             if(pendentes.length === 0) return window.showToast("Nenhum produto pendente!", "info");
             
-            if(confirm(`Zerar no sistema as contagens de ${pendentes.length} produtos pendentes?`)) {
-                window.showToast("A registar contagens zero na nuvem...", "info");
+            if(confirm(`Zerar no sistema as contagens de ${pendentes.length} produtos pendentes na zona selecionada?`)) {
+                window.showToast("A registar zeramentos na nuvem...", "info");
                 const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
                 
                 let batch = writeBatch(db);
@@ -971,7 +1055,7 @@
                         gtin: i.gtin || '',
                         lote: "", 
                         validade: "", 
-                        obs: "NÃO ENCONTRADO", 
+                        obs: "PRODUTO NÃO ENCONTRADO", 
                         operador: operadorAtual, 
                         data: new Date().toLocaleString('pt-PT'), 
                         timestamp: Date.now()
@@ -992,7 +1076,7 @@
                     await batch.commit();
                 }
 
-                window.addLog(`Zerou ${totalZeradados} itens.`); 
+                window.addLog(`Zerou ${totalZeradados} itens.`, 'warning'); 
                 window.showToast("Inventário restante zerado!", "success"); 
                 window.fecharModalConfig();
             }
@@ -1003,18 +1087,23 @@
             if (indexEdicao !== -1) { 
                 const item = contagens[indexEdicao];
                 
-                // Regra de Segurança: Apenas o próprio autor ou o Chefe de Setor podem eliminar uma contagem
                 if (cargoAtual !== 'CHEFE' && item.operador !== operadorAtual) {
                     window.playBeep('error');
                     return window.showToast("Segurança: Não tem permissão para apagar contagens de outros operadores!", "error");
                 }
                 
-                if (confirm(`Deseja APAGAR a contagem de "${item.descricao}" realizada por ${item.operador}?`)) { 
+                if (confirm(`Tem a certeza absoluta que deseja APAGAR a contagem de "${item.descricao}" realizada por ${item.operador}?`)) { 
                     await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'contagens', item.id));
-                    window.addLog("Apagou contagem: " + item.descricao, "error");
+                    window.addLog("Apagou registo: " + item.descricao, "error");
                     window.fecharModal(); 
                 } 
             } 
+        }
+
+        window.habilitarEdicaoGtin = function() {
+            document.getElementById('m-gtin-view-mode').style.display = 'none';
+            document.getElementById('m-gtin-edit-mode').style.display = 'flex';
+            document.getElementById('m-gtin-edit').focus();
         }
 
         window.controlarCameraModal = async function() {
@@ -1038,7 +1127,7 @@
                         }
                     );
                 } catch (err) {
-                    window.showToast("Falha na câmara para o código de barras.", "error");
+                    window.showToast("Acesso negado à câmara.", "error");
                     window.desligarCamModal();
                 }
             } else {
@@ -1076,13 +1165,21 @@
             itemAtual = item; const isCego = document.getElementById('modo-cego')?.checked;
             document.getElementById('m-nome-edit').value = item.descricao; document.getElementById('m-nome-edit').readOnly = !isNovo;
             document.getElementById('m-un-edit').value = item.unidade || 'UN'; 
-            document.getElementById('m-loc-cod').innerText = `📍 ${item.local} | CÓD: ${item.codigo}`;
-            document.getElementById('m-gtin').innerText = "GTIN: " + (item.gtin || "N/A");
+            document.getElementById('m-loc-cod').innerText = `📍 Local: ${item.local} | Cód: ${item.codigo}`;
+            
             document.getElementById('m-gtin-edit').value = item.gtin || ''; 
+            if (item.gtin && item.gtin.trim() !== '') {
+                document.getElementById('m-gtin-display').innerText = item.gtin.trim();
+                document.getElementById('m-gtin-view-mode').style.display = 'flex';
+                document.getElementById('m-gtin-edit-mode').style.display = 'none';
+            } else {
+                document.getElementById('m-gtin-view-mode').style.display = 'none';
+                document.getElementById('m-gtin-edit-mode').style.display = 'flex';
+            }
             
             document.getElementById('modal-sist-area').style.display = isCego ? 'none' : 'block';
-            document.getElementById('m-sist-val').innerText = `SISTEMA: ${item.sistema} ${item.unidade || 'UN'}`;
-            document.getElementById('m-cmc-val').innerText = `CMC: R$ ${(item.cmc || 0).toFixed(2)}`;
+            document.getElementById('m-sist-val').innerText = `QTD SISTEMA: ${item.sistema} ${item.unidade || 'UN'}`;
+            document.getElementById('m-cmc-val').innerText = `Custo Unitário (CMC): R$ ${(item.cmc || 0).toFixed(2)}`;
             
             const idxAnt = contagens.findIndex(c => c.codigo === item.codigo && c.local === item.local);
             const alertDup = document.getElementById('m-aviso-dup');
@@ -1090,14 +1187,9 @@
             if (idxAnt !== -1) {
                 const itemContado = contagens[idxAnt];
                 alertDup.style.display = 'block';
-                alertDup.style.background = '#fef08a';
-                alertDup.style.color = '#854d0e';
-                alertDup.style.padding = '10px';
-                alertDup.style.borderRadius = '8px';
-                alertDup.style.marginBottom = '10px';
-                alertDup.style.fontWeight = 'bold';
-                alertDup.style.textAlign = 'center';
-                alertDup.innerHTML = `⚠️ JÁ CONTADO POR <strong>${itemContado.operador || 'OUTRO OPERADOR'}</strong><br>Qtd Lançada: <strong>${itemContado.fisico} ${itemContado.unidade || 'UN'}</strong>`;
+                alertDup.style.background = 'rgba(245, 158, 11, 0.15)';
+                alertDup.style.color = 'var(--orange)';
+                alertDup.innerHTML = `⚠️ JÁ CONTADO POR <strong>${itemContado.operador || 'OUTRO OPERADOR'}</strong><br>Qtd Atual Lançada: <strong>${itemContado.fisico} ${itemContado.unidade || 'UN'}</strong>`;
                 
                 document.getElementById('btn-salvar-normal').style.display = 'none';
                 document.getElementById('botoes-duplicado').style.display = 'flex';
@@ -1111,6 +1203,7 @@
                 document.getElementById('m-qtd').value = ''; 
                 document.getElementById('m-lote').value = '';
                 document.getElementById('m-validade').value = ''; 
+                document.getElementById('m-obs').value = ''; 
                 document.getElementById('btn-excluir-item').style.display = 'none';
             } else { 
                 document.getElementById('btn-excluir-item').style.display = 'block'; 
@@ -1122,7 +1215,7 @@
             if (!currentUser) return window.showToast("A aguardar ligação à nuvem...", "error");
             window.esteCalculo(document.getElementById('m-qtd')); 
             const qVal = document.getElementById('m-qtd').value; 
-            if (!qVal) return window.showToast("Digite a Quantidade!", "warning");
+            if (!qVal) return window.showToast("Digite a Quantidade Física apurada!", "warning");
             let novaQtd = parseFloat(qVal);
             
             itemAtual.descricao = document.getElementById('m-nome-edit').value.toUpperCase(); 
@@ -1138,16 +1231,12 @@
 
             if (indexEdicao !== -1) { 
                 targetId = contagens[indexEdicao].id; 
-                
-                // Regra de Segurança: Apenas o próprio autor ou o Chefe de Setor podem editar uma contagem já feita
                 if (cargoAtual !== 'CHEFE' && contagens[indexEdicao].operador !== operadorAtual) {
                     window.playBeep('error');
                     return window.showToast("Segurança: Não tem permissão para alterar dados de outros operadores!", "error");
                 }
             } else if (idxAnt !== -1) { 
                 targetId = contagens[idxAnt].id; 
-                
-                // Proteção semelhante para duplicados cruzados na nuvem
                 if (cargoAtual !== 'CHEFE' && contagens[idxAnt].operador !== operadorAtual) {
                     window.playBeep('error');
                     return window.showToast("Segurança: Este produto já foi contado por outro colega!", "error");
@@ -1172,7 +1261,7 @@
                 fisico: novaQtd, 
                 dif: novaQtd - (itemAtual.sistema || 0), 
                 cmc_unitario: itemAtual.cmc || 0, 
-                gtin: itemAtual.gtin || '', 
+                gtin: novoGtin, 
                 lote: document.getElementById('m-lote').value.toUpperCase(), 
                 validade: document.getElementById('m-validade').value, 
                 obs: obs, 
@@ -1185,7 +1274,7 @@
             if (baseIdx !== -1) {
                 baseDados[baseIdx].gtin = novoGtin;
                 try {
-                    localStorage.setItem('catalogo_local', JSON.stringify(baseDados));
+                    localStorage.setItem('catalogo_local_enc', CryptoJS.AES.encrypt(JSON.stringify(baseDados), _HASH_V).toString());
                 } catch (e) { console.error(e); }
             }
 
@@ -1195,14 +1284,14 @@
             const resultados = document.getElementById('resultados');
             if (resultados) resultados.innerHTML = '';
             
-            window.showToast("A registar contagem...", "info");
+            window.showToast("A sincronizar com a nuvem...", "info");
 
             setDoc(doc(colRef, docId), payload).then(() => {
-                window.showToast("Sincronizado na Nuvem", "success"); 
+                window.showToast("Registo Salvo com Sucesso", "success"); 
                 window.addLog(modo === 'somar' ? '+' : '' + " " + novaQtd + "x " + itemAtual.descricao);
             }).catch((e) => {
                 console.error("Erro ao salvar contagem:", e);
-                window.showToast("Erro ao guardar na nuvem!", "error");
+                window.showToast("Falha na comunicação com o banco de dados!", "error");
             });
         }
 
@@ -1229,15 +1318,15 @@
                 
                 if (idx < 100) {
                     html += `<tr onclick="editarContagem(${idx})">
-                        <td style="text-align:left;">${i.descricao || 'PRODUTO SEM NOME'}</td>
+                        <td style="text-align:left; font-size:11px;">${i.descricao || 'PRODUTO SEM NOME'}<br><small style="color:var(--gray); font-weight:normal;">${i.local}</small></td>
                         <td class="col-sist" style="display:${isCego?'none':'table-cell'}">${sistema}</td>
-                        <td style="font-weight:bold; color:var(--blue);">${fisico}</td>
-                        <td class="col-sist" style="display:${isCego?'none':'table-cell'}; color:${dif<0?'var(--red)':dif>0?'var(--green)':'inherit'};">${dif.toFixed(2)}</td>
-                        <td class="col-sist" style="display:${isCego?'none':'table-cell'}">${i.operador || 'SEM OPERADOR'}</td>
+                        <td style="font-weight:800; color:var(--blue); font-size: 13px;">${fisico}</td>
+                        <td class="col-sist" style="display:${isCego?'none':'table-cell'}; font-weight:700; color:${dif<0?'var(--red)':dif>0?'var(--green)':'inherit'};">${dif > 0 ? '+'+dif.toFixed(2) : dif.toFixed(2)}</td>
+                        <td class="col-sist" style="display:${isCego?'none':'table-cell'}">${i.operador || 'DESCONHECIDO'}</td>
                     </tr>`;
                 }
             });
-            if (contagens.length > 100) html += `<tr><td colspan="5" style="color:var(--gray); padding:15px;">Mostrando os últimas 100...</td></tr>`;
+            if (contagens.length > 100) html += `<tr><td colspan="5" style="color:var(--gray); padding:20px; font-size: 11px;">Apenas as últimas 100 contagens são exibidas no ecrã.</td></tr>`;
             
             b.innerHTML = html; 
             document.getElementById('dash-skus').innerText = contagens.length; 
@@ -1247,9 +1336,8 @@
         }
 
         window.mudarAba = function(aba) {
-            // Chefe de Setor tem exclusividade nos relatórios financeiros por segurança
             if (aba === 'relatorios' && cargoAtual !== 'CHEFE') {
-                window.showToast("Apenas o Chefe de Setor tem acesso aos relatórios!", "error");
+                window.showToast("Área restrita. Apenas a Gestão tem acesso aos relatórios!", "error");
                 return;
             }
             document.getElementById('view-auditoria').style.display = aba === 'auditoria' ? 'block' : 'none';
@@ -1260,13 +1348,13 @@
         }
 
         window.atualizarRelatorios = function() {
-            if (cargoAtual !== 'CHEFE') return; // Bloqueio forte de computação financeira em background
+            if (cargoAtual !== 'CHEFE') return; 
 
             const totalBase = baseDados.length > 0 ? baseDados.length : contagens.length;
             const totalContados = contagens.length;
             let percentagem = totalBase === 0 ? 0 : Math.min(100, Math.round((totalContados / totalBase) * 100));
-            document.getElementById('progresso-texto').innerText = `${totalContados} / ${totalBase} Itens Contados`;
-            document.getElementById('progresso-percentagem').innerText = `${percentagem}%`; 
+            document.getElementById('progresso-texto').innerText = `${totalContados} / ${totalBase} Itens Auditados`;
+            document.getElementById('progresso-percentagem').innerText = `${percentagem}% Concluído`; 
             document.getElementById('progresso-barra').style.width = `${percentagem}%`;
 
             let sobraFin = 0, quebraFin = 0; 
@@ -1298,7 +1386,7 @@
                 }).slice(0, 5);
 
                 if (topFuros.length === 0) {
-                    furosBody.innerHTML = `<tr><td colspan="3" style="color:var(--gray); padding:15px;">Sem divergências.</td></tr>`;
+                    furosBody.innerHTML = `<tr><td colspan="3" style="color:var(--gray); padding:20px;">Auditoria perfeitamente alinhada. Sem divergências.</td></tr>`;
                 } else {
                     furosBody.innerHTML = topFuros.map(i => { 
                         const fisico = Number(i.fisico) || 0;
@@ -1308,9 +1396,9 @@
                         const impacto = dif * cmc; 
                         const fill = impacto > 0 ? 'color: var(--green)' : 'color: var(--red)'; 
                         return `<tr>
-                            <td style="text-align: left; font-size: 10px;">${(i.descricao || '').substring(0, 30)}...</td>
-                            <td style="font-weight: bold; ${fill}">${dif > 0 ? '+' + dif : dif}</td>
-                            <td style="font-weight: bold; ${fill}">R$ ${Math.abs(impacto).toLocaleString('pt-PT', {minimumFractionDigits: 2})}</td>
+                            <td style="text-align: left; font-size: 11px;">${(i.descricao || '').substring(0, 30)}...</td>
+                            <td style="font-weight: 800; ${fill}">${dif > 0 ? '+' + dif.toFixed(2) : dif.toFixed(2)}</td>
+                            <td style="font-weight: 800; ${fill}">R$ ${Math.abs(impacto).toLocaleString('pt-PT', {minimumFractionDigits: 2})}</td>
                         </tr>`; 
                     }).join('');
                 }
@@ -1326,7 +1414,7 @@
                 });
                 const topFamilias = Object.keys(familiasObj).map(k => ({ familia: k, qtd: familiasObj[k] })).sort((a, b) => b.qtd - a.qtd).slice(0, 5);
                 if (topFamilias.length === 0) {
-                    chartContainer.innerHTML = '<p style="font-size:12px; color:var(--gray); text-align:center; margin: 0;">A aguardar dados...</p>';
+                    chartContainer.innerHTML = '<p style="font-size:12px; color:var(--gray); text-align:center; margin: 0;">Sem atividade contabilizada.</p>';
                 } else { 
                     const maxQtd = topFamilias[0].qtd; 
                     chartContainer.innerHTML = topFamilias.map(f => { 
@@ -1339,11 +1427,107 @@
                     }).join(''); 
                 }
             }
+
+            const pendentesBody = document.getElementById('tabela-pendentes-body');
+            const qtdPendentesRel = document.getElementById('qtd-pendentes-rel');
+
+            if (pendentesBody && qtdPendentesRel) {
+                if (baseDados.length === 0) {
+                    qtdPendentesRel.innerText = "0";
+                    pendentesBody.innerHTML = `<tr><td colspan="3" style="color:var(--gray); padding:20px; text-align:center;">Nenhum ficheiro matriz (Omie) carregado no sistema.</td></tr>`;
+                } else {
+                    const pendentes = baseDados.filter(i => !contagens.some(c => c.codigo === i.codigo && c.local === i.local));
+                    qtdPendentesRel.innerText = pendentes.length;
+
+                    if (pendentes.length === 0) {
+                        pendentesBody.innerHTML = `<tr><td colspan="3" style="color:var(--green); font-weight:800; padding:30px; text-align:center; font-size: 14px;">Missão cumprida! Todos os produtos foram verificados. 🎉</td></tr>`;
+                    } else {
+                        const itemsToRender = pendentes.slice(0, 150);
+                        let htmlPendentes = itemsToRender.map(i => {
+                            return `<tr>
+                                <td style="text-align: left; font-size: 11px; padding: 12px;">${(i.descricao || '').substring(0, 35)}...<br><small style="color:var(--gray); font-weight:normal;">Cód: ${i.codigo}</small></td>
+                                <td style="font-size: 11px; padding: 12px;">${i.local}</td>
+                                <td style="font-weight: 800; padding: 12px; color: var(--blue);">${i.sistema || 0}</td>
+                            </tr>`;
+                        }).join('');
+
+                        if (pendentes.length > 150) {
+                            htmlPendentes += `<tr><td colspan="3" style="color:var(--gray); font-size: 11px; padding:16px; text-align:center;">Estão visíveis os primeiros 150 registos pendentes de um total de ${pendentes.length}.</td></tr>`;
+                        }
+                        pendentesBody.innerHTML = htmlPendentes;
+                    }
+                }
+            }
+
+            // ATUALIZAR LISTAS DE VALIDADES (VENCIDOS E A VENCER)
+            const vencidosBody = document.getElementById('tabela-vencidos-body');
+            const qtdVencidosRel = document.getElementById('qtd-vencidos-rel');
+            const avencerBody = document.getElementById('tabela-avencer-body');
+            const qtdAvencerRel = document.getElementById('qtd-avencer-rel');
+
+            if (vencidosBody && avencerBody) {
+                let listaVencidos = [];
+                let listaAVencer = [];
+                
+                const hoje = new Date();
+                hoje.setHours(0,0,0,0);
+
+                contagens.forEach(c => {
+                    if (c.validade && c.validade.trim() !== '') {
+                        const parts = c.validade.split('-'); // Formato HTML Date é YYYY-MM-DD
+                        if (parts.length === 3) {
+                            const dataValidade = new Date(parts[0], parts[1] - 1, parts[2]);
+                            dataValidade.setHours(0,0,0,0);
+                            
+                            const diffTime = dataValidade.getTime() - hoje.getTime();
+                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                            
+                            const dataFormatada = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                            const itemFormatado = { ...c, diffDays, dataFormatada };
+
+                            if (diffDays < 0) {
+                                listaVencidos.push(itemFormatado);
+                            } else if (diffDays <= 30) {
+                                listaAVencer.push(itemFormatado);
+                            }
+                        }
+                    }
+                });
+
+                // Ordenar: mais críticos primeiro (menor data)
+                listaVencidos.sort((a, b) => a.diffDays - b.diffDays);
+                listaAVencer.sort((a, b) => a.diffDays - b.diffDays);
+
+                qtdVencidosRel.innerText = listaVencidos.length;
+                qtdAvencerRel.innerText = listaAVencer.length;
+
+                // Renderizar Produtos Vencidos
+                if (listaVencidos.length === 0) {
+                    vencidosBody.innerHTML = `<tr><td colspan="3" style="color:var(--green); font-weight:800; padding:20px; text-align:center;">Nenhum produto vencido registado! 🎉</td></tr>`;
+                } else {
+                    vencidosBody.innerHTML = listaVencidos.map(i => `<tr>
+                        <td style="text-align: left; font-size: 11px; padding: 12px;">${(i.descricao || '').substring(0, 30)}...<br><small style="color:var(--gray); font-weight:normal;">Qtd: <b>${i.fisico}</b> ${i.unidade || 'UN'}</small></td>
+                        <td style="font-size: 11px; padding: 12px; font-weight:700;">${i.lote || '-'}</td>
+                        <td style="font-weight: 800; padding: 12px; color: var(--red);">${i.dataFormatada}</td>
+                    </tr>`).join('');
+                }
+
+                // Renderizar Produtos a Vencer
+                if (listaAVencer.length === 0) {
+                    avencerBody.innerHTML = `<tr><td colspan="3" style="color:var(--green); font-weight:800; padding:20px; text-align:center;">Nenhum produto a vencer em 30 dias! 🎉</td></tr>`;
+                } else {
+                    avencerBody.innerHTML = listaAVencer.map(i => `<tr>
+                        <td style="text-align: left; font-size: 11px; padding: 12px;">${(i.descricao || '').substring(0, 30)}...<br><small style="color:var(--gray); font-weight:normal;">Qtd: <b>${i.fisico}</b> ${i.unidade || 'UN'}</small></td>
+                        <td style="font-size: 11px; padding: 12px; font-weight:700;">${i.lote || '-'}</td>
+                        <td style="padding: 12px; color: var(--orange);"><strong style="font-size: 12px;">${i.dataFormatada}</strong><br><small style="font-size: 9px; font-weight: 700;">(em ${i.diffDays} dias)</small></td>
+                    </tr>`).join('');
+                }
+            }
         }
 
         window.imprimirPDF = function() { 
-            if (cargoAtual !== 'CHEFE') return window.showToast("Apenas o Chefe de Setor pode gerar PDF!", "error");
-            document.getElementById('print-data').innerText = "Gerado em: " + new Date().toLocaleString('pt-PT'); 
+            if (cargoAtual !== 'CHEFE') return window.showToast("Operação não autorizada. Privilégio insuficiente.", "error");
+            document.getElementById('print-data').innerText = "Documento Oficial Gerado em: " + new Date().toLocaleString('pt-PT'); 
             window.print(); 
         }
         
@@ -1357,8 +1541,8 @@
         }
         
         window.baixarExcel = function(t) { 
-            if (cargoAtual !== 'CHEFE') return window.showToast("Erro: Permissão apenas para o Chefe de Setor!", "error");
-            if (contagens.length === 0) return window.showToast("Sem dados para exportar.", "warning"); 
+            if (cargoAtual !== 'CHEFE') return window.showToast("Operação bloqueada! Credenciais de gestão necessárias.", "error");
+            if (contagens.length === 0) return window.showToast("A base de dados encontra-se vazia.", "warning"); 
             
             const dataToExport = (t === 'erros' ? contagens.filter(i => i.dif !== 0) : contagens).map(c => ({
                 "Código do Produto": c.codigo || '',
@@ -1375,8 +1559,8 @@
                 "Lote": c.lote || '',
                 "Validade": c.validade || '',
                 "Observações": c.obs || '',
-                "Operador": c.operador || '',
-                "Data/Hora": c.data || ''
+                "Operador Auditor": c.operador || '',
+                "Registo Temporal": c.data || ''
             }));
 
             const ws = XLSX.utils.json_to_sheet(dataToExport); 
@@ -1384,12 +1568,36 @@
             XLSX.utils.book_append_sheet(wb, ws, "Auditoria"); 
             XLSX.writeFile(wb, `Inventario_Sincronizado_${new Date().toLocaleDateString('pt-PT').replace(/\//g,'-')}.xlsx`); 
         }
+
+        window.baixarPendentesExcel = function() {
+            if (cargoAtual !== 'CHEFE') return window.showToast("Operação bloqueada! Credenciais de gestão necessárias.", "error");
+            
+            const pendentes = baseDados.filter(i => !contagens.some(c => c.codigo === i.codigo && c.local === i.local));
+            if (pendentes.length === 0) return window.showToast("Não existem produtos pendentes para exportar.", "warning"); 
+            
+            const dataToExport = pendentes.map(p => ({
+                "Código do Produto": p.codigo || '',
+                "Descrição do Produto": p.descricao || '',
+                "Família de Produto": p.familia || '',
+                "Código EAN / GTIN": p.gtin || '', 
+                "Unidade": p.unidade || '',
+                "Quantidade Sistema": Number(p.sistema) || 0,
+                "Custo Unitário (CMC)": Number(p.cmc) || 0,
+                "Local de Estoque": p.local || ''
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(dataToExport); 
+            const wb = XLSX.utils.book_new(); 
+            XLSX.utils.book_append_sheet(wb, ws, "Pendentes"); 
+            XLSX.writeFile(wb, `Inventario_Pendentes_${new Date().toLocaleDateString('pt-PT').replace(/\//g,'-')}.xlsx`); 
+            window.showToast("Exportação de pendentes concluída!", "success");
+        }
         
         window.limparTudo = async function() { 
-            if (cargoAtual !== 'CHEFE') return window.showToast("Apenas o chefe do setor pode reiniciar a auditoria!", "error");
-            if (!currentUser) return window.showToast("Sem ligação à nuvem.", "error");
-            if(confirm("APAGAR TODAS AS CONTABILIZAÇÕES DA NUVEM? Esta ação vai limpar as contagens de todos os operadores.")) { 
-                window.showToast("A limpar contagens da nuvem...", "info");
+            if (cargoAtual !== 'CHEFE') return window.showToast("Ação severa bloqueada! Apenas o gestor tem acesso.", "error");
+            if (!currentUser) return window.showToast("Falha de conexão com os servidores na nuvem.", "error");
+            if(confirm("PERIGO: Ação Destrutiva!\n\nDeseja apagar permanentemente todas as contabilizações registadas na nuvem por toda a equipa?")) { 
+                window.showToast("A processar a aniquilação dos registos da nuvem...", "info");
                 
                 let batch = writeBatch(db);
                 let opCount = 0;
@@ -1408,16 +1616,16 @@
                     await batch.commit();
                 }
                 
-                window.addLog("Contagens da auditoria reiniciadas", "warning"); 
+                window.addLog("Reiniciou toda a auditoria", "warning"); 
                 window.fecharModalConfig();
             } 
         }
 
         window.controlarCamera = async function() {
-            if (!currentUser) return window.showToast("A aguardar ligação à nuvem...", "error");
+            if (!currentUser) return window.showToast("Ligue-se primeiro à rede para ativar o scanner.", "error");
             if(audioCtx.state === 'suspended') audioCtx.resume();
             const btn = document.getElementById('btn-cam');
-            if (btn.innerText.includes("LIGAR")) {
+            if (btn.innerText.includes("INICIAR")) {
                 document.getElementById('reader').style.display = "block"; 
                 document.getElementById('scanner-controls').style.display = "flex"; 
                 btn.innerText = "🛑 PARAR CÂMERA"; 
@@ -1450,17 +1658,16 @@
                             let itemContado = contagens.find(c => c.codigo === cod || c.gtin === cod);
                             const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
                             if (itemContado) {
-                                // Regra de Segurança no Modo Contínuo Cruzado
                                 if (cargoAtual !== 'CHEFE' && itemContado.operador !== operadorAtual) {
                                     window.playBeep('error');
-                                    return window.showToast("Segurança: Este produto já foi contado por outro colega!", "error");
+                                    return window.showToast("Violou a segurança: Este registo pertence a outro utilizador!", "error");
                                 }
                                 const payload = {...itemContado, fisico: itemContado.fisico + 1, dif: (itemContado.fisico + 1) - itemContado.sistema, data: new Date().toLocaleString('pt-PT'), timestamp: Date.now(), operador: operadorAtual};
                                 await setDoc(doc(colRef, itemContado.id), payload);
                                 window.addLog(`+1 Auto: ${itemContado.descricao}`); 
                                 window.showToast(`+1 ${itemContado.descricao}`, 'success');
                             } else {
-                                let novoItem = itemBase || {codigo: cod, gtin: cod, descricao: "PRODUTO DESCONHECIDO", local: "SCAN", sistema: 0, cmc: 0, unidade: "UN"};
+                                let novoItem = itemBase || {codigo: cod, gtin: cod, descricao: "PRODUTO NÃO IDENTIFICADO", local: "SCAN DIRETO", sistema: 0, cmc: 0, unidade: "UN"};
                                 const docId = `${novoItem.codigo}_${novoItem.local}`.replace(/[^a-zA-Z0-9_-]/g, '');
                                 const payload = {
                                     codigo: novoItem.codigo,
@@ -1474,25 +1681,25 @@
                                     gtin: novoItem.gtin || '',
                                     lote: "", 
                                     validade: "", 
-                                    obs: "MODO CONTÍNUO", 
+                                    obs: "INSERÇÃO VIA MODO CONTÍNUO", 
                                     operador: operadorAtual, 
                                     data: new Date().toLocaleString('pt-PT'), 
                                     timestamp: Date.now()
                                 };
                                 await setDoc(doc(colRef, docId), payload);
-                                window.addLog(`Novo Auto: ${novoItem.descricao}`); 
-                                window.showToast(`Adicionado: ${novoItem.descricao}`, 'success');
+                                window.addLog(`Criou e +1 Auto: ${novoItem.descricao}`); 
+                                window.showToast(`Registado: ${novoItem.descricao}`, 'success');
                             }
                         } else {
                             window.playBeep('success'); 
                             window.desligarCam(); 
                             indexEdicao = -1; 
-                            let itemModal = itemBase || {codigo: cod, gtin: cod, descricao: "NOVO PRODUTO", local: "SCAN", sistema: 0, cmc: 0, unidade: "UN"};
+                            let itemModal = itemBase || {codigo: cod, gtin: cod, descricao: "NOVO PRODUTO", local: "NOVO REGISTO", sistema: 0, cmc: 0, unidade: "UN"};
                             window.abrirModal(itemModal, itemModal.descricao === "NOVO PRODUTO");
                         }
                     });
                 } catch (err) { 
-                    window.showToast("Falha na câmara.", "error"); 
+                    window.showToast("Falha na inicialização da câmara do dispositivo.", "error"); 
                     window.desligarCam(); 
                 }
             } else { 
@@ -1504,7 +1711,7 @@
             const resetUI = () => { 
                 document.getElementById('reader').style.display = "none"; 
                 document.getElementById('scanner-controls').style.display = "none"; 
-                document.getElementById('btn-cam').innerText = "📷 LIGAR SCANNER"; 
+                document.getElementById('btn-cam').innerText = "📷 INICIAR SCANNER"; 
                 document.getElementById('btn-cam').className = "btn-blue"; 
                 window.resetarEstadoGatilho();
             };
@@ -1555,7 +1762,7 @@
                 fill.slice(0, 15).forEach(i => {
                     const d = document.createElement('div'); 
                     d.className = 'item-res'; 
-                    d.innerHTML = `<strong>${i.descricao}</strong><br><small style="color:var(--gray)">${i.local} | SIST: ${i.sistema}</small>`;
+                    d.innerHTML = `<strong>${i.descricao}</strong><small style="color:var(--gray); font-size:11px; font-weight: 500;">${i.local} | No Sistema: <b>${i.sistema}</b></small>`;
                     d.onclick = () => { indexEdicao = -1; window.abrirModal(i, false); }; 
                     res.appendChild(d);
                 });
@@ -1563,15 +1770,15 @@
                 const btnNovo = document.createElement('button'); 
                 btnNovo.className = 'btn-blue'; 
                 btnNovo.style.marginTop = '10px'; 
-                btnNovo.innerHTML = `➕ NOVO PRODUTO: "${rawT}"`;
+                btnNovo.innerHTML = `➕ CADASTRAR NOVO: "${rawT}"`;
                 btnNovo.onclick = () => { 
                     indexEdicao = -1; 
                     const tTrim = rawT.trim();
-                    const isNumeric = /^\d+$/.test(tTrim); // Verifica se o utilizador digitou apenas números (um código de barras)
+                    const isNumeric = /^\d+$/.test(tTrim); 
                     window.abrirModal({
                         codigo: 'MAN_' + Date.now(), 
-                        gtin: isNumeric ? tTrim : '', // Preenche com o GTIN apenas se for puramente numérico
-                        descricao: isNumeric ? '' : tTrim.toUpperCase(), // Preenche a descrição apenas se for texto
+                        gtin: isNumeric ? tTrim : '', 
+                        descricao: isNumeric ? '' : tTrim.toUpperCase(), 
                         local: lS.length > 0 ? lS[0] : 'MANUAL', 
                         familia: 'SEM FAMÍLIA', 
                         sistema: 0, 
@@ -1585,11 +1792,11 @@
 
         document.getElementById('file-input').onchange = function(e) {
             if (cargoAtual !== 'CHEFE') {
-                return window.showToast("Segurança: Apenas Chefes podem importar catálogos!", "error");
+                return window.showToast("Operação bloqueada! Credenciais de gestão necessárias.", "error");
             }
             if (!e.target.files || e.target.files.length === 0) return;
             
-            window.showToast("A ler arquivo Omie localmente...", "info"); 
+            window.showToast("A injetar catálogo Omie no banco local...", "info"); 
             const reader = new FileReader();
             reader.onload = function(evt) {
                 try {
@@ -1621,7 +1828,7 @@
                     }
                     
                     if (idxDesc === -1) {
-                        window.showToast("Coluna 'DESCRIÇÃO DO PRODUTO' não encontrada!", "error");
+                        window.showToast("Matriz Inválida: Não foi possível detetar a coluna DESCRIÇÃO.", "error");
                         return;
                     }
 
@@ -1636,7 +1843,6 @@
                             const sistemaVal = idxSist !== -1 ? parseFloat(String(row[idxSist] || '0').replace(',','.')) : 0;
                             const cmcVal = idxCmc !== -1 ? parseFloat(String(row[idxCmc] || '0').replace(',','.')) : 0;
 
-                            // Guardamos apenas o estritamente necessário para reduzir drasticamente o uso de memória
                             temporarios.push({ 
                                 codigo: codRaw, 
                                 descricao: String(row[idxDesc]).trim().toUpperCase(), 
@@ -1651,20 +1857,19 @@
                     }
 
                     if (temporarios.length === 0) {
-                        window.showToast("Nenhum produto válido encontrado!", "error");
+                        window.showToast("Planilha submetida encontra-se sem itens registados.", "error");
                         return;
                     }
 
                     baseDados = temporarios;
                     
-                    // Mecanismo inteligente de proteção de memória
                     try {
-                        const catalogoString = JSON.stringify(baseDados);
-                        localStorage.setItem('catalogo_local', catalogoString);
-                        window.showToast("Sucesso! " + baseDados.length + " produtos carregados na cache permanente.", "success");
+                        const encryptedData = CryptoJS.AES.encrypt(JSON.stringify(baseDados), _HASH_V).toString();
+                        localStorage.setItem('catalogo_local_enc', encryptedData);
+                        window.showToast("Operação concluída. " + baseDados.length + " produtos trancados na memória local.", "success");
                     } catch (e) { 
-                        console.warn("Espaço de cache excedido. Os produtos foram carregados na memória de sessão temporária.", e); 
-                        window.showToast("Planilha enorme carregada com sucesso na memória temporária do dispositivo!", "warning");
+                        console.warn("Espaço de cache permanente excedido. Executando em memória volátil isolada.", e); 
+                        window.showToast("Operação massiva: A base excedeu o limite mas foi forçada em memória temporária!", "warning");
                     }
 
                     window.atualizarFiltrosDOM();
@@ -1673,7 +1878,7 @@
 
                 } catch (error) {
                     console.error("Erro ao ler Excel:", error);
-                    window.showToast("Erro ao processar planilha.", "error");
+                    window.showToast("O ficheiro foi corrompido ou negado pelo sistema.", "error");
                 }
             };
             reader.readAsArrayBuffer(e.target.files[0]);
