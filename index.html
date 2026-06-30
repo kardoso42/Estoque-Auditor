@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Estoque V-50.1 - SaaS Secure</title>
+    <title>Smart Estoque V-49.0 - SaaS Secure</title>
     <!-- Bibliotecas de Terceiros Autorizadas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
@@ -289,13 +289,358 @@
 
         /* Proteção Visual */
         #pantalla-bloqueada { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--blue-dark); color: #fff; z-index: 1000000; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; text-align: center; padding: 30px; }
-        
-        /* Ecrã de Bloqueio para Processos Longos */
-        #loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(5px); z-index: 999999; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; }
-        .spinner { width: 60px; height: 60px; border: 6px solid rgba(255,255,255,0.2); border-top-color: var(--orange); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-
         .print-only { display: none; }
+        /* UI Refresh 2026 - foco operacional, leitura rapida e menos peso visual */
+        :root {
+            --surface-soft: #f1f5f9;
+            --ink-muted: #475569;
+            --cyan: #06b6d4;
+            --violet: #7c3aed;
+            --shadow-soft: 0 1px 2px rgba(15, 23, 42, 0.06), 0 12px 24px rgba(15, 23, 42, 0.06);
+            --shadow-hover: 0 10px 22px rgba(15, 23, 42, 0.10);
+            --ring: rgba(37, 99, 235, 0.16);
+        }
+
+        body.dark-mode {
+            --surface-soft: #111827;
+            --ink-muted: #cbd5e1;
+            --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.25), 0 18px 34px rgba(0, 0, 0, 0.25);
+            --shadow-hover: 0 18px 34px rgba(0, 0, 0, 0.32);
+            --ring: rgba(59, 130, 246, 0.22);
+        }
+
+        body {
+            padding: 18px;
+            background: linear-gradient(180deg, rgba(37, 99, 235, 0.05), transparent 260px), var(--bg);
+            color: var(--text);
+        }
+
+        #view-app {
+            width: min(1180px, 100%);
+            margin: 0 auto;
+        }
+
+        .app-header {
+            position: sticky;
+            top: 12px;
+            z-index: 900;
+            padding: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.88);
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
+        body.dark-mode .app-header {
+            background: rgba(30, 41, 59, 0.88);
+            border-color: rgba(148, 163, 184, 0.22);
+        }
+
+        .header-info h2 {
+            letter-spacing: 0;
+            line-height: 1.1;
+        }
+
+        .header-info .app-logo,
+        .app-logo {
+            border-radius: 8px;
+            box-shadow: none;
+        }
+
+        .header-actions {
+            margin-left: auto;
+        }
+
+        .mini-stats-group {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(72px, auto));
+            align-items: stretch;
+        }
+
+        .mini-stat-card {
+            min-width: 72px;
+            border-radius: 8px;
+            padding: 8px 10px;
+            box-shadow: none;
+            background: var(--surface-soft);
+        }
+
+        .mini-stat-card span.label {
+            font-size: 10px;
+            letter-spacing: 0;
+            color: var(--ink-muted);
+        }
+
+        .mini-stat-card span.value {
+            font-size: 16px;
+        }
+
+        #btn-config {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            box-shadow: none;
+            background: var(--blue-dark);
+            color: #fff;
+        }
+
+        .tabs {
+            position: sticky;
+            top: 92px;
+            z-index: 800;
+            max-width: 520px;
+            border-radius: 8px;
+            background: rgba(226, 232, 240, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        body.dark-mode .tabs {
+            background: rgba(15, 23, 42, 0.72);
+        }
+
+        .tab-btn,
+        .tab-btn.active {
+            border-radius: 6px;
+            letter-spacing: 0;
+        }
+
+        .card,
+        .login-card,
+        .report-card,
+        .modal-content,
+        .m-info-box,
+        .multi-select-box,
+        .switch-container {
+            border-radius: 8px;
+        }
+
+        .card {
+            padding: 20px;
+            box-shadow: var(--shadow-soft);
+            border-color: rgba(148, 163, 184, 0.28);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-hover);
+        }
+
+        #painel-sincronizacao.card {
+            background: linear-gradient(90deg, rgba(37, 99, 235, 0.10), rgba(6, 182, 212, 0.08)) !important;
+            border-left: 4px solid var(--cyan) !important;
+        }
+
+        .login-card {
+            max-width: 420px;
+            padding: 34px 30px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .login-title {
+            font-size: 28px;
+            letter-spacing: 0;
+        }
+
+        .login-subtitle {
+            margin-bottom: 28px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="password"],
+        input[type="date"],
+        input[type="file"],
+        select {
+            border-radius: 8px;
+            padding: 14px 15px;
+            background: var(--surface-soft);
+            border-color: rgba(148, 163, 184, 0.42);
+        }
+
+        input:focus,
+        select:focus {
+            box-shadow: 0 0 0 4px var(--ring);
+        }
+
+        #busca-input {
+            position: sticky;
+            top: 150px;
+            z-index: 20;
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.06);
+            background: var(--surface) !important;
+        }
+
+        button,
+        .login-btn,
+        .btn-outline,
+        .btn-calc {
+            border-radius: 8px;
+            letter-spacing: 0;
+        }
+
+        button:hover:not(:disabled) {
+            filter: none;
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn-blue { background: #2563eb; }
+        .btn-green { background: #059669; }
+        .btn-orange { background: #d97706; }
+        .btn-red { background: #dc2626; }
+
+        .btn-outline {
+            border-width: 1px;
+            background: var(--surface);
+        }
+
+        #resultados {
+            display: grid;
+            gap: 10px;
+            padding-right: 4px;
+        }
+
+        .item-res {
+            margin-bottom: 0;
+            border-radius: 8px;
+            border-left: 4px solid var(--blue);
+            box-shadow: none;
+        }
+
+        .item-res:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-1px);
+        }
+
+        .item-res strong {
+            letter-spacing: 0;
+        }
+
+        table {
+            border-radius: 8px;
+            font-size: 12px;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            letter-spacing: 0;
+        }
+
+        tbody tr:nth-child(even) {
+            background: rgba(148, 163, 184, 0.06);
+        }
+
+        .report-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .report-card {
+            box-shadow: none;
+            background: var(--surface-soft);
+        }
+
+        .progress-bar,
+        .chart-bar {
+            background: linear-gradient(90deg, var(--blue), var(--cyan));
+        }
+
+        #btn-floating-log {
+            width: 52px;
+            height: 52px;
+            border-radius: 8px;
+            right: 18px;
+            bottom: 18px;
+            background: var(--violet);
+        }
+
+        .modal {
+            align-items: flex-start;
+            padding-top: 28px;
+        }
+
+        .modal-content {
+            box-shadow: 0 24px 48px rgba(15, 23, 42, 0.28);
+        }
+
+        @media (min-width: 900px) {
+            #view-auditoria {
+                display: grid;
+                grid-template-columns: minmax(360px, 0.9fr) minmax(420px, 1.1fr);
+                gap: 18px;
+                align-items: start;
+            }
+
+            #painel-sincronizacao,
+            #alerta-catalogo-vazio {
+                grid-column: 1 / -1;
+            }
+
+            #view-relatorios {
+                max-width: 980px;
+                margin: 0 auto;
+            }
+        }
+
+        @media (max-width: 760px) {
+            body {
+                padding: 10px;
+            }
+
+            .app-header {
+                top: 8px;
+                padding: 10px;
+            }
+
+            .header-info {
+                min-width: 100%;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .mini-stats-group {
+                flex: 1;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            #mini-stat-financeiro {
+                grid-column: 1 / -1;
+            }
+
+            .tabs {
+                top: 168px;
+                margin-bottom: 14px;
+            }
+
+            #busca-input {
+                top: 226px;
+            }
+
+            .card {
+                padding: 16px;
+                margin-bottom: 14px;
+            }
+
+            .report-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal {
+                padding: 10px;
+                align-items: center;
+            }
+
+            .modal-content {
+                padding: 22px 18px;
+                max-height: 92vh;
+            }
+        }
+
         @media print {
             body { background: white; color: black; padding: 0; margin: 0; }
             .app-header, .tabs, .print-hide, button, .toggle-box, .switch-container, #toast-container { display: none !important; }
@@ -341,13 +686,6 @@
         <h3 style="color: #ef4444; font-size: 24px;">🛡️ VIOLAÇÃO DE SEGURANÇA DETECTADA</h3>
         <p>A aplicação "Smart Estoque" foi bloqueada para proteger a propriedade intelectual.</p>
         <p style="font-size: 12px; color: var(--gray);">A tentativa de clonagem ou inspeção foi reportada.</p>
-    </div>
-
-    <!-- Ecrã de Bloqueio para Sincronizações Pesadas -->
-    <div id="loading-overlay">
-        <div class="spinner"></div>
-        <h2 style="margin:0; font-weight: 800; font-size: 24px;">A Sincronizar Base de Dados</h2>
-        <p id="loading-msg" style="color: #cbd5e1; margin-top: 10px; font-size: 14px;">Por favor, não feche a aplicação...</p>
     </div>
 
     <!-- TELA DE LOGIN (SaaS Premium) -->
@@ -435,11 +773,10 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                     <div>
                         <h4 style="margin: 0 0 4px 0; font-size: 13px; color: var(--blue-dark); display: flex; align-items: center; gap: 5px;">🔄 Matriz de Produtos</h4>
-                        <p style="margin: 0; font-size: 11px; color: var(--gray);" id="status-catalog-main">Verificando memória...</p>
+                        <p style="margin: 0; font-size: 11px; color: var(--gray);" id="status-catalog-main">A sincronizar com a nuvem...</p>
                     </div>
                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <button id="btn-sincronizar-op" class="btn-blue" onclick="baixarCatalogoDaNuvem()" style="width: auto; padding: 10px 14px; font-size: 11px; margin: 0; box-shadow: none;">☁️ FORÇAR ATUALIZAÇÃO</button>
-                        <button class="btn-outline" onclick="limparCacheLocal()" style="width: auto; padding: 10px 14px; font-size: 11px; margin: 0; border-color: var(--red); color: var(--red); background: var(--surface);">🗑️ LIMPAR CACHE</button>
+                        <button class="btn-blue" onclick="baixarCatalogoDaNuvem()" style="width: auto; padding: 10px 14px; font-size: 11px; margin: 0; box-shadow: none;">☁️ FORÇAR ATUALIZAÇÃO</button>
                     </div>
                 </div>
             </div>
@@ -639,6 +976,13 @@
                     </div>
                 </div>
 
+                <!-- SINCRONIZAÇÃO E CACHE (Visível para todos: Chefe e Operador) -->
+                <div style="background: var(--surface); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; text-align: center;">
+                    <h4 style="margin: 0 0 16px 0; font-size: 13px; font-weight: 800; color: var(--blue-dark); text-transform: uppercase;">🔄 Sincronização e Cache</h4>
+                    <div id="status-catalog" style="font-size: 12px; font-weight: 700; color: var(--orange); margin-bottom: 15px; padding: 10px; background: var(--bg); border-radius: 12px;">☁️ A escutar a nuvem...</div>
+                    <button onclick="limparCacheLocal()" class="btn-outline" style="font-size:11px; padding: 12px; color: var(--red); border-color: rgba(239,68,68,0.3); width: 100%; background: var(--bg);">🗑️ LIMPAR CACHE DO DISPOSITIVO</button>
+                </div>
+
                 <!-- IMPORTAÇÃO EXCEL (Apenas Chefe) -->
                 <div id="container-import-excel" style="display: none; background: var(--surface); padding: 20px; border-radius: 16px; border: 2px dashed var(--border); margin-bottom: 20px; text-align: center;">
                     <h4 style="margin: 0 0 16px 0; font-size: 13px; font-weight: 800; color: var(--blue-dark); text-transform: uppercase;">📦 Matriz de Produtos (Omie)</h4>
@@ -803,6 +1147,11 @@
         window.gatilhoTimeout = null;
         window.html5QrCodeModal = null;
 
+        const safeToast = (msg, type = 'info') => {
+            if (typeof window.showToast === 'function') window.showToast(msg, type);
+            else console[type === 'error' ? 'error' : 'log'](msg);
+        };
+
         window.customConfirm = function(msg, onConfirm, confirmBtnClass = 'btn-blue') {
             document.getElementById('confirm-msg').innerText = msg;
             const btnOk = document.getElementById('btn-confirm-ok');
@@ -826,14 +1175,14 @@
                 } else {
                     await signInAnonymously(auth);
                 }
-            } catch(e) { window.showToast("Erro de Autenticação", "error"); }
+            } catch(e) { safeToast("Erro de Autenticação", "error"); }
         };
         initAuth();
 
         onAuthStateChanged(auth, (u) => {
             currentUser = u;
             if (currentUser) {
-                // Ouvinte apenas para as contagens em tempo real (muito leve)
+                // 1. Ouvinte em Tempo Real para as Contagens
                 const colRefContagens = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
                 onSnapshot(colRefContagens, (snapshot) => {
                     const newContagens = [];
@@ -841,6 +1190,25 @@
                     contagens = newContagens.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
                     if (operadorAtual) window.render();
                 });
+
+                // 2. Ouvinte em Tempo Real para o Catálogo (Sincroniza Chefes e Operadores automaticamente)
+                const colRefCatalogo = collection(db, 'artifacts', appId, 'public', 'data', 'catalogo');
+                onSnapshot(colRefCatalogo, (snapshot) => {
+                    const newCatalogo = [];
+                    snapshot.forEach(docSnap => newCatalogo.push(docSnap.data()));
+                    
+                    if (newCatalogo.length > 0) {
+                        baseDados = newCatalogo;
+                        try { localStorage.setItem('catalogo_local_enc', CryptoJS.AES.encrypt(JSON.stringify(baseDados), _HASH_V).toString()); } catch(e) {}
+                    } else if (baseDados.length > 0) {
+                        // Se a nuvem estiver vazia, limpamos a cache local também
+                        baseDados = [];
+                        localStorage.removeItem('catalogo_local_enc');
+                    }
+                    
+                    window.atualizarFiltrosDOM();
+                    if (operadorAtual) window.render();
+                }, (error) => { console.error("Erro ao escutar catálogo:", error); });
             }
         });
 
@@ -917,13 +1285,15 @@
                 window.showToast("Ligação à nuvem não estabelecida. Aguarde um instante.", "warning");
                 return;
             }
-            
-            const btn = document.getElementById('btn-sincronizar-op');
-            if (btn) btn.innerText = "⏳ A BAIXAR...";
-            document.getElementById('loading-overlay').style.display = 'flex';
-            document.getElementById('loading-msg').innerText = "A descarregar produtos da nuvem...";
-            
             try {
+                const statusEl = document.getElementById('status-catalog');
+                const statusMain = document.getElementById('status-catalog-main');
+                
+                if (statusEl) { statusEl.innerText = "⏳ Transferindo matriz..."; statusEl.style.color = 'var(--orange)'; }
+                if (statusMain) { statusMain.innerText = "A descarregar produtos da nuvem. Aguarde..."; statusMain.style.color = 'var(--orange)'; }
+                
+                window.showToast("A sincronizar catálogo...", "info");
+
                 const colRefCatalogo = collection(db, 'artifacts', appId, 'public', 'data', 'catalogo');
                 const querySnapshot = await getDocs(colRefCatalogo);
                 
@@ -938,16 +1308,68 @@
                     window.showToast(`Sincronização concluída: ${baseDados.length} produtos.`, "success");
                 } else {
                     window.showToast("A Nuvem não possui produtos cadastrados.", "warning");
-                    baseDados = [];
-                    localStorage.removeItem('catalogo_local_enc');
                     window.atualizarFiltrosDOM();
                 }
             } catch (error) {
                 console.error(error);
                 window.showToast("Erro de rede. Não foi possível baixar.", "error");
-            } finally {
-                document.getElementById('loading-overlay').style.display = 'none';
-                if (btn) btn.innerText = "☁️ FORÇAR ATUALIZAÇÃO";
+            }
+        };
+
+        window.renderResultadosCatalogo = function() {
+            const buscaInput = document.getElementById('busca-input');
+            const res = document.getElementById('resultados');
+            if (!buscaInput || !res) return;
+
+            const rawT = buscaInput.value || '';
+            const t = removerAcentos(rawT.toUpperCase().trim());
+            res.innerHTML = '';
+
+            const lS = window.getLocsSel().map(v => removerAcentos(v.toUpperCase()));
+            const fS = Array.from(document.querySelectorAll('.check-f:checked')).map(cb => removerAcentos(cb.value.toUpperCase()));
+
+            const fill = baseDados.filter(i => {
+                const desc = removerAcentos(String(i.descricao || '').toUpperCase());
+                const cod = removerAcentos(String(i.codigo || '').toUpperCase());
+                const gtin = removerAcentos(String(i.gtin || '').toUpperCase());
+                const matchesSearch = t.length < 1 ? true : (desc.includes(t) || cod.includes(t) || gtin.includes(t));
+                const itemLocal = removerAcentos(String(i.local || '').toUpperCase());
+                const itemFam = removerAcentos(String(i.familia || '').toUpperCase());
+                const matchesLocal = lS.length === 0 || lS.includes(itemLocal);
+                const matchesFamily = fS.length === 0 || fS.includes(itemFam);
+                return matchesSearch && matchesLocal && matchesFamily;
+            });
+
+            if (fill.length > 0) {
+                fill.slice(0, 100).forEach(i => {
+                    const d = document.createElement('div');
+                    d.className = 'item-res';
+                    d.innerHTML = `<strong>${i.descricao}</strong><small style="color:var(--gray); font-size:11px; font-weight: 500;">${i.local} | No Sistema: <b>${i.sistema}</b></small>`;
+                    d.onclick = () => { indexEdicao = -1; window.abrirModal(i, false); };
+                    res.appendChild(d);
+                });
+                if (fill.length > 100) {
+                    const aviso = document.createElement('div');
+                    aviso.className = 'item-res';
+                    aviso.style.cursor = 'default';
+                    aviso.innerHTML = `<small style="color:var(--gray); font-size:11px; font-weight: 700;">Mostrando os primeiros 100 de ${fill.length} produtos. Use a pesquisa para refinar.</small>`;
+                    res.appendChild(aviso);
+                }
+            } else if (t.length > 0) {
+                const btnNovo = document.createElement('button');
+                btnNovo.className = 'btn-blue';
+                btnNovo.style.marginTop = '10px';
+                btnNovo.innerHTML = `+ CADASTRAR NOVO: "${rawT}"`;
+                btnNovo.onclick = () => {
+                    indexEdicao = -1;
+                    const tTrim = rawT.trim();
+                    const isNumeric = /^\d+$/.test(tTrim);
+                    window.abrirModal({
+                        codigo: 'MAN_' + Date.now(), gtin: isNumeric ? tTrim : '', descricao: isNumeric ? '' : tTrim.toUpperCase(),
+                        local: lS.length > 0 ? lS[0] : 'MANUAL', familia: 'SEM FAMÍLIA', sistema: 0, cmc: 0, unidade: 'UN'
+                    }, true);
+                };
+                res.appendChild(btnNovo);
             }
         };
 
@@ -965,17 +1387,19 @@
             
             if (baseDados.length > 0) {
                 if (statusEl) { statusEl.innerText = `☁️ Nuvem: ${baseDados.length} itens ativos.`; statusEl.style.color = 'var(--green)'; }
-                if (statusMain) { statusMain.innerText = `${baseDados.length} produtos prontos no seu telemóvel.`; statusMain.style.color = 'var(--green)'; }
+                if (statusMain) { statusMain.innerText = `${baseDados.length} produtos carregados da nuvem.`; statusMain.style.color = 'var(--green)'; }
                 if (alertaEl) alertaEl.style.display = 'none';
                 
                 document.getElementById('filtro-local-multi').innerHTML = Array.from(locs).sort().map((l, i) => `<div class="multi-select-item"><input type="checkbox" class="check-l" id="loc-${i}" value="${l}" checked><label for="loc-${i}">${l}</label></div>`).join('');
                 document.getElementById('filtro-family-multi').innerHTML = Array.from(fams).sort().map((f, i) => `<div class="multi-select-item"><input type="checkbox" class="check-f" id="fam-${i}" value="${f}" checked><label for="fam-${i}">${f}</label></div>`).join('');
+                
+                window.renderResultadosCatalogo();
             } else {
                 if (statusEl) { statusEl.innerText = "☁️ O Catálogo da Nuvem está vazio."; statusEl.style.color = 'var(--orange)'; }
-                if (statusMain) { statusMain.innerText = `O telemóvel não tem produtos. Prima 'Atualização'.`; statusMain.style.color = 'var(--red)'; }
+                if (statusMain) { statusMain.innerText = `A aguardar produtos da nuvem...`; statusMain.style.color = 'var(--orange)'; }
 
                 if (alertaEl && operadorAtual) {
-                    alertaEl.innerHTML = `<p style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--orange);">⚠️ Catálogo Indisponível</p><p style="margin: 0 0 16px; font-size: 12px; color: var(--text);">A base de dados na sua memória está vazia. Peça ao gestor para carregar o Excel ou tente atualizar o catálogo da nuvem.</p>`;
+                    alertaEl.innerHTML = `<p style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--orange);">⚠️ Catálogo Indisponível</p><p style="margin: 0 0 16px; font-size: 12px; color: var(--text);">O sistema está a aguardar que a Gestão carregue a matriz de inventário. O processo ocorrerá automaticamente.</p>`;
                     alertaEl.style.borderColor = 'var(--orange)';
                     alertaEl.style.background = 'rgba(245, 158, 11, 0.08)';
                     alertaEl.style.display = 'block';
@@ -983,6 +1407,8 @@
 
                 document.getElementById('filtro-local-multi').innerHTML = `<small style="color:var(--gray); padding: 5px;">Aguarde o catálogo da nuvem...</small>`;
                 document.getElementById('filtro-family-multi').innerHTML = `<small style="color:var(--gray); padding: 5px;">Aguarde o catálogo da nuvem...</small>`;
+                const res = document.getElementById('resultados');
+                if (res) res.innerHTML = '';
             }
         }
 
@@ -999,37 +1425,34 @@
         window.limparCatalogoNuvem = function() {
             if (cargoAtual !== 'CHEFE') return window.showToast("Operação bloqueada! Apenas para a Chefia.", "error");
             window.customConfirm("Deseja APAGAR toda a matriz de produtos da Nuvem? Todos os operadores perderão o acesso à lista.", async () => {
-                document.getElementById('loading-overlay').style.display = 'flex';
-                document.getElementById('loading-msg').innerText = "A apagar base de dados...";
-                
+                window.showToast("A apagar catálogo na nuvem...", "info");
                 try {
-                    const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'catalogo');
-                    const snapshot = await getDocs(colRef);
                     let batch = writeBatch(db); 
-                    let count = 0;
+                    let opCount = 0;
+                    const promises = [];
 
-                    for (const docSnap of snapshot.docs) {
-                        batch.delete(docSnap.ref);
-                        count++;
-                        if (count >= 100) { 
-                            await batch.commit(); 
+                    for(const b of baseDados) {
+                        const cleanCod = String(b.codigo || '').replace(/[^a-zA-Z0-9_-]/g, '');
+                        const cleanLoc = String(b.local || '').replace(/[^a-zA-Z0-9_-]/g, '');
+                        let docId = b.id || `${cleanCod}_${cleanLoc}`;
+                        if (docId === '_' || !docId) continue;
+                        
+                        batch.delete(doc(db, 'artifacts', appId, 'public', 'data', 'catalogo', docId));
+                        opCount++;
+                        
+                        if (opCount >= 400) { 
+                            await batch.commit(); // Execução sequencial para não engarrafar a rede do Firebase
                             batch = writeBatch(db); 
-                            count = 0; 
+                            opCount = 0; 
                         }
                     }
-                    if (count > 0) await batch.commit();
+                    if (opCount > 0) await batch.commit();
                     
                     window.showToast("Matriz da nuvem removida com sucesso!", "success");
-                    baseDados = [];
-                    localStorage.removeItem('catalogo_local_enc');
-                    window.atualizarFiltrosDOM();
-                    window.render();
                     window.fecharModalConfig();
                 } catch(e) {
                     window.showToast("Erro ao tentar limpar catálogo.", "error");
                     console.error(e);
-                } finally {
-                    document.getElementById('loading-overlay').style.display = 'none';
                 }
             }, "btn-red");
         }
@@ -1077,13 +1500,10 @@
                     window.mudarAba('auditoria');
                 }
                 
-                // Se a base de dados do telemóvel estiver vazia, forçamos o download logo no momento do login!
-                if (baseDados.length === 0) {
-                    window.baixarCatalogoDaNuvem();
-                } else {
-                    window.atualizarFiltrosDOM();
-                    window.render();
-                }
+                // Os dados agora são geridos de forma assíncrona pelo onSnapshot.
+                // A interface ajusta-se visualmente consoante existam dados na cache ou não.
+                window.atualizarFiltrosDOM();
+                window.render();
             } else {
                 const elLogin = document.getElementById('view-login');
                 const elApp = document.getElementById('view-app');
@@ -1195,18 +1615,20 @@
             const pendentes = baseDados.filter(i => !contagens.some(c => c.codigo === i.codigo && c.local === i.local));
             if(pendentes.length === 0) return window.showToast("Perfeito! Não há produtos pendentes.", "info");
             
-            window.customConfirm(`Existem ${pendentes.length} produtos não auditados. Confirma a inserção de QTD Zero em lote?`, async () => {
-                document.getElementById('loading-overlay').style.display = 'flex';
-                document.getElementById('loading-msg').innerText = `A registar ${pendentes.length} produtos a zeros...`;
+            window.customConfirm(`Atenção: Existem ${pendentes.length} produtos não auditados. Confirma a inserção de QTD Zero nestes itens em lote?`, async () => {
+                window.showToast("A registar zeramentos em bloco na nuvem...", "info");
+                const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
                 
                 try {
-                    const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
                     let batch = writeBatch(db);
                     let opCount = 0; let totalZeradados = 0;
+                    const promises = [];
 
                     for (const i of pendentes) {
-                        // ID criptográfico hiper seguro para nunca sobrescrever o registo errado
-                        let docId = `ZERADO_${Date.now().toString(36)}_${Math.random().toString(36).substr(2, 6)}`;
+                        const cleanCod = String(i.codigo || '').replace(/[^a-zA-Z0-9_-]/g, '');
+                        const cleanLoc = String(i.local || '').replace(/[^a-zA-Z0-9_-]/g, '');
+                        let docId = `${cleanCod}_${cleanLoc}`;
+                        if (docId === '_' || !docId) docId = `MANUAL_${Date.now()}_${Math.floor(Math.random()*10000)}`;
                         
                         const payload = {
                             codigo: i.codigo, descricao: i.descricao, local: i.local,
@@ -1219,9 +1641,8 @@
                         batch.set(doc(colRef, docId), payload);
                         opCount++; totalZeradados++;
 
-                        // Lote 100% seguro contra os limites rigorosos de requisições web do Firebase
-                        if (opCount >= 100) {
-                            await batch.commit(); 
+                        if (opCount >= 400) {
+                            await batch.commit(); // Execução sequencial para não sobrecarregar
                             batch = writeBatch(db); 
                             opCount = 0;
                         }
@@ -1233,8 +1654,6 @@
                 } catch(e) {
                     window.showToast("Erro ao processar zeramento na nuvem.", "error");
                     console.error(e);
-                } finally {
-                    document.getElementById('loading-overlay').style.display = 'none';
                 }
             }, "btn-red");
         }
@@ -1372,8 +1791,10 @@
                 if(modo === 'somar') novaQtd += Number(contagens[idxAnt].fisico || 0); 
             }
 
-            // Geramos de imediato um ID que o Firebase nunca pode rejeitar, não interessa que caracteres o Excel do Chefe tenha cuspido!
-            let docId = targetId || `CONT_${Date.now().toString(36)}_${Math.random().toString(36).substr(2, 6)}`;
+            const codRaw = String(itemAtual.codigo || '').replace(/[^a-zA-Z0-9_-]/g, '');
+            const locRaw = String(itemAtual.local || '').replace(/[^a-zA-Z0-9_-]/g, '');
+            let docId = targetId || `${codRaw}_${locRaw}`;
+            if (docId === '_' || !docId) docId = `MANUAL_${Date.now()}_${Math.floor(Math.random()*10000)}`;
             
             const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
 
@@ -1385,6 +1806,14 @@
                 validade: document.getElementById('m-validade').value, obs: obs, operador: operadorAtual, 
                 data: new Date().toLocaleString('pt-PT'), timestamp: Date.now()
             };
+            
+            // ATUALIZAÇÃO NOVO GTIN NA MATRIZ CLOUD (Se aplicável)
+            const baseIdx = baseDados.findIndex(b => b.codigo === itemAtual.codigo && b.local === itemAtual.local);
+            if (baseIdx !== -1 && novoGtin !== '' && baseDados[baseIdx].gtin !== novoGtin) {
+                const docIdCat = `${codRaw}_${locRaw}`;
+                const refCatalogo = doc(db, 'artifacts', appId, 'public', 'data', 'catalogo', docIdCat);
+                setDoc(refCatalogo, { gtin: novoGtin }, { merge: true }).catch(e => console.error(e));
+            }
 
             window.fecharModal(); 
             const buscaInput = document.getElementById('busca-input'); if (buscaInput) buscaInput.value = '';
@@ -1394,7 +1823,8 @@
 
             setDoc(doc(colRef, docId), payload).then(() => {
                 window.showToast("Gravação Confirmada", "success"); 
-                window.addLog(modo === 'somar' ? '+' : '' + " " + novaQtd + "x " + itemAtual.descricao);
+                const prefixo = modo === 'somar' ? '+' : '';
+                window.addLog(`${prefixo} ${novaQtd}x ${itemAtual.descricao}`);
             }).catch((e) => { window.showToast("Erro ao contatar os blocos de dados!", "error"); });
         }
 
@@ -1433,7 +1863,7 @@
 
         window.mudarAba = function(aba) {
             if (aba === 'relatorios' && cargoAtual !== 'CHEFE') return window.showToast("Área restrita à Gestão!", "error");
-            document.getElementById('view-auditoria').style.display = aba === 'auditoria' ? 'block' : 'none';
+            document.getElementById('view-auditoria').style.display = aba === 'auditoria' ? '' : 'none';
             document.getElementById('view-relatorios').style.display = aba === 'relatorios' ? 'block' : 'none';
             document.getElementById('tab-auditoria').className = aba === 'auditoria' ? 'tab-btn active' : 'tab-btn';
             document.getElementById('tab-relatorios').className = aba === 'relatorios' ? 'tab-btn active' : 'tab-btn';
@@ -1621,29 +2051,20 @@
             if (!currentUser) return window.showToast("Falha de conexão com os servidores na nuvem.", "error");
             
             window.customConfirm("PERIGO: Ação Destrutiva!\n\nDeseja apagar permanentemente todas as contabilizações registadas na nuvem por toda a equipa?", async () => {
-                document.getElementById('loading-overlay').style.display = 'flex';
-                document.getElementById('loading-msg').innerText = "A formatar a nuvem...";
+                window.showToast("A processar a aniquilação dos registos da nuvem...", "info");
                 try {
-                    const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
-                    const snapshot = await getDocs(colRef);
-                    let batch = writeBatch(db); 
-                    let opCount = 0;
-                    
-                    for(const docSnap of snapshot.docs) { 
-                        batch.delete(docSnap.ref);
+                    let batch = writeBatch(db); let opCount = 0;
+                    const promises = [];
+                    for(const c of contagens) { 
+                        batch.delete(doc(db, 'artifacts', appId, 'public', 'data', 'contagens', c.id));
                         opCount++;
-                        if (opCount >= 100) { await batch.commit(); batch = writeBatch(db); opCount = 0; }
+                        if (opCount >= 400) { await batch.commit(); batch = writeBatch(db); opCount = 0; }
                     }
                     if (opCount > 0) await batch.commit();
                     
                     window.addLog("Reiniciou toda a auditoria", "warning"); 
-                    window.showToast("As Contagens da nuvem foram apagadas!", "success");
                     window.fecharModalConfig();
-                } catch(e) { 
-                    window.showToast("Erro ao eliminar auditoria.", "error"); 
-                } finally {
-                    document.getElementById('loading-overlay').style.display = 'none';
-                }
+                } catch(e) { window.showToast("Erro ao eliminar auditoria.", "error"); }
             }, "btn-red");
         }
 
@@ -1682,7 +2103,8 @@
                                 let novoItem = itemBase || {codigo: cod, gtin: cod, descricao: "PRODUTO NÃO IDENTIFICADO", local: "SCAN DIRETO", sistema: 0, cmc: 0, unidade: "UN"};
                                 const cleanCod = String(novoItem.codigo || '').replace(/[^a-zA-Z0-9_-]/g, '');
                                 const cleanLoc = String(novoItem.local || '').replace(/[^a-zA-Z0-9_-]/g, '');
-                                let docId = `CONT_${Date.now().toString(36)}_${Math.random().toString(36).substr(2, 6)}`;
+                                let docId = `${cleanCod}_${cleanLoc}`;
+                                if (!cleanCod || docId.startsWith('_')) docId = `PROD_${Date.now()}_${Math.floor(Math.random()*100000)}`;
 
                                 const payload = {
                                     codigo: novoItem.codigo, descricao: novoItem.descricao, local: novoItem.local, sistema: 0, unidade: novoItem.unidade,
@@ -1716,39 +2138,8 @@
                 } catch (err) { resetUI(); } 
             } else { resetUI(); }
         }
-
         document.getElementById('busca-input').oninput = function() {
-            const rawT = this.value; const t = removerAcentos(rawT.toUpperCase().trim()); 
-            const res = document.getElementById('resultados'); res.innerHTML = '';
-            
-            if (t.length < 1) return;
-            const lS = window.getLocsSel().map(v => removerAcentos(v.toUpperCase())); 
-            const fS = Array.from(document.querySelectorAll('.check-f:checked')).map(cb => removerAcentos(cb.value.toUpperCase()));
-            
-            const fill = baseDados.filter(i => {
-                const desc = removerAcentos(String(i.descricao || '').toUpperCase()); const cod = removerAcentos(String(i.codigo || '').toUpperCase()); const gtin = removerAcentos(String(i.gtin || '').toUpperCase());
-                const matchesSearch = desc.includes(t) || cod.includes(t) || gtin.includes(t);
-                const itemLocal = removerAcentos(String(i.local || '').toUpperCase()); const itemFam = removerAcentos(String(i.familia || '').toUpperCase());
-                const matchesLocal = lS.length === 0 || lS.includes(itemLocal); const matchesFamily = fS.length === 0 || fS.includes(itemFam);
-                return matchesSearch && matchesLocal && matchesFamily;
-            });
-            
-            if (fill.length > 0) {
-                fill.slice(0, 15).forEach(i => {
-                    const d = document.createElement('div'); d.className = 'item-res'; 
-                    d.innerHTML = `<strong>${i.descricao}</strong><small style="color:var(--gray); font-size:11px; font-weight: 500;">${i.local} | No Sistema: <b>${i.sistema}</b></small>`;
-                    d.onclick = () => { indexEdicao = -1; window.abrirModal(i, false); }; res.appendChild(d);
-                });
-            } else {
-                const btnNovo = document.createElement('button'); btnNovo.className = 'btn-blue'; btnNovo.style.marginTop = '10px'; btnNovo.innerHTML = `➕ CADASTRAR NOVO: "${rawT}"`;
-                btnNovo.onclick = () => { 
-                    indexEdicao = -1; const tTrim = rawT.trim(); const isNumeric = /^\d+$/.test(tTrim); 
-                    window.abrirModal({
-                        codigo: 'MAN_' + Date.now(), gtin: isNumeric ? tTrim : '', descricao: isNumeric ? '' : tTrim.toUpperCase(), 
-                        local: lS.length > 0 ? lS[0] : 'MANUAL', familia: 'SEM FAMÍLIA', sistema: 0, cmc: 0, unidade: 'UN'
-                    }, true); 
-                }; res.appendChild(btnNovo);
-            }
+            window.renderResultadosCatalogo();
         };
 
         const normalizeHeader = (str) => {
@@ -1764,9 +2155,7 @@
             reader.onload = async function(evt) {
                 try {
                     const workbook = XLSX.read(new Uint8Array(evt.target.result), {type: 'array'});
-                    
-                    // Correção críca: defval "" impede que o sistema salte linhas com o código vazio
-                    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1, defval: ""});
+                    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1});
                     let idxCod=-1, idxDesc=-1, idxFam=-1, idxSist=-1, idxLoc=-1, idxCmc=-1, idxUn=-1, idxGtin=-1, hRow=-1;
                     
                     for(let r=0; r<rows.length; r++) {
@@ -1793,31 +2182,26 @@
                     const temporarios = [];
                     for(let r=hRow+1; r<rows.length; r++) {
                         let row = rows[r]; 
-                        if (!row || row.length === 0) continue;
-                        
-                        let descricao = String(row[idxDesc] || "").trim().toUpperCase();
-                        
-                        // Ignorar linhas puramente vazias ou totais
-                        if (descricao === "" || descricao === "TOTAL" || descricao.includes("SUBTOTAL")) continue;
-
-                        const l = idxLoc !== -1 ? String(row[idxLoc] || 'ESTOQUE PRINCIPAL').trim().toUpperCase() : 'ESTOQUE PRINCIPAL'; 
-                        const f = idxFam !== -1 ? String(row[idxFam] || 'SEM FAMÍLIA').trim().toUpperCase() : 'SEM FAMÍLIA';
-                        const codRaw = idxCod !== -1 ? String(row[idxCod] || '').trim().toUpperCase() : '';
-                        
-                        const sistemaVal = idxSist !== -1 ? parseFloat(String(row[idxSist] || '0').replace(',','.')) : 0;
-                        const cmcVal = idxCmc !== -1 ? parseFloat(String(row[idxCmc] || '0').replace(',','.')) : 0;
-                        
-                        temporarios.push({ 
-                            codigo: codRaw, descricao: descricao, gtin: idxGtin !== -1 ? String(row[idxGtin] || '').trim() : '', 
-                            familia: f, local: l, sistema: isNaN(sistemaVal) ? 0 : sistemaVal, cmc: isNaN(cmcVal) ? 0 : cmcVal, unidade: idxUn !== -1 ? String(row[idxUn] || 'UN').trim().toUpperCase() : 'UN'
-                        });
+                        if (row && row[idxDesc]) {
+                            const l = idxLoc !== -1 ? String(row[idxLoc] || 'ESTOQUE PRINCIPAL').trim().toUpperCase() : 'ESTOQUE PRINCIPAL'; 
+                            const f = idxFam !== -1 ? String(row[idxFam] || 'SEM FAMÍLIA').trim().toUpperCase() : 'SEM FAMÍLIA';
+                            
+                            // Correção de Código Vazio
+                            const codRaw = idxCod !== -1 ? String(row[idxCod] || '').trim().toUpperCase() : '';
+                            
+                            const sistemaVal = idxSist !== -1 ? parseFloat(String(row[idxSist] || '0').replace(',','.')) : 0;
+                            const cmcVal = idxCmc !== -1 ? parseFloat(String(row[idxCmc] || '0').replace(',','.')) : 0;
+                            
+                            temporarios.push({ 
+                                _linhaImportacao: temporarios.length,
+                                codigo: codRaw, descricao: String(row[idxDesc]).trim().toUpperCase(), gtin: idxGtin !== -1 ? String(row[idxGtin] || '').trim() : '', 
+                                familia: f, local: l, sistema: isNaN(sistemaVal) ? 0 : sistemaVal, cmc: isNaN(cmcVal) ? 0 : cmcVal, unidade: idxUn !== -1 ? String(row[idxUn] || 'UN').trim().toUpperCase() : 'UN'
+                            });
+                        }
                     }
-                    
                     if (temporarios.length === 0) return window.showToast("Planilha submetida encontra-se sem itens registados.", "error");
 
-                    // Inicia o processo de upload sequencial blindado com ecrã visual
-                    document.getElementById('loading-overlay').style.display = 'flex';
-                    const msgEl = document.getElementById('loading-msg');
+                    window.showToast(`A iniciar upload sequencial de ${temporarios.length} produtos...`, "info");
                     
                     try {
                         const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'catalogo');
@@ -1825,46 +2209,45 @@
                         let opCount = 0;
                         let total = 0;
 
+                        // Envio sequencial à prova de falhas (Bloqueia crashes no Firestore)
                         for (const item of temporarios) {
-                            // ID 100% Criptográfico: Acabou-se a sobrescrita de códigos duplicados ou vazios!
-                            const docId = `PROD_${Date.now().toString(36)}_${Math.random().toString(36).substr(2, 6)}_${total}`;
+                            const cleanCod = String(item.codigo || '').replace(/[^a-zA-Z0-9_-]/g, '');
+                            const cleanLoc = String(item.local || '').replace(/[^a-zA-Z0-9_-]/g, '');
+                            const linhaImportacao = Number.isInteger(item._linhaImportacao) ? item._linhaImportacao : total;
+                            let docId = `${cleanCod}_${cleanLoc}_${linhaImportacao}`;
                             
+                            // Impede a sobreposição de produtos que não tenham código na planilha
+                            if (!cleanCod || docId.startsWith('_')) {
+                                docId = `PROD_${Date.now()}_${Math.floor(Math.random() * 100000)}_${linhaImportacao}`;
+                            }
+                            
+                            item.id = docId;
+                            delete item._linhaImportacao;
                             batch.set(doc(colRef, docId), item);
                             opCount++;
                             total++;
                             
-                            // Reduzido para lotes de 100 para ser imune a quebras de rede da Firebase
-                            if (opCount >= 100) {
-                                msgEl.innerText = `A injetar na nuvem: ${total} de ${temporarios.length} produtos...`;
-                                await batch.commit(); 
+                            if (opCount >= 400) {
+                                await batch.commit(); // Espera acabar antes de enviar o próximo pacote
                                 batch = writeBatch(db);
                                 opCount = 0;
                             }
                         }
                         
                         if (opCount > 0) {
-                            msgEl.innerText = `A finalizar injeção de ${total} produtos...`;
                             await batch.commit();
                         }
 
-                        // Atualiza instantaneamente a cache do Chefe
-                        baseDados = temporarios;
-                        try { localStorage.setItem('catalogo_local_enc', CryptoJS.AES.encrypt(JSON.stringify(baseDados), _HASH_V).toString()); } catch(e) {}
-                        
-                        window.atualizarFiltrosDOM();
-                        if (operadorAtual) window.render();
-
-                        window.showToast(`Upload 100% concluído! (${total} produtos)`, "success");
+                        window.showToast(`Sincronização 100% concluída! (${total} produtos)`, "success");
                     } catch (e) {
-                        window.showToast("Erro crítico de rede ao enviar para a nuvem.", "error");
+                        window.showToast("Erro ao sincronizar matriz com a nuvem.", "error");
                         console.error(e);
-                    } finally {
-                        document.getElementById('loading-overlay').style.display = 'none';
-                        e.target.value = '';
-                        window.fecharModalConfig();
                     }
 
-                } catch (error) { window.showToast("O ficheiro foi corrompido ou negado pelo sistema.", "error"); document.getElementById('loading-overlay').style.display = 'none'; }
+                    e.target.value = '';
+                    window.fecharModalConfig();
+
+                } catch (error) { window.showToast("O ficheiro foi corrompido ou negado pelo sistema.", "error"); }
             };
             reader.readAsArrayBuffer(e.target.files[0]);
         };
