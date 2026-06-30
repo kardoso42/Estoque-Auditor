@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Estoque V-49.0 - SaaS Secure</title>
+    <title>Smart Estoque V-50.0 - SaaS Secure</title>
     <!-- Bibliotecas de Terceiros Autorizadas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
@@ -422,10 +422,11 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                     <div>
                         <h4 style="margin: 0 0 4px 0; font-size: 13px; color: var(--blue-dark); display: flex; align-items: center; gap: 5px;">🔄 Matriz de Produtos</h4>
-                        <p style="margin: 0; font-size: 11px; color: var(--gray);" id="status-catalog-main">A sincronizar com a nuvem...</p>
+                        <p style="margin: 0; font-size: 11px; color: var(--gray);" id="status-catalog-main">Verificando memória...</p>
                     </div>
                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <button class="btn-blue" onclick="baixarCatalogoDaNuvem()" style="width: auto; padding: 10px 14px; font-size: 11px; margin: 0; box-shadow: none;">☁️ FORÇAR ATUALIZAÇÃO</button>
+                        <button id="btn-sincronizar-op" class="btn-blue" onclick="baixarCatalogoDaNuvem()" style="width: auto; padding: 10px 14px; font-size: 11px; margin: 0; box-shadow: none;">☁️ FORÇAR ATUALIZAÇÃO</button>
+                        <button class="btn-outline" onclick="limparCacheLocal()" style="width: auto; padding: 10px 14px; font-size: 11px; margin: 0; border-color: var(--red); color: var(--red); background: var(--surface);">🗑️ LIMPAR CACHE</button>
                     </div>
                 </div>
             </div>
@@ -625,13 +626,6 @@
                     </div>
                 </div>
 
-                <!-- SINCRONIZAÇÃO E CACHE (Visível para todos: Chefe e Operador) -->
-                <div style="background: var(--surface); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; text-align: center;">
-                    <h4 style="margin: 0 0 16px 0; font-size: 13px; font-weight: 800; color: var(--blue-dark); text-transform: uppercase;">🔄 Sincronização e Cache</h4>
-                    <div id="status-catalog" style="font-size: 12px; font-weight: 700; color: var(--orange); margin-bottom: 15px; padding: 10px; background: var(--bg); border-radius: 12px;">☁️ A escutar a nuvem...</div>
-                    <button onclick="limparCacheLocal()" class="btn-outline" style="font-size:11px; padding: 12px; color: var(--red); border-color: rgba(239,68,68,0.3); width: 100%; background: var(--bg);">🗑️ LIMPAR CACHE DO DISPOSITIVO</button>
-                </div>
-
                 <!-- IMPORTAÇÃO EXCEL (Apenas Chefe) -->
                 <div id="container-import-excel" style="display: none; background: var(--surface); padding: 20px; border-radius: 16px; border: 2px dashed var(--border); margin-bottom: 20px; text-align: center;">
                     <h4 style="margin: 0 0 16px 0; font-size: 13px; font-weight: 800; color: var(--blue-dark); text-transform: uppercase;">📦 Matriz de Produtos (Omie)</h4>
@@ -826,7 +820,7 @@
         onAuthStateChanged(auth, (u) => {
             currentUser = u;
             if (currentUser) {
-                // 1. Ouvinte em Tempo Real para as Contagens
+                // 1. Ouvinte em Tempo Real apenas para as Contagens
                 const colRefContagens = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
                 onSnapshot(colRefContagens, (snapshot) => {
                     const newContagens = [];
@@ -834,25 +828,9 @@
                     contagens = newContagens.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
                     if (operadorAtual) window.render();
                 });
-
-                // 2. Ouvinte em Tempo Real para o Catálogo (Sincroniza Chefes e Operadores automaticamente)
-                const colRefCatalogo = collection(db, 'artifacts', appId, 'public', 'data', 'catalogo');
-                onSnapshot(colRefCatalogo, (snapshot) => {
-                    const newCatalogo = [];
-                    snapshot.forEach(docSnap => newCatalogo.push(docSnap.data()));
-                    
-                    if (newCatalogo.length > 0) {
-                        baseDados = newCatalogo;
-                        try { localStorage.setItem('catalogo_local_enc', CryptoJS.AES.encrypt(JSON.stringify(baseDados), _HASH_V).toString()); } catch(e) {}
-                    } else if (baseDados.length > 0) {
-                        // Se a nuvem estiver vazia, limpamos a cache local também
-                        baseDados = [];
-                        localStorage.removeItem('catalogo_local_enc');
-                    }
-                    
-                    window.atualizarFiltrosDOM();
-                    if (operadorAtual) window.render();
-                }, (error) => { console.error("Erro ao escutar catálogo:", error); });
+                
+                // NOTA: Removido o Ouvinte automático do Catálogo para evitar que o telemóvel trave ou apague a memória por falha de net.
+                // O download agora é forçado apenas pelo botão.
             }
         });
 
@@ -932,11 +910,13 @@
             try {
                 const statusEl = document.getElementById('status-catalog');
                 const statusMain = document.getElementById('status-catalog-main');
+                const btn = document.getElementById('btn-sincronizar-op');
                 
-                if (statusEl) { statusEl.innerText = "⏳ Transferindo matriz..."; statusEl.style.color = 'var(--orange)'; }
+                if (btn) btn.innerText = "⏳ A BAIXAR...";
+                if (statusEl) { statusEl.innerText = "⏳ A transferir matriz..."; statusEl.style.color = 'var(--orange)'; }
                 if (statusMain) { statusMain.innerText = "A descarregar produtos da nuvem. Aguarde..."; statusMain.style.color = 'var(--orange)'; }
                 
-                window.showToast("A sincronizar catálogo...", "info");
+                window.showToast("A descarregar catálogo seguro...", "info");
 
                 const colRefCatalogo = collection(db, 'artifacts', appId, 'public', 'data', 'catalogo');
                 const querySnapshot = await getDocs(colRefCatalogo);
@@ -954,9 +934,13 @@
                     window.showToast("A Nuvem não possui produtos cadastrados.", "warning");
                     window.atualizarFiltrosDOM();
                 }
+                
+                if (btn) btn.innerText = "☁️ FORÇAR ATUALIZAÇÃO";
             } catch (error) {
                 console.error(error);
                 window.showToast("Erro de rede. Não foi possível baixar.", "error");
+                const btn = document.getElementById('btn-sincronizar-op');
+                if (btn) btn.innerText = "☁️ FORÇAR ATUALIZAÇÃO";
             }
         };
 
@@ -974,17 +958,17 @@
             
             if (baseDados.length > 0) {
                 if (statusEl) { statusEl.innerText = `☁️ Nuvem: ${baseDados.length} itens ativos.`; statusEl.style.color = 'var(--green)'; }
-                if (statusMain) { statusMain.innerText = `${baseDados.length} produtos carregados da nuvem.`; statusMain.style.color = 'var(--green)'; }
+                if (statusMain) { statusMain.innerText = `${baseDados.length} produtos prontos no seu telemóvel.`; statusMain.style.color = 'var(--green)'; }
                 if (alertaEl) alertaEl.style.display = 'none';
                 
                 document.getElementById('filtro-local-multi').innerHTML = Array.from(locs).sort().map((l, i) => `<div class="multi-select-item"><input type="checkbox" class="check-l" id="loc-${i}" value="${l}" checked><label for="loc-${i}">${l}</label></div>`).join('');
                 document.getElementById('filtro-family-multi').innerHTML = Array.from(fams).sort().map((f, i) => `<div class="multi-select-item"><input type="checkbox" class="check-f" id="fam-${i}" value="${f}" checked><label for="fam-${i}">${f}</label></div>`).join('');
             } else {
                 if (statusEl) { statusEl.innerText = "☁️ O Catálogo da Nuvem está vazio."; statusEl.style.color = 'var(--orange)'; }
-                if (statusMain) { statusMain.innerText = `A aguardar produtos da nuvem...`; statusMain.style.color = 'var(--orange)'; }
+                if (statusMain) { statusMain.innerText = `O telemóvel não tem produtos. Prima 'Atualização'.`; statusMain.style.color = 'var(--red)'; }
 
                 if (alertaEl && operadorAtual) {
-                    alertaEl.innerHTML = `<p style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--orange);">⚠️ Catálogo Indisponível</p><p style="margin: 0 0 16px; font-size: 12px; color: var(--text);">O sistema está a aguardar que a Gestão carregue a matriz de inventário. O processo ocorrerá automaticamente.</p>`;
+                    alertaEl.innerHTML = `<p style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--orange);">⚠️ Catálogo Indisponível</p><p style="margin: 0 0 16px; font-size: 12px; color: var(--text);">A base de dados na sua memória está vazia. O Chefe precisa carregar o Excel ou deve atualizar a nuvem.</p>`;
                     alertaEl.style.borderColor = 'var(--orange)';
                     alertaEl.style.background = 'rgba(245, 158, 11, 0.08)';
                     alertaEl.style.display = 'block';
@@ -1012,7 +996,6 @@
                 try {
                     let batch = writeBatch(db); 
                     let opCount = 0;
-                    const promises = [];
 
                     for(const b of baseDados) {
                         const cleanCod = String(b.codigo || '').replace(/[^a-zA-Z0-9_-]/g, '');
@@ -1023,8 +1006,9 @@
                         batch.delete(doc(db, 'artifacts', appId, 'public', 'data', 'catalogo', docId));
                         opCount++;
                         
-                        if (opCount >= 400) { 
-                            await batch.commit(); // Execução sequencial para não engarrafar a rede do Firebase
+                        // Envio sequencial para não bloquear o Firebase
+                        if (opCount >= 300) { 
+                            await batch.commit(); 
                             batch = writeBatch(db); 
                             opCount = 0; 
                         }
@@ -1083,8 +1067,6 @@
                     window.mudarAba('auditoria');
                 }
                 
-                // Os dados agora são geridos de forma assíncrona pelo onSnapshot.
-                // A interface ajusta-se visualmente consoante existam dados na cache ou não.
                 window.atualizarFiltrosDOM();
                 window.render();
             } else {
@@ -1205,7 +1187,6 @@
                 try {
                     let batch = writeBatch(db);
                     let opCount = 0; let totalZeradados = 0;
-                    const promises = [];
 
                     for (const i of pendentes) {
                         const cleanCod = String(i.codigo || '').replace(/[^a-zA-Z0-9_-]/g, '');
@@ -1224,7 +1205,7 @@
                         batch.set(doc(colRef, docId), payload);
                         opCount++; totalZeradados++;
 
-                        if (opCount >= 400) {
+                        if (opCount >= 300) {
                             await batch.commit(); // Execução sequencial para não sobrecarregar
                             batch = writeBatch(db); 
                             opCount = 0;
@@ -1768,7 +1749,8 @@
             reader.onload = async function(evt) {
                 try {
                     const workbook = XLSX.read(new Uint8Array(evt.target.result), {type: 'array'});
-                    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1});
+                    // Usar defval: "" garante que linhas com células vazias no final não sejam truncadas, resolvendo o bug dos 398 itens.
+                    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1, defval: ""});
                     let idxCod=-1, idxDesc=-1, idxFam=-1, idxSist=-1, idxLoc=-1, idxCmc=-1, idxUn=-1, idxGtin=-1, hRow=-1;
                     
                     for(let r=0; r<rows.length; r++) {
@@ -1795,22 +1777,24 @@
                     const temporarios = [];
                     for(let r=hRow+1; r<rows.length; r++) {
                         let row = rows[r]; 
-                        if (row && row[idxDesc]) {
-                            const l = idxLoc !== -1 ? String(row[idxLoc] || 'ESTOQUE PRINCIPAL').trim().toUpperCase() : 'ESTOQUE PRINCIPAL'; 
-                            const f = idxFam !== -1 ? String(row[idxFam] || 'SEM FAMÍLIA').trim().toUpperCase() : 'SEM FAMÍLIA';
-                            
-                            // Correção de Código Vazio
-                            const codRaw = idxCod !== -1 ? String(row[idxCod] || '').trim().toUpperCase() : '';
-                            
-                            const sistemaVal = idxSist !== -1 ? parseFloat(String(row[idxSist] || '0').replace(',','.')) : 0;
-                            const cmcVal = idxCmc !== -1 ? parseFloat(String(row[idxCmc] || '0').replace(',','.')) : 0;
-                            
-                            temporarios.push({ 
-                                codigo: codRaw, descricao: String(row[idxDesc]).trim().toUpperCase(), gtin: idxGtin !== -1 ? String(row[idxGtin] || '').trim() : '', 
-                                familia: f, local: l, sistema: isNaN(sistemaVal) ? 0 : sistemaVal, cmc: isNaN(cmcVal) ? 0 : cmcVal, unidade: idxUn !== -1 ? String(row[idxUn] || 'UN').trim().toUpperCase() : 'UN'
-                            });
-                        }
+                        if (!row || row.length === 0) continue;
+                        
+                        let descricao = String(row[idxDesc] || "").trim().toUpperCase();
+                        if (descricao === "") continue;
+
+                        const l = idxLoc !== -1 ? String(row[idxLoc] || 'ESTOQUE PRINCIPAL').trim().toUpperCase() : 'ESTOQUE PRINCIPAL'; 
+                        const f = idxFam !== -1 ? String(row[idxFam] || 'SEM FAMÍLIA').trim().toUpperCase() : 'SEM FAMÍLIA';
+                        
+                        const codRaw = idxCod !== -1 ? String(row[idxCod] || '').trim().toUpperCase() : '';
+                        const sistemaVal = idxSist !== -1 ? parseFloat(String(row[idxSist] || '0').replace(',','.')) : 0;
+                        const cmcVal = idxCmc !== -1 ? parseFloat(String(row[idxCmc] || '0').replace(',','.')) : 0;
+                        
+                        temporarios.push({ 
+                            codigo: codRaw, descricao: descricao, gtin: idxGtin !== -1 ? String(row[idxGtin] || '').trim() : '', 
+                            familia: f, local: l, sistema: isNaN(sistemaVal) ? 0 : sistemaVal, cmc: isNaN(cmcVal) ? 0 : cmcVal, unidade: idxUn !== -1 ? String(row[idxUn] || 'UN').trim().toUpperCase() : 'UN'
+                        });
                     }
+                    
                     if (temporarios.length === 0) return window.showToast("Planilha submetida encontra-se sem itens registados.", "error");
 
                     window.showToast(`A iniciar upload sequencial de ${temporarios.length} produtos...`, "info");
@@ -1821,23 +1805,22 @@
                         let opCount = 0;
                         let total = 0;
 
-                        // Envio sequencial à prova de falhas (Bloqueia crashes no Firestore)
+                        // Envio sequencial à prova de falhas
                         for (const item of temporarios) {
                             const cleanCod = String(item.codigo || '').replace(/[^a-zA-Z0-9_-]/g, '');
                             const cleanLoc = String(item.local || '').replace(/[^a-zA-Z0-9_-]/g, '');
                             let docId = `${cleanCod}_${cleanLoc}`;
                             
-                            // Impede a sobreposição de produtos que não tenham código na planilha
-                            if (!cleanCod || docId.startsWith('_')) {
-                                docId = `PROD_${Date.now()}_${Math.floor(Math.random() * 100000)}_${total}`;
+                            if (!cleanCod || docId === '_' || docId.startsWith('_')) {
+                                docId = `PROD_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
                             }
                             
                             batch.set(doc(colRef, docId), item);
                             opCount++;
                             total++;
                             
-                            if (opCount >= 400) {
-                                await batch.commit(); // Espera acabar antes de enviar o próximo pacote
+                            if (opCount >= 300) {
+                                await batch.commit(); // Espera acabar de injetar na nuvem antes de enviar o próximo
                                 batch = writeBatch(db);
                                 opCount = 0;
                             }
@@ -1847,7 +1830,14 @@
                             await batch.commit();
                         }
 
-                        window.showToast(`Sincronização 100% concluída! (${total} produtos)`, "success");
+                        // Atualiza instantaneamente a cache de quem fez o upload
+                        baseDados = temporarios;
+                        try { localStorage.setItem('catalogo_local_enc', CryptoJS.AES.encrypt(JSON.stringify(baseDados), _HASH_V).toString()); } catch(e) {}
+                        
+                        window.atualizarFiltrosDOM();
+                        if (operadorAtual) window.render();
+
+                        window.showToast(`Upload 100% concluído! (${total} produtos)`, "success");
                     } catch (e) {
                         window.showToast("Erro ao sincronizar matriz com a nuvem.", "error");
                         console.error(e);
