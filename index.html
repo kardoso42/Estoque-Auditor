@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Estoque V-48.0 - Premium Secure</title>
+    <title>Smart Estoque V-49.0 - SaaS Secure</title>
     <!-- Bibliotecas de Terceiros Autorizadas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
@@ -42,6 +42,11 @@
             --border: #334155;      
             --logo-bg: #f8fafc;     
         }
+
+        /* Cores da Marca (Brand) */
+        .brand-smart { color: #000040; }
+        .brand-estoque { color: #FFCC33; }
+        body.dark-mode .brand-smart { color: #93c5fd; }
         
         body { 
             font-family: 'Poppins', system-ui, -apple-system, sans-serif; 
@@ -81,8 +86,11 @@
         .header-info { display: flex; gap: 12px; align-items: center; flex: 1; }
         .header-info .app-logo { 
             margin: 0; width: 52px; height: 52px; border-radius: 16px; flex-shrink: 0;
+            background: var(--logo-bg); display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06); border: 1px solid var(--border); overflow: hidden; 
         }
-        .header-info h2 { font-size: 18px; font-weight: 800; color: var(--blue-dark); margin: 0; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; letter-spacing: -0.5px; }
+        .header-info .app-logo img { width: 100%; height: 100%; object-fit: contain; display: block; }
+        .header-info h2 { font-size: 18px; font-weight: 800; margin: 0; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; letter-spacing: -0.5px; }
         
         .header-actions { display: flex; align-items: center; gap: 10px; position: static; }
         .mini-stats-group { display: flex; gap: 8px; }
@@ -268,7 +276,7 @@
             box-shadow: 0 20px 50px -15px rgba(0,0,0,0.08); 
             border: 1px solid var(--border); width: 100%; max-width: 400px; box-sizing: border-box;
         }
-        .login-title { font-size: 30px; font-weight: 800; color: var(--blue-dark); margin: 0 0 6px 0; text-align: center; letter-spacing: -1px; }
+        .login-title { font-size: 30px; font-weight: 800; margin: 0 0 6px 0; text-align: center; letter-spacing: -1px; }
         .login-subtitle { font-size: 14px; color: var(--gray); margin: 0 0 36px 0; text-align: center; font-weight: 500; }
         .input-group { margin-bottom: 22px; position: relative; text-align: left; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: var(--blue-dark); margin-bottom: 10px; }
@@ -336,7 +344,7 @@
                 <img src="logo-smartestoque.png" alt="Logo" id="logo-login-img" onerror="tentarCarregarDuplo(this)">
             </div>
             
-            <h2 class="login-title">Smart Estoque</h2>
+            <h2 class="login-title"><span class="brand-smart">Smart</span> <span class="brand-estoque">Estoque</span></h2>
             <p class="login-subtitle">Auditoria e Gestão de Inventário</p>
             
             <div class="input-group">
@@ -372,7 +380,7 @@
                     <img src="logo-smartestoque.png" alt="Logo" id="logo-header-img" onerror="tentarCarregarDuplo(this)">
                 </div>
                 <div>
-                    <h2>Smart Estoque <span class="cloud-badge" id="app-badge-mode">REAL-TIME</span></h2>
+                    <h2><span class="brand-smart">Smart</span> <span class="brand-estoque">Estoque</span> <span class="cloud-badge" id="app-badge-mode">REAL-TIME</span></h2>
                     <div class="print-hide" style="margin-top: 6px;">
                         <span class="user-badge">👤 <span id="lbl-operador">Operador</span> (<span id="lbl-cargo" style="color: var(--orange);">...</span>) 
                         <button onclick="fazerLogout()" style="background:none; border:none; color:rgba(255,255,255,0.8); padding:0 0 0 6px; margin:0; cursor:pointer; font-size:10px; font-weight:800; width:auto; box-shadow:none;">SAIR</button></span>
@@ -410,9 +418,9 @@
         <div id="view-auditoria">
             
             <div id="alerta-catalogo-vazio" class="card print-hide" style="display:block; background: rgba(245, 158, 11, 0.08); border: 2px dashed var(--orange); text-align: center;">
-                <p style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--orange);">⚠️ Base de Dados Local Vazia</p>
-                <p style="margin: 0 0 16px; font-size: 12px; color: var(--text);">Importe a planilha da Omie (Excel) para associar as contagens aos produtos corretos.</p>
-                <button class="btn-blue" onclick="abrirModalConfig()" style="max-width: 280px; margin: 0 auto; padding: 14px;">📁 CARREGAR PLANILHA</button>
+                <p style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--orange);">⚠️ Sem catálogo na Nuvem!</p>
+                <p style="margin: 0 0 16px; font-size: 12px; color: var(--text);">Aguarde a importação da planilha pelo Chefe de Setor ou aceda às Opções para carregar.</p>
+                <button class="btn-blue" onclick="abrirModalConfig()" style="max-width: 280px; margin: 0 auto; padding: 14px;">📁 ABRIR OPÇÕES</button>
             </div>
 
             <div class="card print-hide">
@@ -521,7 +529,7 @@
                     <table style="margin-top: 0; border: none;">
                         <thead style="position: sticky; top: 0; z-index: 1;"><tr><th style="text-align: left;">Descrição do Produto</th><th>Local</th><th>Sist</th></tr></thead>
                         <tbody id="tabela-pendentes-body">
-                            <tr><td colspan="3" style="color:var(--gray); padding:20px; text-align:center;">Importe a planilha para visualizar.</td></tr>
+                            <tr><td colspan="3" style="color:var(--gray); padding:20px; text-align:center;">A carregar dados da nuvem...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -610,22 +618,21 @@
                     <h4 style="margin: 0 0 16px 0; font-size: 13px; font-weight: 800; color: var(--blue-dark); text-transform: uppercase;">📦 Matriz de Produtos (Omie)</h4>
                     
                     <label for="file-input" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--blue); color: white; padding: 14px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(37,99,235,0.2); width: 100%; box-sizing: border-box;">
-                        📁 SELECIONAR FICHEIRO EXCEL
+                        📁 INJETAR NA NUVEM
                     </label>
-                    <!-- CORREÇÃO CHAVE: Usar opacity 0 em vez de display: none para garantir suporte ao clique no telemóvel -->
                     <input type="file" id="file-input" accept=".xlsx, .xls, .csv" style="opacity: 0; position: absolute; z-index: -1; width: 0.1px; height: 0.1px;">
                     
-                    <button onclick="limparCacheLocal()" class="btn-outline" style="margin-top: 12px; font-size:11px; padding: 12px; color: var(--red); border-color: rgba(239,68,68,0.3); width: 100%; background: var(--bg);">🗑️ ZERAR CACHE LOCAL</button>
+                    <button onclick="limparCatalogoNuvem()" class="btn-outline" style="margin-top: 12px; font-size:11px; padding: 12px; color: var(--red); border-color: rgba(239,68,68,0.3); width: 100%; background: var(--bg);">🗑️ ZERAR MATRIZ DA NUVEM</button>
                 </div>
                 
-                <div id="status-catalog" style="font-size: 12px; font-weight: 700; color: var(--orange); margin-bottom: 20px; text-align: center; background: var(--surface); padding: 14px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.02);">☁️ A carregar estado da memória...</div>
+                <div id="status-catalog" style="font-size: 12px; font-weight: 700; color: var(--orange); margin-bottom: 20px; text-align: center; background: var(--surface); padding: 14px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.02);">☁️ A escutar a nuvem...</div>
 
                 <div style="background: var(--surface); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px;">
                     <h4 style="margin: 0 0 16px 0; font-size: 13px; font-weight: 800; color: var(--blue-dark); display: flex; align-items: center; gap: 6px;">📍 FILTROS DE AUDITORIA</h4>
                     <label style="font-size: 11px; font-weight: 700; color: var(--gray); margin-bottom: 8px; display: block;">FILTRAR POR LOCAIS:</label>
-                    <div id="filtro-local-multi" class="multi-select-box" style="margin-bottom: 16px; background: var(--bg); border: 1px solid var(--border);"><small style="color:var(--gray); padding: 10px; display: block;">Importe o arquivo primeiro...</small></div>
+                    <div id="filtro-local-multi" class="multi-select-box" style="margin-bottom: 16px; background: var(--bg); border: 1px solid var(--border);"><small style="color:var(--gray); padding: 10px; display: block;">Aguarde o catálogo da nuvem...</small></div>
                     <label style="font-size: 11px; font-weight: 700; color: var(--gray); margin-bottom: 8px; display: block;">FILTRAR POR FAMÍLIAS:</label>
-                    <div id="filtro-family-multi" class="multi-select-box" style="margin-bottom: 0; background: var(--bg); border: 1px solid var(--border);"><small style="color:var(--gray); padding: 10px; display: block;">Importe o arquivo primeiro...</small></div>
+                    <div id="filtro-family-multi" class="multi-select-box" style="margin-bottom: 0; background: var(--bg); border: 1px solid var(--border);"><small style="color:var(--gray); padding: 10px; display: block;">Aguarde o catálogo da nuvem...</small></div>
                 </div>
 
                 <div id="chefe-pin-change-area" style="display: none; background: rgba(239, 68, 68, 0.05); padding: 20px; border-radius: 16px; border: 1px solid rgba(239,68,68,0.2); margin-bottom: 0;">
@@ -718,7 +725,7 @@
         </div>
     </div>
 
-    <!-- Modal de Confirmação Customizado (Substitui o window.confirm bloqueado no iFrame) -->
+    <!-- Modal de Confirmação Customizado -->
     <div id="modal-confirm" class="modal" style="z-index: 10005;">
         <div class="modal-content" style="max-width: 340px; text-align: center; padding: 32px 24px;">
             <div style="font-size: 40px; margin-bottom: 12px;">⚠️</div>
@@ -772,14 +779,6 @@
         window.gatilhoTimeout = null;
         window.html5QrCodeModal = null;
 
-        try {
-            const cachedCatalogEnc = localStorage.getItem('catalogo_local_enc');
-            if (cachedCatalogEnc) {
-                baseDados = JSON.parse(CryptoJS.AES.decrypt(cachedCatalogEnc, _HASH_V).toString(CryptoJS.enc.Utf8));
-            }
-        } catch (e) { }
-
-        // --- SISTEMA DE DIÁLOGO CUSTOMIZADO SEGURO ---
         window.customConfirm = function(msg, onConfirm, confirmBtnClass = 'btn-blue') {
             document.getElementById('confirm-msg').innerText = msg;
             const btnOk = document.getElementById('btn-confirm-ok');
@@ -810,6 +809,7 @@
         onAuthStateChanged(auth, (u) => {
             currentUser = u;
             if (currentUser) {
+                // 1. Ouvinte em Tempo Real para as Contagens
                 const colRefContagens = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
                 onSnapshot(colRefContagens, (snapshot) => {
                     const newContagens = [];
@@ -817,7 +817,16 @@
                     contagens = newContagens.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
                     if (operadorAtual) window.render();
                 });
-                window.atualizarFiltrosDOM();
+
+                // 2. Ouvinte em Tempo Real para a Matriz de Produtos (CATÁLOGO CLOUD)
+                const colRefCatalogo = collection(db, 'artifacts', appId, 'public', 'data', 'catalogo');
+                onSnapshot(colRefCatalogo, (snapshot) => {
+                    const newCatalogo = [];
+                    snapshot.forEach(docSnap => newCatalogo.push(docSnap.data()));
+                    baseDados = newCatalogo;
+                    window.atualizarFiltrosDOM();
+                    if (operadorAtual) window.render();
+                }, (error) => { console.error("Erro ao escutar catálogo da nuvem:", error); });
             }
         });
 
@@ -901,26 +910,39 @@
             const alertaEl = document.getElementById('alerta-catalogo-vazio');
             
             if (baseDados.length > 0) {
-                if (statusEl) { statusEl.innerText = `📂 Memória: ${baseDados.length} itens carregados.`; statusEl.style.color = 'var(--green)'; }
+                if (statusEl) { statusEl.innerText = `☁️ Nuvem: ${baseDados.length} itens sincronizados.`; statusEl.style.color = 'var(--green)'; }
                 if (alertaEl) alertaEl.style.display = 'none';
                 document.getElementById('filtro-local-multi').innerHTML = Array.from(locs).sort().map((l, i) => `<div class="multi-select-item"><input type="checkbox" class="check-l" id="loc-${i}" value="${l}" checked><label for="loc-${i}">${l}</label></div>`).join('');
                 document.getElementById('filtro-family-multi').innerHTML = Array.from(fams).sort().map((f, i) => `<div class="multi-select-item"><input type="checkbox" class="check-f" id="fam-${i}" value="${f}" checked><label for="fam-${i}">${f}</label></div>`).join('');
             } else {
-                if (statusEl) { statusEl.innerText = "☁️ Memória local vazia."; statusEl.style.color = 'var(--orange)'; }
+                if (statusEl) { statusEl.innerText = "☁️ O Catálogo da Nuvem está vazio."; statusEl.style.color = 'var(--orange)'; }
                 if (alertaEl && operadorAtual) alertaEl.style.display = 'block';
-                document.getElementById('filtro-local-multi').innerHTML = `<small style="color:var(--gray); padding: 5px;">Importe o arquivo para ver locais...</small>`;
-                document.getElementById('filtro-family-multi').innerHTML = `<small style="color:var(--gray); padding: 5px;">Importe o arquivo para ver famílias...</small>`;
+                document.getElementById('filtro-local-multi').innerHTML = `<small style="color:var(--gray); padding: 5px;">Aguarde o catálogo da nuvem...</small>`;
+                document.getElementById('filtro-family-multi').innerHTML = `<small style="color:var(--gray); padding: 5px;">Aguarde o catálogo da nuvem...</small>`;
             }
         }
 
-        window.limparCacheLocal = function() {
-            window.customConfirm("Deseja apagar a planilha carregada na memória do dispositivo? As contagens da nuvem continuarão intocadas.", () => {
-                baseDados = [];
-                localStorage.removeItem('catalogo_local_enc');
-                window.atualizarFiltrosDOM();
-                window.render();
-                window.showToast("Cache do catálogo removida!", "success");
-                window.fecharModalConfig();
+        window.limparCatalogoNuvem = function() {
+            if (cargoAtual !== 'CHEFE') return window.showToast("Operação bloqueada! Apenas para a Chefia.", "error");
+            window.customConfirm("Deseja APAGAR toda a matriz de produtos da Nuvem? Todos os operadores perderão o acesso à lista.", async () => {
+                window.showToast("A apagar catálogo na nuvem...", "info");
+                try {
+                    let batch = writeBatch(db); 
+                    let opCount = 0;
+                    for(const b of baseDados) {
+                        const cleanCod = String(b.codigo).replace(/[^a-zA-Z0-9_-]/g, '');
+                        const cleanLoc = String(b.local).replace(/[^a-zA-Z0-9_-]/g, '');
+                        const docId = `${cleanCod}_${cleanLoc}`;
+                        batch.delete(doc(db, 'artifacts', appId, 'public', 'data', 'catalogo', docId));
+                        opCount++;
+                        if (opCount >= 100) { await batch.commit(); batch = writeBatch(db); opCount = 0; }
+                    }
+                    if (opCount > 0) await batch.commit();
+                    window.showToast("Matriz da nuvem removida com sucesso!", "success");
+                    window.fecharModalConfig();
+                } catch(e) {
+                    window.showToast("Erro ao tentar limpar catálogo.", "error");
+                }
             }, "btn-red");
         }
 
@@ -1074,42 +1096,46 @@
         window.zerarNaoContados = async function() {
             if (cargoAtual !== 'CHEFE') return window.showToast("Erro de permissão! Apenas chefias.", "error");
             if (!currentUser) return window.showToast("Falha: Sem ligação à nuvem.", "error");
-            if(baseDados.length === 0) return window.showToast("O catálogo local está vazio!", "error");
+            if(baseDados.length === 0) return window.showToast("O catálogo cloud está vazio!", "error");
             
             const pendentes = baseDados.filter(i => !contagens.some(c => c.codigo === i.codigo && c.local === i.local));
             if(pendentes.length === 0) return window.showToast("Perfeito! Não há produtos pendentes.", "info");
             
             window.customConfirm(`Atenção: Existem ${pendentes.length} produtos não auditados na base de dados. Confirma a inserção de QTD Zero nestes itens em lote?`, async () => {
-                window.showToast("A registar zeramentos em bloco...", "info");
+                window.showToast("A registar zeramentos em bloco na nuvem...", "info");
                 const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
                 
-                let batch = writeBatch(db);
-                let opCount = 0; let totalZeradados = 0;
+                try {
+                    let batch = writeBatch(db);
+                    let opCount = 0; let totalZeradados = 0;
 
-                for (const i of pendentes) {
-                    const cleanCod = String(i.codigo || '').replace(/[^a-zA-Z0-9]/g, '');
-                    const cleanLoc = String(i.local || '').replace(/[^a-zA-Z0-9]/g, '');
-                    const docId = `${cleanCod}_${cleanLoc}`;
-                    const payload = {
-                        codigo: i.codigo, descricao: i.descricao, local: i.local,
-                        sistema: i.sistema, unidade: i.unidade, familia: i.familia, cmc: i.cmc,
-                        fisico: 0, dif: 0 - i.sistema, cmc_unitario: i.cmc || 0, gtin: i.gtin || '',
-                        lote: "", validade: "", obs: "REGISTO ZERADO AUTOMATICAMENTE", 
-                        operador: operadorAtual, data: new Date().toLocaleString('pt-PT'), timestamp: Date.now()
-                    };
-                    
-                    batch.set(doc(colRef, docId), payload);
-                    opCount++; totalZeradados++;
+                    for (const i of pendentes) {
+                        const cleanCod = String(i.codigo || '').replace(/[^a-zA-Z0-9_-]/g, '');
+                        const cleanLoc = String(i.local || '').replace(/[^a-zA-Z0-9_-]/g, '');
+                        const docId = `${cleanCod}_${cleanLoc}`;
+                        const payload = {
+                            codigo: i.codigo, descricao: i.descricao, local: i.local,
+                            sistema: i.sistema, unidade: i.unidade, familia: i.familia, cmc: i.cmc,
+                            fisico: 0, dif: 0 - i.sistema, cmc_unitario: i.cmc || 0, gtin: i.gtin || '',
+                            lote: "", validade: "", obs: "REGISTO ZERADO AUTOMATICAMENTE", 
+                            operador: operadorAtual, data: new Date().toLocaleString('pt-PT'), timestamp: Date.now()
+                        };
+                        
+                        batch.set(doc(colRef, docId), payload);
+                        opCount++; totalZeradados++;
 
-                    if (opCount >= 100) {
-                        await batch.commit();
-                        batch = writeBatch(db); opCount = 0;
+                        if (opCount >= 100) {
+                            await batch.commit();
+                            batch = writeBatch(db); opCount = 0;
+                        }
                     }
-                }
-                if (opCount > 0) await batch.commit();
+                    if (opCount > 0) await batch.commit();
 
-                window.addLog(`Limpeza: Zerou ${totalZeradados} itens.`, 'warning'); 
-                window.showToast("Inventário restante zerado com sucesso!", "success"); 
+                    window.addLog(`Limpeza: Zerou ${totalZeradados} itens.`, 'warning'); 
+                    window.showToast("Inventário restante zerado com sucesso!", "success"); 
+                } catch(e) {
+                    window.showToast("Erro ao processar zeramento na nuvem.", "error");
+                }
             }, "btn-red");
         }
 
@@ -1261,17 +1287,19 @@
                 data: new Date().toLocaleString('pt-PT'), timestamp: Date.now()
             };
             
+            // ATUALIZAÇÃO NOVO GTIN NA MATRIZ CLOUD (Se aplicável)
             const baseIdx = baseDados.findIndex(b => b.codigo === itemAtual.codigo && b.local === itemAtual.local);
-            if (baseIdx !== -1) {
-                baseDados[baseIdx].gtin = novoGtin;
-                try { localStorage.setItem('catalogo_local_enc', CryptoJS.AES.encrypt(JSON.stringify(baseDados), _HASH_V).toString()); } catch (e) { }
+            if (baseIdx !== -1 && novoGtin !== '' && baseDados[baseIdx].gtin !== novoGtin) {
+                const docIdCat = `${codRaw}_${locRaw}`;
+                const refCatalogo = doc(db, 'artifacts', appId, 'public', 'data', 'catalogo', docIdCat);
+                setDoc(refCatalogo, { gtin: novoGtin }, { merge: true }).catch(e => console.error(e));
             }
 
             window.fecharModal(); 
             const buscaInput = document.getElementById('busca-input'); if (buscaInput) buscaInput.value = '';
             const resultados = document.getElementById('resultados'); if (resultados) resultados.innerHTML = '';
             
-            window.showToast("A transferir dados...", "info");
+            window.showToast("A transferir contagem...", "info");
 
             setDoc(doc(colRef, docId), payload).then(() => {
                 window.showToast("Gravação Confirmada", "success"); 
@@ -1503,17 +1531,18 @@
             
             window.customConfirm("PERIGO: Ação Destrutiva!\n\nDeseja apagar permanentemente todas as contabilizações registadas na nuvem por toda a equipa?", async () => {
                 window.showToast("A processar a aniquilação dos registos da nuvem...", "info");
-                let batch = writeBatch(db); let opCount = 0;
-                
-                for(const c of contagens) { 
-                    batch.delete(doc(db, 'artifacts', appId, 'public', 'data', 'contagens', c.id));
-                    opCount++;
-                    if (opCount >= 100) { await batch.commit(); batch = writeBatch(db); opCount = 0; }
-                }
-                if (opCount > 0) await batch.commit();
-                
-                window.addLog("Reiniciou toda a auditoria", "warning"); 
-                window.fecharModalConfig();
+                try {
+                    let batch = writeBatch(db); let opCount = 0;
+                    for(const c of contagens) { 
+                        batch.delete(doc(db, 'artifacts', appId, 'public', 'data', 'contagens', c.id));
+                        opCount++;
+                        if (opCount >= 100) { await batch.commit(); batch = writeBatch(db); opCount = 0; }
+                    }
+                    if (opCount > 0) await batch.commit();
+                    
+                    window.addLog("Reiniciou toda a auditoria", "warning"); 
+                    window.fecharModalConfig();
+                } catch(e) { window.showToast("Erro ao eliminar auditoria.", "error"); }
             }, "btn-red");
         }
 
@@ -1550,7 +1579,9 @@
                                 window.addLog(`+1 Auto: ${itemContado.descricao}`); window.showToast(`+1 ${itemContado.descricao}`, 'success');
                             } else {
                                 let novoItem = itemBase || {codigo: cod, gtin: cod, descricao: "PRODUTO NÃO IDENTIFICADO", local: "SCAN DIRETO", sistema: 0, cmc: 0, unidade: "UN"};
-                                const docId = `${novoItem.codigo}_${novoItem.local}`.replace(/[^a-zA-Z0-9_-]/g, '');
+                                const cleanCod = String(novoItem.codigo).replace(/[^a-zA-Z0-9_-]/g, '');
+                                const cleanLoc = String(novoItem.local).replace(/[^a-zA-Z0-9_-]/g, '');
+                                const docId = `${cleanCod}_${cleanLoc}`;
                                 const payload = {
                                     codigo: novoItem.codigo, descricao: novoItem.descricao, local: novoItem.local, sistema: 0, unidade: novoItem.unidade,
                                     fisico: 1, dif: 1, cmc_unitario: novoItem.cmc || 0, gtin: novoItem.gtin || '', lote: "", validade: "", 
@@ -1618,13 +1649,13 @@
             }
         };
 
-        document.getElementById('file-input').onchange = function(e) {
+        document.getElementById('file-input').onchange = async function(e) {
             if (cargoAtual !== 'CHEFE') return window.showToast("Operação bloqueada! Credenciais de gestão necessárias.", "error");
             if (!e.target.files || e.target.files.length === 0) return;
             
-            window.showToast("A injetar catálogo Omie no banco local...", "info"); 
+            window.showToast("A ler arquivo Omie...", "info"); 
             const reader = new FileReader();
-            reader.onload = function(evt) {
+            reader.onload = async function(evt) {
                 try {
                     const workbook = XLSX.read(new Uint8Array(evt.target.result), {type: 'array'});
                     const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1});
@@ -1668,13 +1699,39 @@
                     }
                     if (temporarios.length === 0) return window.showToast("Planilha submetida encontra-se sem itens registados.", "error");
 
-                    baseDados = temporarios;
+                    window.showToast(`A injetar ${temporarios.length} produtos na Nuvem. Aguarde...`, "warning");
+                    
                     try {
-                        localStorage.setItem('catalogo_local_enc', CryptoJS.AES.encrypt(JSON.stringify(baseDados), _HASH_V).toString());
-                        window.showToast("Operação concluída. " + baseDados.length + " produtos trancados na memória local.", "success");
-                    } catch (e) { window.showToast("Operação massiva: A base excedeu o limite mas foi forçada em memória temporária!", "warning"); }
+                        const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'catalogo');
+                        let batch = writeBatch(db);
+                        let opCount = 0;
 
-                    window.atualizarFiltrosDOM(); window.render(); window.fecharModalConfig();
+                        for (const item of temporarios) {
+                            const cleanCod = String(item.codigo).replace(/[^a-zA-Z0-9_-]/g, '');
+                            const cleanLoc = String(item.local).replace(/[^a-zA-Z0-9_-]/g, '');
+                            const docId = `${cleanCod}_${cleanLoc}`;
+                            
+                            batch.set(doc(colRef, docId), item);
+                            opCount++;
+                            
+                            if (opCount >= 100) {
+                                await batch.commit();
+                                batch = writeBatch(db);
+                                opCount = 0;
+                            }
+                        }
+                        if (opCount > 0) await batch.commit();
+
+                        window.showToast("Catálogo sincronizado com sucesso para toda a equipa!", "success");
+                    } catch (e) {
+                        window.showToast("Erro ao sincronizar matriz com a nuvem.", "error");
+                        console.error(e);
+                    }
+
+                    // Limpa o input file para que o mesmo ficheiro possa ser carregado novamente se necessário
+                    e.target.value = '';
+                    window.fecharModalConfig();
+
                 } catch (error) { window.showToast("O ficheiro foi corrompido ou negado pelo sistema.", "error"); }
             };
             reader.readAsArrayBuffer(e.target.files[0]);
