@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+a<!DOCTYPE html>
 <html lang="pt-pt">
 <head>
     <meta charset="UTF-8">
@@ -419,8 +419,9 @@
             
             <div id="alerta-catalogo-vazio" class="card print-hide" style="display:block; background: rgba(245, 158, 11, 0.08); border: 2px dashed var(--orange); text-align: center;">
                 <p style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--orange);">⚠️ Sem catálogo na Nuvem!</p>
-                <p style="margin: 0 0 16px; font-size: 12px; color: var(--text);">Aguarde a importação da planilha pelo Chefe de Setor ou aceda às Opções para carregar.</p>
-                <button class="btn-blue" onclick="abrirModalConfig()" style="max-width: 280px; margin: 0 auto; padding: 14px;">📁 ABRIR OPÇÕES</button>
+                <p style="margin: 0 0 16px; font-size: 12px; color: var(--text);">Aguarde a importação da planilha pelo Chefe de Setor ou atualize o catálogo.</p>
+                <button class="btn-blue" onclick="baixarCatalogoDaNuvem()" style="max-width: 280px; margin: 0 auto 10px auto; padding: 14px;">☁️ ATUALIZAR CATÁLOGO DA NUVEM</button>
+                <button class="btn-outline" onclick="abrirModalConfig()" style="max-width: 280px; margin: 0 auto; padding: 14px;">📁 ABRIR OPÇÕES GERAIS</button>
             </div>
 
             <div class="card print-hide">
@@ -614,6 +615,16 @@
                     </div>
                 </div>
 
+                <!-- SINCRONIZAÇÃO E CACHE (Visível para todos: Chefe e Operador) -->
+                <div style="background: var(--surface); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; text-align: center;">
+                    <h4 style="margin: 0 0 16px 0; font-size: 13px; font-weight: 800; color: var(--blue-dark); text-transform: uppercase;">🔄 Sincronização e Cache</h4>
+                    <div id="status-catalog" style="font-size: 12px; font-weight: 700; color: var(--orange); margin-bottom: 15px; padding: 10px; background: var(--bg); border-radius: 12px;">☁️ A escutar a nuvem...</div>
+                    
+                    <button onclick="baixarCatalogoDaNuvem()" class="btn-blue" style="margin-bottom: 12px; font-size: 12px; padding: 14px;">☁️ BAIXAR / ATUALIZAR CATÁLOGO</button>
+                    <button onclick="limparCacheLocal()" class="btn-outline" style="font-size:11px; padding: 12px; color: var(--red); border-color: rgba(239,68,68,0.3); width: 100%; background: var(--bg);">🗑️ LIMPAR CACHE LOCAL DO DISPOSITIVO</button>
+                </div>
+
+                <!-- IMPORTAÇÃO EXCEL (Apenas Chefe) -->
                 <div id="container-import-excel" style="display: none; background: var(--surface); padding: 20px; border-radius: 16px; border: 2px dashed var(--border); margin-bottom: 20px; text-align: center;">
                     <h4 style="margin: 0 0 16px 0; font-size: 13px; font-weight: 800; color: var(--blue-dark); text-transform: uppercase;">📦 Matriz de Produtos (Omie)</h4>
                     
@@ -624,8 +635,6 @@
                     
                     <button onclick="limparCatalogoNuvem()" class="btn-outline" style="margin-top: 12px; font-size:11px; padding: 12px; color: var(--red); border-color: rgba(239,68,68,0.3); width: 100%; background: var(--bg);">🗑️ ZERAR MATRIZ DA NUVEM</button>
                 </div>
-                
-                <div id="status-catalog" style="font-size: 12px; font-weight: 700; color: var(--orange); margin-bottom: 20px; text-align: center; background: var(--surface); padding: 14px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.02);">☁️ A escutar a nuvem...</div>
 
                 <div style="background: var(--surface); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px;">
                     <h4 style="margin: 0 0 16px 0; font-size: 13px; font-weight: 800; color: var(--blue-dark); display: flex; align-items: center; gap: 6px;">📍 FILTROS DE AUDITORIA</h4>
@@ -742,7 +751,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
-        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, writeBatch } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, writeBatch, getDocs } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
         const _HASH_V = "9f2b388c42a27b8761a20d4af0b23f2d01cebcba57f68c340b190f7a55280911";
 
@@ -818,15 +827,8 @@
                     if (operadorAtual) window.render();
                 });
 
-                // 2. Ouvinte em Tempo Real para a Matriz de Produtos (CATÁLOGO CLOUD)
-                const colRefCatalogo = collection(db, 'artifacts', appId, 'public', 'data', 'catalogo');
-                onSnapshot(colRefCatalogo, (snapshot) => {
-                    const newCatalogo = [];
-                    snapshot.forEach(docSnap => newCatalogo.push(docSnap.data()));
-                    baseDados = newCatalogo;
-                    window.atualizarFiltrosDOM();
-                    if (operadorAtual) window.render();
-                }, (error) => { console.error("Erro ao escutar catálogo da nuvem:", error); });
+                // 2. Transferir a Matriz de Produtos (CATÁLOGO CLOUD)
+                window.baixarCatalogoDaNuvem();
             }
         });
 
@@ -955,7 +957,9 @@
             } else {
                 if (statusEl) { statusEl.innerText = "☁️ O Catálogo da Nuvem está vazio."; statusEl.style.color = 'var(--orange)'; }
                 if (alertaEl && operadorAtual) {
-                    alertaEl.innerHTML = `<p style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--orange);">⚠️ Sem catálogo na Nuvem!</p><p style="margin: 0 0 16px; font-size: 12px; color: var(--text);">Aguarde a importação da planilha pelo Chefe de Setor ou aceda às Opções para sincronizar.</p><button class="btn-blue" onclick="abrirModalConfig()" style="max-width: 280px; margin: 0 auto; padding: 14px;">📁 ABRIR OPÇÕES</button>`;
+                    alertaEl.innerHTML = `<p style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--orange);">⚠️ Sem catálogo na Nuvem!</p><p style="margin: 0 0 16px; font-size: 12px; color: var(--text);">Aguarde a importação da planilha pelo Chefe de Setor ou atualize o catálogo.</p>
+                    <button class="btn-blue" onclick="baixarCatalogoDaNuvem()" style="max-width: 280px; margin: 0 auto 10px auto; padding: 14px;">☁️ ATUALIZAR CATÁLOGO DA NUVEM</button>
+                    <button class="btn-outline" onclick="abrirModalConfig()" style="max-width: 280px; margin: 0 auto; padding: 14px;">📁 ABRIR OPÇÕES GERAIS</button>`;
                     alertaEl.style.borderColor = 'var(--orange)';
                     alertaEl.style.background = 'rgba(245, 158, 11, 0.08)';
                     alertaEl.style.display = 'block';
@@ -963,6 +967,17 @@
                 document.getElementById('filtro-local-multi').innerHTML = `<small style="color:var(--gray); padding: 5px;">Aguarde o catálogo da nuvem...</small>`;
                 document.getElementById('filtro-family-multi').innerHTML = `<small style="color:var(--gray); padding: 5px;">Aguarde o catálogo da nuvem...</small>`;
             }
+        }
+
+        window.limparCacheLocal = function() {
+            window.customConfirm("Deseja apagar o catálogo guardado na memória deste telemóvel? As contagens salvas na nuvem continuam seguras.", () => {
+                baseDados = [];
+                localStorage.removeItem('catalogo_local_enc');
+                window.atualizarFiltrosDOM();
+                window.render();
+                window.showToast("Memória limpa com sucesso!", "success");
+                window.fecharModalConfig();
+            }, "btn-red");
         }
 
         window.limparCatalogoNuvem = function() {
