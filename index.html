@@ -1,4 +1,4 @@
-a<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-pt">
 <head>
     <meta charset="UTF-8">
@@ -417,11 +417,21 @@ a<!DOCTYPE html>
         <!-- ECRÃ DE AUDITORIA -->
         <div id="view-auditoria">
             
-            <div id="alerta-catalogo-vazio" class="card print-hide" style="display:block; background: rgba(245, 158, 11, 0.08); border: 2px dashed var(--orange); text-align: center;">
-                <p style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--orange);">⚠️ Sem catálogo na Nuvem!</p>
-                <p style="margin: 0 0 16px; font-size: 12px; color: var(--text);">Aguarde a importação da planilha pelo Chefe de Setor ou atualize o catálogo.</p>
-                <button class="btn-blue" onclick="baixarCatalogoDaNuvem()" style="max-width: 280px; margin: 0 auto 10px auto; padding: 14px;">☁️ ATUALIZAR CATÁLOGO DA NUVEM</button>
-                <button class="btn-outline" onclick="abrirModalConfig()" style="max-width: 280px; margin: 0 auto; padding: 14px;">📁 ABRIR OPÇÕES GERAIS</button>
+            <!-- NOVO PAINEL DE SINCRONIZAÇÃO FRONTAL PARA OPERADOR -->
+            <div id="painel-sincronizacao" class="card print-hide" style="background: rgba(37, 99, 235, 0.05); border-color: var(--blue);">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h4 style="margin: 0 0 4px 0; font-size: 13px; color: var(--blue-dark); display: flex; align-items: center; gap: 5px;">🔄 Matriz de Produtos</h4>
+                        <p style="margin: 0; font-size: 11px; color: var(--gray);" id="status-catalog-main">A sincronizar com a nuvem...</p>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="btn-blue" onclick="baixarCatalogoDaNuvem()" style="width: auto; padding: 10px 14px; font-size: 11px; margin: 0; box-shadow: none;">☁️ FORÇAR ATUALIZAÇÃO</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="alerta-catalogo-vazio" class="card print-hide" style="display:none; background: rgba(245, 158, 11, 0.08); border: 2px dashed var(--orange); text-align: center;">
+                <!-- Este alerta é gerido via JavaScript -->
             </div>
 
             <div class="card print-hide">
@@ -619,9 +629,7 @@ a<!DOCTYPE html>
                 <div style="background: var(--surface); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; text-align: center;">
                     <h4 style="margin: 0 0 16px 0; font-size: 13px; font-weight: 800; color: var(--blue-dark); text-transform: uppercase;">🔄 Sincronização e Cache</h4>
                     <div id="status-catalog" style="font-size: 12px; font-weight: 700; color: var(--orange); margin-bottom: 15px; padding: 10px; background: var(--bg); border-radius: 12px;">☁️ A escutar a nuvem...</div>
-                    
-                    <button onclick="baixarCatalogoDaNuvem()" class="btn-blue" style="margin-bottom: 12px; font-size: 12px; padding: 14px;">☁️ BAIXAR / ATUALIZAR CATÁLOGO</button>
-                    <button onclick="limparCacheLocal()" class="btn-outline" style="font-size:11px; padding: 12px; color: var(--red); border-color: rgba(239,68,68,0.3); width: 100%; background: var(--bg);">🗑️ LIMPAR CACHE LOCAL DO DISPOSITIVO</button>
+                    <button onclick="limparCacheLocal()" class="btn-outline" style="font-size:11px; padding: 12px; color: var(--red); border-color: rgba(239,68,68,0.3); width: 100%; background: var(--bg);">🗑️ LIMPAR CACHE DO DISPOSITIVO</button>
                 </div>
 
                 <!-- IMPORTAÇÃO EXCEL (Apenas Chefe) -->
@@ -635,7 +643,7 @@ a<!DOCTYPE html>
                     
                     <button onclick="limparCatalogoNuvem()" class="btn-outline" style="margin-top: 12px; font-size:11px; padding: 12px; color: var(--red); border-color: rgba(239,68,68,0.3); width: 100%; background: var(--bg);">🗑️ ZERAR MATRIZ DA NUVEM</button>
                 </div>
-
+                
                 <div style="background: var(--surface); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px;">
                     <h4 style="margin: 0 0 16px 0; font-size: 13px; font-weight: 800; color: var(--blue-dark); display: flex; align-items: center; gap: 6px;">📍 FILTROS DE AUDITORIA</h4>
                     <label style="font-size: 11px; font-weight: 700; color: var(--gray); margin-bottom: 8px; display: block;">FILTRAR POR LOCAIS:</label>
@@ -827,8 +835,24 @@ a<!DOCTYPE html>
                     if (operadorAtual) window.render();
                 });
 
-                // 2. Transferir a Matriz de Produtos (CATÁLOGO CLOUD)
-                window.baixarCatalogoDaNuvem();
+                // 2. Ouvinte em Tempo Real para o Catálogo (Sincroniza Chefes e Operadores automaticamente)
+                const colRefCatalogo = collection(db, 'artifacts', appId, 'public', 'data', 'catalogo');
+                onSnapshot(colRefCatalogo, (snapshot) => {
+                    const newCatalogo = [];
+                    snapshot.forEach(docSnap => newCatalogo.push(docSnap.data()));
+                    
+                    if (newCatalogo.length > 0) {
+                        baseDados = newCatalogo;
+                        try { localStorage.setItem('catalogo_local_enc', CryptoJS.AES.encrypt(JSON.stringify(baseDados), _HASH_V).toString()); } catch(e) {}
+                    } else if (baseDados.length > 0) {
+                        // Se a nuvem estiver vazia, limpamos a cache local também
+                        baseDados = [];
+                        localStorage.removeItem('catalogo_local_enc');
+                    }
+                    
+                    window.atualizarFiltrosDOM();
+                    if (operadorAtual) window.render();
+                }, (error) => { console.error("Erro ao escutar catálogo:", error); });
             }
         });
 
@@ -901,20 +925,18 @@ a<!DOCTYPE html>
         }
 
         window.baixarCatalogoDaNuvem = async function() {
-            if (!currentUser) return;
+            if (!currentUser) {
+                window.showToast("Ligação à nuvem não estabelecida. Aguarde um instante.", "warning");
+                return;
+            }
             try {
                 const statusEl = document.getElementById('status-catalog');
-                const alertaEl = document.getElementById('alerta-catalogo-vazio');
+                const statusMain = document.getElementById('status-catalog-main');
                 
-                if (statusEl) { statusEl.innerText = "☁️ A transferir matriz da nuvem..."; statusEl.style.color = 'var(--orange)'; }
+                if (statusEl) { statusEl.innerText = "⏳ Transferindo matriz..."; statusEl.style.color = 'var(--orange)'; }
+                if (statusMain) { statusMain.innerText = "A descarregar produtos da nuvem. Aguarde..."; statusMain.style.color = 'var(--orange)'; }
                 
-                // Mostrar ecrã de carregamento para o Operador
-                if (alertaEl && baseDados.length === 0) {
-                    alertaEl.innerHTML = `<p style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--blue);">☁️ A Sincronizar Catálogo...</p><p style="margin: 0; font-size: 12px; color: var(--gray);">A transferir os produtos da base de dados. Por favor aguarde.</p>`;
-                    alertaEl.style.borderColor = 'var(--blue)';
-                    alertaEl.style.background = 'rgba(37, 99, 235, 0.05)';
-                    alertaEl.style.display = 'block';
-                }
+                window.showToast("A sincronizar catálogo...", "info");
 
                 const colRefCatalogo = collection(db, 'artifacts', appId, 'public', 'data', 'catalogo');
                 const querySnapshot = await getDocs(colRefCatalogo);
@@ -927,14 +949,14 @@ a<!DOCTYPE html>
                     try { localStorage.setItem('catalogo_local_enc', CryptoJS.AES.encrypt(JSON.stringify(baseDados), _HASH_V).toString()); } catch(e) {}
                     window.atualizarFiltrosDOM();
                     if (operadorAtual) window.render();
-                    window.showToast(`Catálogo atualizado: ${baseDados.length} itens.`, "success");
+                    window.showToast(`Sincronização concluída: ${baseDados.length} produtos.`, "success");
                 } else {
+                    window.showToast("A Nuvem não possui produtos cadastrados.", "warning");
                     window.atualizarFiltrosDOM();
                 }
             } catch (error) {
-                console.error("Erro ao transferir catálogo:", error);
-                window.showToast("Falha ao comunicar com a nuvem.", "error");
-                window.atualizarFiltrosDOM();
+                console.error(error);
+                window.showToast("Erro de rede. Não foi possível baixar.", "error");
             }
         };
 
@@ -947,23 +969,27 @@ a<!DOCTYPE html>
             });
             
             const statusEl = document.getElementById('status-catalog');
+            const statusMain = document.getElementById('status-catalog-main');
             const alertaEl = document.getElementById('alerta-catalogo-vazio');
             
             if (baseDados.length > 0) {
-                if (statusEl) { statusEl.innerText = `☁️ Nuvem: ${baseDados.length} itens sincronizados.`; statusEl.style.color = 'var(--green)'; }
+                if (statusEl) { statusEl.innerText = `☁️ Nuvem: ${baseDados.length} itens ativos.`; statusEl.style.color = 'var(--green)'; }
+                if (statusMain) { statusMain.innerText = `${baseDados.length} produtos carregados da nuvem.`; statusMain.style.color = 'var(--green)'; }
                 if (alertaEl) alertaEl.style.display = 'none';
+                
                 document.getElementById('filtro-local-multi').innerHTML = Array.from(locs).sort().map((l, i) => `<div class="multi-select-item"><input type="checkbox" class="check-l" id="loc-${i}" value="${l}" checked><label for="loc-${i}">${l}</label></div>`).join('');
                 document.getElementById('filtro-family-multi').innerHTML = Array.from(fams).sort().map((f, i) => `<div class="multi-select-item"><input type="checkbox" class="check-f" id="fam-${i}" value="${f}" checked><label for="fam-${i}">${f}</label></div>`).join('');
             } else {
                 if (statusEl) { statusEl.innerText = "☁️ O Catálogo da Nuvem está vazio."; statusEl.style.color = 'var(--orange)'; }
+                if (statusMain) { statusMain.innerText = `A aguardar produtos da nuvem...`; statusMain.style.color = 'var(--orange)'; }
+
                 if (alertaEl && operadorAtual) {
-                    alertaEl.innerHTML = `<p style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--orange);">⚠️ Sem catálogo na Nuvem!</p><p style="margin: 0 0 16px; font-size: 12px; color: var(--text);">Aguarde a importação da planilha pelo Chefe de Setor ou atualize o catálogo.</p>
-                    <button class="btn-blue" onclick="baixarCatalogoDaNuvem()" style="max-width: 280px; margin: 0 auto 10px auto; padding: 14px;">☁️ ATUALIZAR CATÁLOGO DA NUVEM</button>
-                    <button class="btn-outline" onclick="abrirModalConfig()" style="max-width: 280px; margin: 0 auto; padding: 14px;">📁 ABRIR OPÇÕES GERAIS</button>`;
+                    alertaEl.innerHTML = `<p style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--orange);">⚠️ Catálogo Indisponível</p><p style="margin: 0 0 16px; font-size: 12px; color: var(--text);">O sistema está a aguardar que a Gestão carregue a matriz de inventário. O processo ocorrerá automaticamente.</p>`;
                     alertaEl.style.borderColor = 'var(--orange)';
                     alertaEl.style.background = 'rgba(245, 158, 11, 0.08)';
                     alertaEl.style.display = 'block';
                 }
+
                 document.getElementById('filtro-local-multi').innerHTML = `<small style="color:var(--gray); padding: 5px;">Aguarde o catálogo da nuvem...</small>`;
                 document.getElementById('filtro-family-multi').innerHTML = `<small style="color:var(--gray); padding: 5px;">Aguarde o catálogo da nuvem...</small>`;
             }
@@ -976,7 +1002,6 @@ a<!DOCTYPE html>
                 window.atualizarFiltrosDOM();
                 window.render();
                 window.showToast("Memória limpa com sucesso!", "success");
-                window.fecharModalConfig();
             }, "btn-red");
         }
 
@@ -998,15 +1023,13 @@ a<!DOCTYPE html>
                         batch.delete(doc(db, 'artifacts', appId, 'public', 'data', 'catalogo', docId));
                         opCount++;
                         
-                        if (opCount >= 450) { 
-                            promises.push(batch.commit()); 
+                        if (opCount >= 400) { 
+                            await batch.commit(); // Execução sequencial para não engarrafar a rede do Firebase
                             batch = writeBatch(db); 
                             opCount = 0; 
                         }
                     }
-                    if (opCount > 0) promises.push(batch.commit());
-                    
-                    await Promise.all(promises);
+                    if (opCount > 0) await batch.commit();
                     
                     window.showToast("Matriz da nuvem removida com sucesso!", "success");
                     window.fecharModalConfig();
@@ -1059,6 +1082,9 @@ a<!DOCTYPE html>
                     if (badge) { badge.innerText = '👤 AUDITORIA'; badge.style.background = 'var(--blue)'; }
                     window.mudarAba('auditoria');
                 }
+                
+                // Os dados agora são geridos de forma assíncrona pelo onSnapshot.
+                // A interface ajusta-se visualmente consoante existam dados na cache ou não.
                 window.atualizarFiltrosDOM();
                 window.render();
             } else {
@@ -1198,15 +1224,13 @@ a<!DOCTYPE html>
                         batch.set(doc(colRef, docId), payload);
                         opCount++; totalZeradados++;
 
-                        if (opCount >= 450) {
-                            promises.push(batch.commit());
+                        if (opCount >= 400) {
+                            await batch.commit(); // Execução sequencial para não sobrecarregar
                             batch = writeBatch(db); 
                             opCount = 0;
                         }
                     }
-                    if (opCount > 0) promises.push(batch.commit());
-
-                    await Promise.all(promises);
+                    if (opCount > 0) await batch.commit();
 
                     window.addLog(`Limpeza: Zerou ${totalZeradados} itens.`, 'warning'); 
                     window.showToast("Inventário restante zerado com sucesso!", "success"); 
@@ -1350,10 +1374,10 @@ a<!DOCTYPE html>
                 if(modo === 'somar') novaQtd += Number(contagens[idxAnt].fisico || 0); 
             }
 
-            const codRaw = String(itemAtual.codigo || '').replace(/[^a-zA-Z0-9]/g, '');
-            const locRaw = String(itemAtual.local || '').replace(/[^a-zA-Z0-9]/g, '');
+            const codRaw = String(itemAtual.codigo || '').replace(/[^a-zA-Z0-9_-]/g, '');
+            const locRaw = String(itemAtual.local || '').replace(/[^a-zA-Z0-9_-]/g, '');
             let docId = targetId || `${codRaw}_${locRaw}`;
-            if (docId === '_' || !docId) docId = `MANUAL_${Date.now()}_${Math.floor(Math.random()*1000)}`;
+            if (docId === '_' || !docId) docId = `MANUAL_${Date.now()}_${Math.floor(Math.random()*10000)}`;
             
             const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
 
@@ -1616,11 +1640,9 @@ a<!DOCTYPE html>
                     for(const c of contagens) { 
                         batch.delete(doc(db, 'artifacts', appId, 'public', 'data', 'contagens', c.id));
                         opCount++;
-                        if (opCount >= 450) { promises.push(batch.commit()); batch = writeBatch(db); opCount = 0; }
+                        if (opCount >= 400) { await batch.commit(); batch = writeBatch(db); opCount = 0; }
                     }
-                    if (opCount > 0) promises.push(batch.commit());
-                    
-                    await Promise.all(promises);
+                    if (opCount > 0) await batch.commit();
                     
                     window.addLog("Reiniciou toda a auditoria", "warning"); 
                     window.fecharModalConfig();
@@ -1661,10 +1683,10 @@ a<!DOCTYPE html>
                                 window.addLog(`+1 Auto: ${itemContado.descricao}`); window.showToast(`+1 ${itemContado.descricao}`, 'success');
                             } else {
                                 let novoItem = itemBase || {codigo: cod, gtin: cod, descricao: "PRODUTO NÃO IDENTIFICADO", local: "SCAN DIRETO", sistema: 0, cmc: 0, unidade: "UN"};
-                                const cleanCod = String(novoItem.codigo).replace(/[^a-zA-Z0-9_-]/g, '');
-                                const cleanLoc = String(novoItem.local).replace(/[^a-zA-Z0-9_-]/g, '');
+                                const cleanCod = String(novoItem.codigo || '').replace(/[^a-zA-Z0-9_-]/g, '');
+                                const cleanLoc = String(novoItem.local || '').replace(/[^a-zA-Z0-9_-]/g, '');
                                 let docId = `${cleanCod}_${cleanLoc}`;
-                                if (docId === '_' || !docId) docId = `PROD_${Date.now()}_${Math.floor(Math.random()*1000)}`;
+                                if (!cleanCod || docId.startsWith('_')) docId = `PROD_${Date.now()}_${Math.floor(Math.random()*100000)}`;
 
                                 const payload = {
                                     codigo: novoItem.codigo, descricao: novoItem.descricao, local: novoItem.local, sistema: 0, unidade: novoItem.unidade,
@@ -1733,11 +1755,15 @@ a<!DOCTYPE html>
             }
         };
 
+        const normalizeHeader = (str) => {
+            return String(str || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toUpperCase();
+        };
+
         document.getElementById('file-input').onchange = async function(e) {
             if (cargoAtual !== 'CHEFE') return window.showToast("Operação bloqueada! Credenciais de gestão necessárias.", "error");
             if (!e.target.files || e.target.files.length === 0) return;
             
-            window.showToast("A ler arquivo Omie...", "info"); 
+            window.showToast("A ler ficheiro Omie...", "info"); 
             const reader = new FileReader();
             reader.onload = async function(evt) {
                 try {
@@ -1747,19 +1773,19 @@ a<!DOCTYPE html>
                     
                     for(let r=0; r<rows.length; r++) {
                         if(!rows[r]) continue; 
-                        let line = rows[r].map(c => String(c || "").trim().toUpperCase());
-                        if(line.includes("CÓDIGO DO PRODUTO") || line.includes("DESCRIÇÃO DO PRODUTO") || line.includes("LOCAL DE ESTOQUE")) {
+                        let line = rows[r].map(c => normalizeHeader(c));
+                        if(line.includes("CODIGO DO PRODUTO") || line.includes("CODIGO") || line.includes("SKU") || line.includes("DESCRICAO DO PRODUTO") || line.includes("DESCRICAO") || line.includes("NOME")) {
                             hRow = r; 
                             line.forEach((cell, c) => {
-                                const norm = cell.trim().toUpperCase();
-                                if(norm === "CÓDIGO DO PRODUTO" || norm === "CÓDIGO") idxCod = c; 
-                                else if(norm === "CÓDIGO EAN" || norm === "EAN" || norm === "GTIN") idxGtin = c;
-                                if(norm === "DESCRIÇÃO DO PRODUTO" || norm === "DESCRIÇÃO") idxDesc = c; 
-                                if(norm === "FAMÍLIA DE PRODUTO" || norm === "FAMÍLIA") idxFam = c;
-                                if(norm === "QUANTIDADE" || norm === "QUANT" || norm === "SALDO") idxSist = c; 
-                                if(norm === "LOCAL DE ESTOQUE" || norm === "DESCRIÇÃO DO LOCAL" || norm === "LOCAL") idxLoc = c;
-                                if(norm === "CMC UNITÁRIO" || norm === "CUSTO UNITÁRIO" || norm === "CUSTO") idxCmc = c; 
-                                if(norm === "UNIDADE" || norm === "UNID" || norm === "UN") idxUn = c;
+                                const norm = cell;
+                                if(norm === "CODIGO DO PRODUTO" || norm === "CODIGO" || norm === "SKU" || norm === "REFERENCIA") idxCod = c; 
+                                else if(norm === "CODIGO EAN" || norm === "EAN" || norm === "GTIN" || norm === "CODIGO DE BARRAS") idxGtin = c;
+                                else if(norm === "DESCRICAO DO PRODUTO" || norm === "DESCRICAO" || norm === "PRODUTO" || norm === "NOME") idxDesc = c; 
+                                else if(norm === "FAMILIA DE PRODUTO" || norm === "FAMILIA" || norm === "CATEGORIA" || norm === "GRUPO") idxFam = c;
+                                else if(norm === "QUANTIDADE" || norm === "QUANT" || norm === "SALDO" || norm === "ESTOQUE" || norm === "QTD") idxSist = c; 
+                                else if(norm === "LOCAL DE ESTOQUE" || norm === "DESCRICAO DO LOCAL" || norm === "LOCAL" || norm === "ARMAZEM") idxLoc = c;
+                                else if(norm === "CMC UNITARIO" || norm === "CUSTO UNITARIO" || norm === "CUSTO" || norm === "PRECO" || norm === "VALOR") idxCmc = c; 
+                                else if(norm === "UNIDADE" || norm === "UNID" || norm === "UN") idxUn = c;
                             }); 
                             break; 
                         }
@@ -1772,9 +1798,13 @@ a<!DOCTYPE html>
                         if (row && row[idxDesc]) {
                             const l = idxLoc !== -1 ? String(row[idxLoc] || 'ESTOQUE PRINCIPAL').trim().toUpperCase() : 'ESTOQUE PRINCIPAL'; 
                             const f = idxFam !== -1 ? String(row[idxFam] || 'SEM FAMÍLIA').trim().toUpperCase() : 'SEM FAMÍLIA';
+                            
+                            // Correção de Código Vazio
                             const codRaw = idxCod !== -1 ? String(row[idxCod] || '').trim().toUpperCase() : '';
+                            
                             const sistemaVal = idxSist !== -1 ? parseFloat(String(row[idxSist] || '0').replace(',','.')) : 0;
                             const cmcVal = idxCmc !== -1 ? parseFloat(String(row[idxCmc] || '0').replace(',','.')) : 0;
+                            
                             temporarios.push({ 
                                 codigo: codRaw, descricao: String(row[idxDesc]).trim().toUpperCase(), gtin: idxGtin !== -1 ? String(row[idxGtin] || '').trim() : '', 
                                 familia: f, local: l, sistema: isNaN(sistemaVal) ? 0 : sistemaVal, cmc: isNaN(cmcVal) ? 0 : cmcVal, unidade: idxUn !== -1 ? String(row[idxUn] || 'UN').trim().toUpperCase() : 'UN'
@@ -1783,44 +1813,41 @@ a<!DOCTYPE html>
                     }
                     if (temporarios.length === 0) return window.showToast("Planilha submetida encontra-se sem itens registados.", "error");
 
-                    window.showToast(`A injetar ${temporarios.length} produtos na Nuvem. Aguarde...`, "warning");
+                    window.showToast(`A iniciar upload sequencial de ${temporarios.length} produtos...`, "info");
                     
                     try {
                         const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'catalogo');
                         let batch = writeBatch(db);
                         let opCount = 0;
-                        const promises = [];
+                        let total = 0;
 
+                        // Envio sequencial à prova de falhas (Bloqueia crashes no Firestore)
                         for (const item of temporarios) {
-                            const cleanCod = String(item.codigo).replace(/[^a-zA-Z0-9_-]/g, '');
-                            const cleanLoc = String(item.local).replace(/[^a-zA-Z0-9_-]/g, '');
+                            const cleanCod = String(item.codigo || '').replace(/[^a-zA-Z0-9_-]/g, '');
+                            const cleanLoc = String(item.local || '').replace(/[^a-zA-Z0-9_-]/g, '');
                             let docId = `${cleanCod}_${cleanLoc}`;
                             
-                            // Bloqueio de segurança anti-crash: evita criar IDs vazios que bloqueiam a Base de Dados
-                            if (docId === '_' || !docId) {
-                                docId = `PROD_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+                            // Impede a sobreposição de produtos que não tenham código na planilha
+                            if (!cleanCod || docId.startsWith('_')) {
+                                docId = `PROD_${Date.now()}_${Math.floor(Math.random() * 100000)}_${total}`;
                             }
                             
                             batch.set(doc(colRef, docId), item);
                             opCount++;
+                            total++;
                             
-                            // Aumento da margem para 450 (o máximo nativo do Firebase é 500)
-                            if (opCount >= 450) {
-                                promises.push(batch.commit());
+                            if (opCount >= 400) {
+                                await batch.commit(); // Espera acabar antes de enviar o próximo pacote
                                 batch = writeBatch(db);
                                 opCount = 0;
                             }
                         }
                         
-                        // Empurra os itens restantes
                         if (opCount > 0) {
-                            promises.push(batch.commit());
+                            await batch.commit();
                         }
 
-                        // Executa as promessas massivas todas em simultâneo (MUITO mais rápido)
-                        await Promise.all(promises);
-
-                        window.showToast(`Catálogo sincronizado (${temporarios.length} produtos)!`, "success");
+                        window.showToast(`Sincronização 100% concluída! (${total} produtos)`, "success");
                     } catch (e) {
                         window.showToast("Erro ao sincronizar matriz com a nuvem.", "error");
                         console.error(e);
