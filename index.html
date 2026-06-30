@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Estoque V-49.0 - SaaS Secure</title>
+    <title>Smart Estoque V-50.1 - SaaS Secure</title>
     <!-- Bibliotecas de Terceiros Autorizadas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
@@ -289,6 +289,12 @@
 
         /* Proteção Visual */
         #pantalla-bloqueada { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--blue-dark); color: #fff; z-index: 1000000; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; text-align: center; padding: 30px; }
+        
+        /* Ecrã de Bloqueio para Processos Longos */
+        #loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(5px); z-index: 999999; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; }
+        .spinner { width: 60px; height: 60px; border: 6px solid rgba(255,255,255,0.2); border-top-color: var(--orange); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
         .print-only { display: none; }
         @media print {
             body { background: white; color: black; padding: 0; margin: 0; }
@@ -335,6 +341,13 @@
         <h3 style="color: #ef4444; font-size: 24px;">🛡️ VIOLAÇÃO DE SEGURANÇA DETECTADA</h3>
         <p>A aplicação "Smart Estoque" foi bloqueada para proteger a propriedade intelectual.</p>
         <p style="font-size: 12px; color: var(--gray);">A tentativa de clonagem ou inspeção foi reportada.</p>
+    </div>
+
+    <!-- Ecrã de Bloqueio para Sincronizações Pesadas -->
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <h2 style="margin:0; font-weight: 800; font-size: 24px;">A Sincronizar Base de Dados</h2>
+        <p id="loading-msg" style="color: #cbd5e1; margin-top: 10px; font-size: 14px;">Por favor, não feche a aplicação...</p>
     </div>
 
     <!-- TELA DE LOGIN (SaaS Premium) -->
@@ -422,10 +435,11 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                     <div>
                         <h4 style="margin: 0 0 4px 0; font-size: 13px; color: var(--blue-dark); display: flex; align-items: center; gap: 5px;">🔄 Matriz de Produtos</h4>
-                        <p style="margin: 0; font-size: 11px; color: var(--gray);" id="status-catalog-main">A sincronizar com a nuvem...</p>
+                        <p style="margin: 0; font-size: 11px; color: var(--gray);" id="status-catalog-main">Verificando memória...</p>
                     </div>
                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <button class="btn-blue" onclick="baixarCatalogoDaNuvem()" style="width: auto; padding: 10px 14px; font-size: 11px; margin: 0; box-shadow: none;">☁️ FORÇAR ATUALIZAÇÃO</button>
+                        <button id="btn-sincronizar-op" class="btn-blue" onclick="baixarCatalogoDaNuvem()" style="width: auto; padding: 10px 14px; font-size: 11px; margin: 0; box-shadow: none;">☁️ FORÇAR ATUALIZAÇÃO</button>
+                        <button class="btn-outline" onclick="limparCacheLocal()" style="width: auto; padding: 10px 14px; font-size: 11px; margin: 0; border-color: var(--red); color: var(--red); background: var(--surface);">🗑️ LIMPAR CACHE</button>
                     </div>
                 </div>
             </div>
@@ -625,13 +639,6 @@
                     </div>
                 </div>
 
-                <!-- SINCRONIZAÇÃO E CACHE (Visível para todos: Chefe e Operador) -->
-                <div style="background: var(--surface); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; text-align: center;">
-                    <h4 style="margin: 0 0 16px 0; font-size: 13px; font-weight: 800; color: var(--blue-dark); text-transform: uppercase;">🔄 Sincronização e Cache</h4>
-                    <div id="status-catalog" style="font-size: 12px; font-weight: 700; color: var(--orange); margin-bottom: 15px; padding: 10px; background: var(--bg); border-radius: 12px;">☁️ A escutar a nuvem...</div>
-                    <button onclick="limparCacheLocal()" class="btn-outline" style="font-size:11px; padding: 12px; color: var(--red); border-color: rgba(239,68,68,0.3); width: 100%; background: var(--bg);">🗑️ LIMPAR CACHE DO DISPOSITIVO</button>
-                </div>
-
                 <!-- IMPORTAÇÃO EXCEL (Apenas Chefe) -->
                 <div id="container-import-excel" style="display: none; background: var(--surface); padding: 20px; border-radius: 16px; border: 2px dashed var(--border); margin-bottom: 20px; text-align: center;">
                     <h4 style="margin: 0 0 16px 0; font-size: 13px; font-weight: 800; color: var(--blue-dark); text-transform: uppercase;">📦 Matriz de Produtos (Omie)</h4>
@@ -826,7 +833,7 @@
         onAuthStateChanged(auth, (u) => {
             currentUser = u;
             if (currentUser) {
-                // 1. Ouvinte em Tempo Real para as Contagens
+                // Ouvinte apenas para as contagens em tempo real (muito leve)
                 const colRefContagens = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
                 onSnapshot(colRefContagens, (snapshot) => {
                     const newContagens = [];
@@ -834,25 +841,6 @@
                     contagens = newContagens.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
                     if (operadorAtual) window.render();
                 });
-
-                // 2. Ouvinte em Tempo Real para o Catálogo (Sincroniza Chefes e Operadores automaticamente)
-                const colRefCatalogo = collection(db, 'artifacts', appId, 'public', 'data', 'catalogo');
-                onSnapshot(colRefCatalogo, (snapshot) => {
-                    const newCatalogo = [];
-                    snapshot.forEach(docSnap => newCatalogo.push(docSnap.data()));
-                    
-                    if (newCatalogo.length > 0) {
-                        baseDados = newCatalogo;
-                        try { localStorage.setItem('catalogo_local_enc', CryptoJS.AES.encrypt(JSON.stringify(baseDados), _HASH_V).toString()); } catch(e) {}
-                    } else if (baseDados.length > 0) {
-                        // Se a nuvem estiver vazia, limpamos a cache local também
-                        baseDados = [];
-                        localStorage.removeItem('catalogo_local_enc');
-                    }
-                    
-                    window.atualizarFiltrosDOM();
-                    if (operadorAtual) window.render();
-                }, (error) => { console.error("Erro ao escutar catálogo:", error); });
             }
         });
 
@@ -929,15 +917,13 @@
                 window.showToast("Ligação à nuvem não estabelecida. Aguarde um instante.", "warning");
                 return;
             }
+            
+            const btn = document.getElementById('btn-sincronizar-op');
+            if (btn) btn.innerText = "⏳ A BAIXAR...";
+            document.getElementById('loading-overlay').style.display = 'flex';
+            document.getElementById('loading-msg').innerText = "A descarregar produtos da nuvem...";
+            
             try {
-                const statusEl = document.getElementById('status-catalog');
-                const statusMain = document.getElementById('status-catalog-main');
-                
-                if (statusEl) { statusEl.innerText = "⏳ Transferindo matriz..."; statusEl.style.color = 'var(--orange)'; }
-                if (statusMain) { statusMain.innerText = "A descarregar produtos da nuvem. Aguarde..."; statusMain.style.color = 'var(--orange)'; }
-                
-                window.showToast("A sincronizar catálogo...", "info");
-
                 const colRefCatalogo = collection(db, 'artifacts', appId, 'public', 'data', 'catalogo');
                 const querySnapshot = await getDocs(colRefCatalogo);
                 
@@ -952,11 +938,16 @@
                     window.showToast(`Sincronização concluída: ${baseDados.length} produtos.`, "success");
                 } else {
                     window.showToast("A Nuvem não possui produtos cadastrados.", "warning");
+                    baseDados = [];
+                    localStorage.removeItem('catalogo_local_enc');
                     window.atualizarFiltrosDOM();
                 }
             } catch (error) {
                 console.error(error);
                 window.showToast("Erro de rede. Não foi possível baixar.", "error");
+            } finally {
+                document.getElementById('loading-overlay').style.display = 'none';
+                if (btn) btn.innerText = "☁️ FORÇAR ATUALIZAÇÃO";
             }
         };
 
@@ -974,20 +965,17 @@
             
             if (baseDados.length > 0) {
                 if (statusEl) { statusEl.innerText = `☁️ Nuvem: ${baseDados.length} itens ativos.`; statusEl.style.color = 'var(--green)'; }
-                if (statusMain) { statusMain.innerText = `${baseDados.length} produtos carregados da nuvem.`; statusMain.style.color = 'var(--green)'; }
+                if (statusMain) { statusMain.innerText = `${baseDados.length} produtos prontos no seu telemóvel.`; statusMain.style.color = 'var(--green)'; }
                 if (alertaEl) alertaEl.style.display = 'none';
                 
                 document.getElementById('filtro-local-multi').innerHTML = Array.from(locs).sort().map((l, i) => `<div class="multi-select-item"><input type="checkbox" class="check-l" id="loc-${i}" value="${l}" checked><label for="loc-${i}">${l}</label></div>`).join('');
                 document.getElementById('filtro-family-multi').innerHTML = Array.from(fams).sort().map((f, i) => `<div class="multi-select-item"><input type="checkbox" class="check-f" id="fam-${i}" value="${f}" checked><label for="fam-${i}">${f}</label></div>`).join('');
-                
-                const buscaInput = document.getElementById('busca-input');
-                if (buscaInput && buscaInput.oninput) buscaInput.oninput();
             } else {
                 if (statusEl) { statusEl.innerText = "☁️ O Catálogo da Nuvem está vazio."; statusEl.style.color = 'var(--orange)'; }
-                if (statusMain) { statusMain.innerText = `A aguardar produtos da nuvem...`; statusMain.style.color = 'var(--orange)'; }
+                if (statusMain) { statusMain.innerText = `O telemóvel não tem produtos. Prima 'Atualização'.`; statusMain.style.color = 'var(--red)'; }
 
                 if (alertaEl && operadorAtual) {
-                    alertaEl.innerHTML = `<p style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--orange);">⚠️ Catálogo Indisponível</p><p style="margin: 0 0 16px; font-size: 12px; color: var(--text);">O sistema está a aguardar que a Gestão carregue a matriz de inventário. O processo ocorrerá automaticamente.</p>`;
+                    alertaEl.innerHTML = `<p style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--orange);">⚠️ Catálogo Indisponível</p><p style="margin: 0 0 16px; font-size: 12px; color: var(--text);">A base de dados na sua memória está vazia. Peça ao gestor para carregar o Excel ou tente atualizar o catálogo da nuvem.</p>`;
                     alertaEl.style.borderColor = 'var(--orange)';
                     alertaEl.style.background = 'rgba(245, 158, 11, 0.08)';
                     alertaEl.style.display = 'block';
@@ -1011,860 +999,14 @@
         window.limparCatalogoNuvem = function() {
             if (cargoAtual !== 'CHEFE') return window.showToast("Operação bloqueada! Apenas para a Chefia.", "error");
             window.customConfirm("Deseja APAGAR toda a matriz de produtos da Nuvem? Todos os operadores perderão o acesso à lista.", async () => {
-                window.showToast("A apagar catálogo na nuvem...", "info");
+                document.getElementById('loading-overlay').style.display = 'flex';
+                document.getElementById('loading-msg').innerText = "A apagar base de dados...";
+                
                 try {
+                    const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'catalogo');
+                    const snapshot = await getDocs(colRef);
                     let batch = writeBatch(db); 
-                    let opCount = 0;
-                    const promises = [];
+                    let count = 0;
 
-                    for(const b of baseDados) {
-                        const cleanCod = String(b.codigo || '').replace(/[^a-zA-Z0-9_-]/g, '');
-                        const cleanLoc = String(b.local || '').replace(/[^a-zA-Z0-9_-]/g, '');
-                        let docId = b.id || `${cleanCod}_${cleanLoc}`;
-                        if (docId === '_' || !docId) continue;
-                        
-                        batch.delete(doc(db, 'artifacts', appId, 'public', 'data', 'catalogo', docId));
-                        opCount++;
-                        
-                        if (opCount >= 400) { 
-                            await batch.commit(); // Execução sequencial para não engarrafar a rede do Firebase
-                            batch = writeBatch(db); 
-                            opCount = 0; 
-                        }
-                    }
-                    if (opCount > 0) await batch.commit();
-                    
-                    window.showToast("Matriz da nuvem removida com sucesso!", "success");
-                    window.fecharModalConfig();
-                } catch(e) {
-                    window.showToast("Erro ao tentar limpar catálogo.", "error");
-                    console.error(e);
-                }
-            }, "btn-red");
-        }
-
-        window.checkLogin = function() {
-            if (operadorAtual) {
-                const elLogin = document.getElementById('view-login');
-                const elApp = document.getElementById('view-app');
-                if (elLogin) elLogin.style.display = 'none';
-                if (elApp) elApp.style.display = 'block';
-                
-                const lblOp = document.getElementById('lbl-operador');
-                if (lblOp) lblOp.innerText = `${operadorAtual}`;
-                
-                const lblCargo = document.getElementById('lbl-cargo');
-                if (lblCargo) lblCargo.innerText = cargoAtual === 'CHEFE' ? 'Gestão' : 'Auditor';
-                
-                const elsToToggle = [
-                    'tab-relatorios',
-                    'mini-stat-financeiro',
-                    'chefe-export-area',
-                    'chefe-limpar-btn',
-                    'chefe-pdf-btn',
-                    'chefe-pin-change-area',
-                    'container-import-excel'
-                ];
-
-                if (cargoAtual === 'CHEFE') {
-                    elsToToggle.forEach(id => {
-                        const el = document.getElementById(id);
-                        if (el) {
-                            if (id === 'mini-stat-financeiro' || id === 'chefe-export-area') el.style.display = 'flex';
-                            else el.style.display = 'block';
-                        }
-                    });
-                    const badge = document.getElementById('app-badge-mode');
-                    if (badge) { badge.innerText = '🛡️ GESTÃO ATIVA'; badge.style.background = 'var(--orange)'; }
-                } else {
-                    elsToToggle.forEach(id => {
-                        const el = document.getElementById(id);
-                        if (el) el.style.display = 'none';
-                    });
-                    const badge = document.getElementById('app-badge-mode');
-                    if (badge) { badge.innerText = '👤 AUDITORIA'; badge.style.background = 'var(--blue)'; }
-                    window.mudarAba('auditoria');
-                }
-                
-                // Os dados agora são geridos de forma assíncrona pelo onSnapshot.
-                // A interface ajusta-se visualmente consoante existam dados na cache ou não.
-                window.atualizarFiltrosDOM();
-                window.render();
-            } else {
-                const elLogin = document.getElementById('view-login');
-                const elApp = document.getElementById('view-app');
-                if (elLogin) elLogin.style.display = 'flex';
-                if (elApp) elApp.style.display = 'none';
-            }
-        }
-        
-        window.fazerLogin = function() {
-            const nome = document.getElementById('login-nome').value.trim().toUpperCase();
-            const cargo = document.getElementById('login-cargo').value;
-            const pinDigitado = document.getElementById('login-pin').value;
-            
-            if (!nome) return window.showToast('Digite o seu nome ou matrícula!', 'warning');
-            if (cargo === 'CHEFE') {
-                const pinSegurancaSalvo = localStorage.getItem('smart_chefe_pin_enc') ? CryptoJS.AES.decrypt(localStorage.getItem('smart_chefe_pin_enc'), _HASH_V).toString(CryptoJS.enc.Utf8) : '1234';
-                if (pinDigitado !== pinSegurancaSalvo) { window.playBeep('error'); return window.showToast('Código PIN de Acesso incorreto!', 'error'); }
-                cargoAtual = 'CHEFE';
-            } else {
-                cargoAtual = 'OPERADOR';
-            }
-
-            operadorAtual = nome;
-            localStorage.setItem('op_enc', CryptoJS.AES.encrypt(operadorAtual, _HASH_V).toString());
-            localStorage.setItem('cargo_enc', CryptoJS.AES.encrypt(cargoAtual, _HASH_V).toString());
-            
-            document.getElementById('login-pin').value = ''; 
-            window.checkLogin(); 
-            window.showToast(`Sessão iniciada como ${operadorAtual}`, 'success');
-        }
-        
-        window.fazerLogout = function() {
-            window.customConfirm("Deseja sair de forma segura da sessão atual?", () => {
-                operadorAtual = '';
-                cargoAtual = 'OPERADOR';
-                localStorage.removeItem('op_enc');
-                localStorage.removeItem('cargo_enc');
-                document.getElementById('login-nome').value = '';
-                document.getElementById('login-pin').value = '';
-                window.checkLogin();
-            }, "btn-red");
-        }
-
-        window.toggleDarkMode = function() {
-            document.body.classList.toggle('dark-mode');
-            const isDark = document.body.classList.contains('dark-mode');
-            const toggle = document.getElementById('modal-theme-toggle');
-            if(toggle) toggle.checked = isDark;
-            localStorage.setItem('tema_escuro', isDark);
-        }
-        if(localStorage.getItem('tema_escuro') === 'true') {
-            document.body.classList.add('dark-mode');
-            const toggle = document.getElementById('modal-theme-toggle');
-            if(toggle) toggle.checked = true;
-        }
-
-        window.addLog = function(msg, type='info', op=operadorAtual) {
-            const time = new Date().toLocaleTimeString('pt-PT', {hour: '2-digit', minute:'2-digit'});
-            logAcoes.unshift({time, msg, type, op});
-            if(logAcoes.length > 20) logAcoes.pop();
-            const container = document.getElementById('log-container');
-            if(container) {
-                container.innerHTML = logAcoes.map(l => `<div class="log-entry"><span class="log-time">${l.time}</span><span class="log-msg"><span class="log-operador">${l.op}:</span> ${l.msg}</span></div>`).join('');
-            }
-        }
-
-        window.esteCalculo = function(el) {
-            try {
-                let expressao = el.value.replace(/[^0-9+\-*/().,]/g, '').replace(',', '.');
-                if(!expressao) return;
-                let resultado = Function('"use strict";return (' + expressao + ')')();
-                el.value = parseFloat(resultado).toFixed(2).replace(/\.00$/, '');
-            } catch (e) { window.showToast("Cálculo inválido", "warning"); }
-        }
-
-        window.showToast = function(msg, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div'); toast.className = `toast ${type}`; toast.innerText = msg;
-            container.appendChild(toast); setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
-        }
-
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        window.playBeep = function(type = 'success') {
-            if(audioCtx.state === 'suspended') audioCtx.resume();
-            const oscillator = audioCtx.createOscillator(); const gainNode = audioCtx.createGain();
-            oscillator.connect(gainNode); gainNode.connect(audioCtx.destination);
-            if (type === 'success') { oscillator.type = 'sine'; oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime); oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.1); } 
-            else { oscillator.type = 'square'; oscillator.frequency.setValueAtTime(300, audioCtx.currentTime); gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime); oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.3); }
-        }
-
-        window.abrirModalConfig = function() { document.getElementById('modal-config').style.display = "flex"; }
-        window.fecharModalConfig = function() { document.getElementById('modal-config').style.display = "none"; }
-        window.abrirModalLog = function() { document.getElementById('modal-log').style.display = "flex"; }
-        window.fecharModalLog = function() { document.getElementById('modal-log').style.display = "none"; }
-
-        window.fecharModal = function() { 
-            window.desligarCamModal(); 
-            document.getElementById('modal').style.display = "none"; 
-            indexEdicao = -1; 
-        }
-
-        window.getLocsSel = function() { return Array.from(document.querySelectorAll('.check-l:checked')).map(cb => cb.value); }
-
-        window.zerarNaoContados = async function() {
-            if (cargoAtual !== 'CHEFE') return window.showToast("Erro de permissão! Apenas chefias.", "error");
-            if (!currentUser) return window.showToast("Falha: Sem ligação à nuvem.", "error");
-            if(baseDados.length === 0) return window.showToast("O catálogo cloud está vazio!", "error");
-            
-            const pendentes = baseDados.filter(i => !contagens.some(c => c.codigo === i.codigo && c.local === i.local));
-            if(pendentes.length === 0) return window.showToast("Perfeito! Não há produtos pendentes.", "info");
-            
-            window.customConfirm(`Atenção: Existem ${pendentes.length} produtos não auditados. Confirma a inserção de QTD Zero nestes itens em lote?`, async () => {
-                window.showToast("A registar zeramentos em bloco na nuvem...", "info");
-                const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
-                
-                try {
-                    let batch = writeBatch(db);
-                    let opCount = 0; let totalZeradados = 0;
-                    const promises = [];
-
-                    for (const i of pendentes) {
-                        const cleanCod = String(i.codigo || '').replace(/[^a-zA-Z0-9_-]/g, '');
-                        const cleanLoc = String(i.local || '').replace(/[^a-zA-Z0-9_-]/g, '');
-                        let docId = `${cleanCod}_${cleanLoc}`;
-                        if (docId === '_' || !docId) docId = `MANUAL_${Date.now()}_${Math.floor(Math.random()*10000)}`;
-                        
-                        const payload = {
-                            codigo: i.codigo, descricao: i.descricao, local: i.local,
-                            sistema: i.sistema, unidade: i.unidade, familia: i.familia, cmc: i.cmc,
-                            fisico: 0, dif: 0 - (Number(i.sistema) || 0), cmc_unitario: i.cmc || 0, gtin: i.gtin || '',
-                            lote: "", validade: "", obs: "REGISTO ZERADO AUTOMATICAMENTE", 
-                            operador: operadorAtual, data: new Date().toLocaleString('pt-PT'), timestamp: Date.now()
-                        };
-                        
-                        batch.set(doc(colRef, docId), payload);
-                        opCount++; totalZeradados++;
-
-                        if (opCount >= 400) {
-                            await batch.commit(); // Execução sequencial para não sobrecarregar
-                            batch = writeBatch(db); 
-                            opCount = 0;
-                        }
-                    }
-                    if (opCount > 0) await batch.commit();
-
-                    window.addLog(`Limpeza: Zerou ${totalZeradados} itens.`, 'warning'); 
-                    window.showToast("Inventário restante zerado com sucesso!", "success"); 
-                } catch(e) {
-                    window.showToast("Erro ao processar zeramento na nuvem.", "error");
-                    console.error(e);
-                }
-            }, "btn-red");
-        }
-
-        window.excluirContagemEspecifica = async function() { 
-            if (!currentUser) return window.showToast("Falha de rede. Nuvem inativa.", "error");
-            if (indexEdicao !== -1) { 
-                const item = contagens[indexEdicao];
-                if (cargoAtual !== 'CHEFE' && item.operador !== operadorAtual) {
-                    window.playBeep('error');
-                    return window.showToast("Violação: Edição exclusiva do criador do registo!", "error");
-                }
-                
-                window.customConfirm(`Confirma a ELIMINAÇÃO PERMANENTE do registo auditado de "${item.descricao}" por ${item.operador}?`, async () => {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'contagens', item.id));
-                    window.addLog("Registo Apagado: " + item.descricao, "error");
-                    window.fecharModal(); 
-                }, "btn-red");
-            } 
-        }
-
-        window.habilitarEdicaoGtin = function() {
-            document.getElementById('m-gtin-view-mode').style.display = 'none';
-            document.getElementById('m-gtin-edit-mode').style.display = 'flex';
-            document.getElementById('m-gtin-edit').focus();
-        }
-
-        window.controlarCameraModal = async function() {
-            const btn = document.getElementById('btn-ler-gtin-modal');
-            const readerDiv = document.getElementById('reader-modal');
-            if (btn.innerText.includes("LER GTIN")) {
-                readerDiv.style.display = "block";
-                btn.innerText = "🛑 PARAR"; btn.className = "btn-red";
-                if (!window.html5QrCodeModal) window.html5QrCodeModal = new Html5Qrcode("reader-modal");
-                try {
-                    await window.html5QrCodeModal.start( { facingMode: "environment" }, { fps: 10, qrbox: 250 },
-                        (txt) => {
-                            window.playBeep('success');
-                            document.getElementById('m-gtin-edit').value = txt.trim().toUpperCase();
-                            window.desligarCamModal();
-                        }
-                    );
-                } catch (err) { window.showToast("Acesso à câmara interrompido.", "error"); window.desligarCamModal(); }
-            } else { window.desligarCamModal(); }
-        };
-
-        window.desligarCamModal = function() {
-            const resetUI = () => {
-                const rDiv = document.getElementById('reader-modal');
-                if (rDiv) rDiv.style.display = "none";
-                const btn = document.getElementById('btn-ler-gtin-modal');
-                if (btn) { btn.innerText = "📷 LER GTIN"; btn.className = "btn-orange"; }
-            };
-            if (window.html5QrCodeModal) {
-                try {
-                    const stopPromise = window.html5QrCodeModal.stop();
-                    if (stopPromise) stopPromise.then(() => resetUI()).catch(() => resetUI());
-                    else resetUI();
-                } catch (err) { resetUI(); }
-            } else { resetUI(); }
-        };
-
-        window.abrirModal = function(item, isNovo) {
-            itemAtual = item; const isCego = document.getElementById('modo-cego')?.checked;
-            document.getElementById('m-nome-edit').value = item.descricao; document.getElementById('m-nome-edit').readOnly = !isNovo;
-            document.getElementById('m-un-edit').value = item.unidade || 'UN'; 
-            document.getElementById('m-loc-cod').innerText = `📍 Local: ${item.local} | Cód: ${item.codigo}`;
-            
-            document.getElementById('m-gtin-edit').value = item.gtin || ''; 
-            if (item.gtin && item.gtin.trim() !== '') {
-                document.getElementById('m-gtin-display').innerText = item.gtin.trim();
-                document.getElementById('m-gtin-view-mode').style.display = 'flex';
-                document.getElementById('m-gtin-edit-mode').style.display = 'none';
-            } else {
-                document.getElementById('m-gtin-view-mode').style.display = 'none';
-                document.getElementById('m-gtin-edit-mode').style.display = 'flex';
-            }
-            
-            document.getElementById('modal-sist-area').style.display = isCego ? 'none' : 'block';
-            document.getElementById('m-sist-val').innerText = `QTD SISTEMA: ${item.sistema} ${item.unidade || 'UN'}`;
-            document.getElementById('m-cmc-val').innerText = `Custo Unitário (CMC): R$ ${(item.cmc || 0).toFixed(2)}`;
-            
-            const idxAnt = contagens.findIndex(c => c.codigo === item.codigo && c.local === item.local);
-            const alertDup = document.getElementById('m-aviso-dup');
-            
-            if (idxAnt !== -1) {
-                const itemContado = contagens[idxAnt];
-                alertDup.style.display = 'block';
-                alertDup.innerHTML = `⚠️ JÁ CONTADO POR <strong>${itemContado.operador || 'OUTRO OPERADOR'}</strong><br>Qtd Atual Lançada: <strong>${itemContado.fisico} ${itemContado.unidade || 'UN'}</strong>`;
-                document.getElementById('btn-salvar-normal').style.display = 'none';
-                document.getElementById('botoes-duplicado').style.display = 'flex';
-            } else {
-                alertDup.style.display = 'none';
-                document.getElementById('btn-salvar-normal').style.display = 'block';
-                document.getElementById('botoes-duplicado').style.display = 'none';
-            }
-
-            if (indexEdicao === -1) {
-                document.getElementById('m-qtd').value = ''; document.getElementById('m-lote').value = '';
-                document.getElementById('m-validade').value = ''; document.getElementById('m-obs').value = ''; 
-                document.getElementById('btn-excluir-item').style.display = 'none';
-            } else { 
-                document.getElementById('btn-excluir-item').style.display = 'block'; 
-            }
-            document.getElementById('modal').style.display = "flex"; setTimeout(() => document.getElementById('m-qtd').focus(), 300);
-        }
-
-        window.salvarFinal = function(modo) {
-            if (!currentUser) return window.showToast("Ligação à nuvem inativa.", "error");
-            window.esteCalculo(document.getElementById('m-qtd')); 
-            const qVal = document.getElementById('m-qtd').value; 
-            if (!qVal) return window.showToast("Introduza a Quantidade Física aferida!", "warning");
-            let novaQtd = parseFloat(qVal);
-            
-            itemAtual.descricao = document.getElementById('m-nome-edit').value.toUpperCase(); 
-            itemAtual.unidade = document.getElementById('m-un-edit').value.toUpperCase();
-            
-            let novoGtin = document.getElementById('m-gtin-edit').value.trim().toUpperCase();
-            itemAtual.gtin = novoGtin;
-            let obs = document.getElementById('m-obs').value.toUpperCase();
-            
-            const idxAnt = contagens.findIndex(c => c.codigo === itemAtual.codigo && c.local === itemAtual.local);
-            let targetId = null;
-
-            if (indexEdicao !== -1) { 
-                targetId = contagens[indexEdicao].id; 
-                if (cargoAtual !== 'CHEFE' && contagens[indexEdicao].operador !== operadorAtual) {
-                    window.playBeep('error'); return window.showToast("Segurança restringe edição alheia!", "error");
-                }
-            } else if (idxAnt !== -1) { 
-                targetId = contagens[idxAnt].id; 
-                if (cargoAtual !== 'CHEFE' && contagens[idxAnt].operador !== operadorAtual) {
-                    window.playBeep('error'); return window.showToast("Produto previamente contabilizado por colega!", "error");
-                }
-                if(modo === 'somar') novaQtd += Number(contagens[idxAnt].fisico || 0); 
-            }
-
-            const codRaw = String(itemAtual.codigo || '').replace(/[^a-zA-Z0-9_-]/g, '');
-            const locRaw = String(itemAtual.local || '').replace(/[^a-zA-Z0-9_-]/g, '');
-            let docId = targetId || `${codRaw}_${locRaw}`;
-            if (docId === '_' || !docId) docId = `MANUAL_${Date.now()}_${Math.floor(Math.random()*10000)}`;
-            
-            const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
-
-            const payload = {
-                codigo: itemAtual.codigo, descricao: itemAtual.descricao, local: itemAtual.local,
-                sistema: itemAtual.sistema || 0, unidade: itemAtual.unidade || 'UN', familia: itemAtual.familia || 'SEM FAMÍLIA',
-                cmc: itemAtual.cmc || 0, fisico: novaQtd, dif: novaQtd - (Number(itemAtual.sistema) || 0), 
-                cmc_unitario: itemAtual.cmc || 0, gtin: novoGtin, lote: document.getElementById('m-lote').value.toUpperCase(), 
-                validade: document.getElementById('m-validade').value, obs: obs, operador: operadorAtual, 
-                data: new Date().toLocaleString('pt-PT'), timestamp: Date.now()
-            };
-            
-            // ATUALIZAÇÃO NOVO GTIN NA MATRIZ CLOUD (Se aplicável)
-            const baseIdx = baseDados.findIndex(b => b.codigo === itemAtual.codigo && b.local === itemAtual.local);
-            if (baseIdx !== -1 && novoGtin !== '' && baseDados[baseIdx].gtin !== novoGtin) {
-                const docIdCat = `${codRaw}_${locRaw}`;
-                const refCatalogo = doc(db, 'artifacts', appId, 'public', 'data', 'catalogo', docIdCat);
-                setDoc(refCatalogo, { gtin: novoGtin }, { merge: true }).catch(e => console.error(e));
-            }
-
-            window.fecharModal(); 
-            const buscaInput = document.getElementById('busca-input'); if (buscaInput) buscaInput.value = '';
-            const resultados = document.getElementById('resultados'); if (resultados) resultados.innerHTML = '';
-            
-            window.showToast("A transferir contagem...", "info");
-
-            setDoc(doc(colRef, docId), payload).then(() => {
-                window.showToast("Gravação Confirmada", "success"); 
-                window.addLog(modo === 'somar' ? '+' : '' + " " + novaQtd + "x " + itemAtual.descricao);
-            }).catch((e) => { window.showToast("Erro ao contatar os blocos de dados!", "error"); });
-        }
-
-        window.render = function() {
-            if (!operadorAtual) return;
-            const b = document.getElementById('tabela-body'); if (!b) return;
-            const isCego = document.getElementById('modo-cego')?.checked;
-            const colSistElements = document.querySelectorAll('.col-sist');
-            colSistElements.forEach(el => el.style.display = isCego ? 'none' : 'table-cell');
-
-            let pT = 0; let financeiro = 0; let html = '';
-            
-            contagens.forEach((i, idx) => {
-                const fisico = Number(i.fisico) || 0; const sistema = Number(i.sistema) || 0;
-                const dif = Number(i.dif) || (fisico - sistema); const cmc = Number(i.cmc_unitario) || Number(i.cmc) || 0;
-                pT += fisico; financeiro += (dif * cmc);
-                
-                if (idx < 100) {
-                    html += `<tr onclick="editarContagem(${idx})">
-                        <td style="text-align:left; font-size:11px;">${i.descricao || 'PRODUTO SEM NOME'}<br><small style="color:var(--gray); font-weight:normal;">${i.local}</small></td>
-                        <td class="col-sist" style="display:${isCego?'none':'table-cell'}">${sistema}</td>
-                        <td style="font-weight:800; color:var(--blue); font-size: 13px;">${fisico}</td>
-                        <td class="col-sist" style="display:${isCego?'none':'table-cell'}; font-weight:700; color:${dif<0?'var(--red)':dif>0?'var(--green)':'inherit'};">${dif > 0 ? '+'+dif.toFixed(2) : dif.toFixed(2)}</td>
-                        <td class="col-sist" style="display:${isCego?'none':'table-cell'}">${i.operador || 'DESCONHECIDO'}</td>
-                    </tr>`;
-                }
-            });
-            if (contagens.length > 100) html += `<tr><td colspan="5" style="color:var(--gray); padding:20px; font-size: 11px;">Apenas as últimas 100 contagens são exibidas no ecrã.</td></tr>`;
-            
-            b.innerHTML = html; 
-            if (document.getElementById('dash-skus')) document.getElementById('dash-skus').innerText = contagens.length; 
-            if (document.getElementById('dash-pecas')) document.getElementById('dash-pecas').innerText = pT.toFixed(2);
-            if (document.getElementById('dash-financeiro')) document.getElementById('dash-financeiro').innerText = isCego ? "🛡️ Oculto" : "R$ " + financeiro.toLocaleString('pt-PT', {minimumFractionDigits: 2});
-            window.atualizarRelatorios();
-        }
-
-        window.mudarAba = function(aba) {
-            if (aba === 'relatorios' && cargoAtual !== 'CHEFE') return window.showToast("Área restrita à Gestão!", "error");
-            document.getElementById('view-auditoria').style.display = aba === 'auditoria' ? 'block' : 'none';
-            document.getElementById('view-relatorios').style.display = aba === 'relatorios' ? 'block' : 'none';
-            document.getElementById('tab-auditoria').className = aba === 'auditoria' ? 'tab-btn active' : 'tab-btn';
-            document.getElementById('tab-relatorios').className = aba === 'relatorios' ? 'tab-btn active' : 'tab-btn';
-            if (aba === 'relatorios') window.atualizarRelatorios();
-        }
-
-        window.atualizarRelatorios = function() {
-            if (cargoAtual !== 'CHEFE') return; 
-
-            const totalBase = baseDados.length > 0 ? baseDados.length : contagens.length;
-            const totalContados = contagens.length;
-            let percentagem = totalBase === 0 ? 0 : Math.min(100, Math.round((totalContados / totalBase) * 100));
-            document.getElementById('progresso-texto').innerText = `${totalContados} / ${totalBase} Itens Auditados`;
-            document.getElementById('progresso-percentagem').innerText = `${percentagem}% Concluído`; 
-            document.getElementById('progresso-barra').style.width = `${percentagem}%`;
-
-            let sobraFin = 0, quebraFin = 0; 
-            contagens.forEach(i => { 
-                const fisico = Number(i.fisico) || 0; const sistema = Number(i.sistema) || 0;
-                const dif = Number(i.dif) || (fisico - sistema); const cmc = Number(i.cmc_unitario) || Number(i.cmc) || 0;
-                const impacto = dif * cmc; 
-                if (dif > 0) sobraFin += impacto; 
-                else if (dif < 0) quebraFin += Math.abs(impacto); 
-            });
-            document.getElementById('rel-sobra-fin').innerText = "R$ " + sobraFin.toLocaleString('pt-PT', {minimumFractionDigits: 2});
-            document.getElementById('rel-quebra-fin').innerText = "R$ " + quebraFin.toLocaleString('pt-PT', {minimumFractionDigits: 2});
-
-            const furosBody = document.getElementById('tabela-furos-body');
-            if (furosBody) {
-                const topFuros = [...contagens].filter(i => {
-                    const fisico = Number(i.fisico) || 0; const sistema = Number(i.sistema) || 0;
-                    return (Number(i.dif) || (fisico - sistema)) !== 0;
-                }).sort((a, b) => {
-                    return Math.abs((Number(b.dif)||0) * (Number(b.cmc_unitario)||0)) - Math.abs((Number(a.dif)||0) * (Number(a.cmc_unitario)||0));
-                }).slice(0, 5);
-
-                if (topFuros.length === 0) furosBody.innerHTML = `<tr><td colspan="3" style="color:var(--gray); padding:20px;">Auditoria perfeitamente alinhada. Sem divergências.</td></tr>`;
-                else {
-                    furosBody.innerHTML = topFuros.map(i => { 
-                        const dif = Number(i.dif) || 0; const impacto = dif * (Number(i.cmc_unitario) || 0); 
-                        const fill = impacto > 0 ? 'color: var(--green)' : 'color: var(--red)'; 
-                        return `<tr>
-                            <td style="text-align: left; font-size: 11px;">${(i.descricao || '').substring(0, 30)}...</td>
-                            <td style="font-weight: 800; ${fill}">${dif > 0 ? '+' + dif.toFixed(2) : dif.toFixed(2)}</td>
-                            <td style="font-weight: 800; ${fill}">R$ ${Math.abs(impacto).toLocaleString('pt-PT', {minimumFractionDigits: 2})}</td>
-                        </tr>`; 
-                    }).join('');
-                }
-            }
-
-            const chartContainer = document.getElementById('chart-familias');
-            if (chartContainer) {
-                const familiasObj = {}; 
-                contagens.forEach(i => { 
-                    const fam = i.familia || 'SEM FAMÍLIA'; 
-                    if (!familiasObj[fam]) familiasObj[fam] = 0; 
-                    familiasObj[fam] += (Number(i.fisico) || 0); 
-                });
-                const topFamilias = Object.keys(familiasObj).map(k => ({ familia: k, qtd: familiasObj[k] })).sort((a, b) => b.qtd - a.qtd).slice(0, 5);
-                if (topFamilias.length === 0) chartContainer.innerHTML = '<p style="font-size:12px; color:var(--gray); text-align:center; margin: 0;">Sem atividade contabilizada.</p>';
-                else { 
-                    const maxQtd = topFamilias[0].qtd; 
-                    chartContainer.innerHTML = topFamilias.map(f => { 
-                        const widthPct = maxQtd > 0 ? (f.qtd / maxQtd) * 100 : 0; 
-                        return `<div class="chart-row"><div class="chart-label" title="${f.familia}">${f.familia}</div><div class="chart-bar-container"><div class="chart-bar" style="width: ${widthPct}%"></div></div><div class="chart-value">${f.qtd.toLocaleString('pt-PT', {maximumFractionDigits: 2})}</div></div>`; 
-                    }).join(''); 
-                }
-            }
-
-            const pendentesBody = document.getElementById('tabela-pendentes-body');
-            const qtdPendentesRel = document.getElementById('qtd-pendentes-rel');
-
-            if (pendentesBody && qtdPendentesRel) {
-                if (baseDados.length === 0) {
-                    qtdPendentesRel.innerText = "0";
-                    pendentesBody.innerHTML = `<tr><td colspan="3" style="color:var(--gray); padding:20px; text-align:center;">Nenhum ficheiro matriz (Omie) carregado no sistema.</td></tr>`;
-                } else {
-                    const pendentes = baseDados.filter(i => !contagens.some(c => c.codigo === i.codigo && c.local === i.local));
-                    qtdPendentesRel.innerText = pendentes.length;
-
-                    if (pendentes.length === 0) {
-                        pendentesBody.innerHTML = `<tr><td colspan="3" style="color:var(--green); font-weight:800; padding:30px; text-align:center; font-size: 14px;">Missão cumprida! Todos os produtos foram verificados. 🎉</td></tr>`;
-                    } else {
-                        const itemsToRender = pendentes.slice(0, 150);
-                        let htmlPendentes = itemsToRender.map(i => `<tr>
-                                <td style="text-align: left; font-size: 11px; padding: 12px;">${(i.descricao || '').substring(0, 35)}...<br><small style="color:var(--gray); font-weight:normal;">Cód: ${i.codigo}</small></td>
-                                <td style="font-size: 11px; padding: 12px;">${i.local}</td>
-                                <td style="font-weight: 800; padding: 12px; color: var(--blue);">${i.sistema || 0}</td>
-                            </tr>`).join('');
-                        if (pendentes.length > 150) htmlPendentes += `<tr><td colspan="3" style="color:var(--gray); font-size: 11px; padding:16px; text-align:center;">Estão visíveis os primeiros 150 registos pendentes de um total de ${pendentes.length}.</td></tr>`;
-                        pendentesBody.innerHTML = htmlPendentes;
-                    }
-                }
-            }
-
-            const vencidosBody = document.getElementById('tabela-vencidos-body');
-            const avencerBody = document.getElementById('tabela-avencer-body');
-            if (vencidosBody && avencerBody) {
-                let listaVencidos = []; let listaAVencer = [];
-                const hoje = new Date(); hoje.setHours(0,0,0,0);
-
-                contagens.forEach(c => {
-                    if (c.validade && c.validade.trim() !== '') {
-                        const parts = c.validade.split('-'); 
-                        if (parts.length === 3) {
-                            const dataValidade = new Date(parts[0], parts[1] - 1, parts[2]); dataValidade.setHours(0,0,0,0);
-                            const diffDays = Math.ceil((dataValidade.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24));
-                            const itemFormatado = { ...c, diffDays, dataFormatada: `${parts[2]}/${parts[1]}/${parts[0]}` };
-                            if (diffDays < 0) listaVencidos.push(itemFormatado);
-                            else if (diffDays <= 30) listaAVencer.push(itemFormatado);
-                        }
-                    }
-                });
-
-                listaVencidos.sort((a, b) => a.diffDays - b.diffDays);
-                listaAVencer.sort((a, b) => a.diffDays - b.diffDays);
-
-                document.getElementById('qtd-vencidos-rel').innerText = listaVencidos.length;
-                document.getElementById('qtd-avencer-rel').innerText = listaAVencer.length;
-
-                if (listaVencidos.length === 0) vencidosBody.innerHTML = `<tr><td colspan="3" style="color:var(--green); font-weight:800; padding:20px; text-align:center;">Nenhum produto vencido registado! 🎉</td></tr>`;
-                else vencidosBody.innerHTML = listaVencidos.map(i => `<tr>
-                        <td style="text-align: left; font-size: 11px; padding: 12px;">${(i.descricao || '').substring(0, 30)}...<br><small style="color:var(--gray); font-weight:normal;">Qtd: <b>${i.fisico}</b> ${i.unidade || 'UN'}</small></td>
-                        <td style="font-size: 11px; padding: 12px; font-weight:700;">${i.lote || '-'}</td>
-                        <td style="font-weight: 800; padding: 12px; color: var(--red);">${i.dataFormatada}</td>
-                    </tr>`).join('');
-
-                if (listaAVencer.length === 0) avencerBody.innerHTML = `<tr><td colspan="3" style="color:var(--green); font-weight:800; padding:20px; text-align:center;">Nenhum produto a vencer em 30 dias! 🎉</td></tr>`;
-                else avencerBody.innerHTML = listaAVencer.map(i => `<tr>
-                        <td style="text-align: left; font-size: 11px; padding: 12px;">${(i.descricao || '').substring(0, 30)}...<br><small style="color:var(--gray); font-weight:normal;">Qtd: <b>${i.fisico}</b> ${i.unidade || 'UN'}</small></td>
-                        <td style="font-size: 11px; padding: 12px; font-weight:700;">${i.lote || '-'}</td>
-                        <td style="padding: 12px; color: var(--orange);"><strong style="font-size: 12px;">${i.dataFormatada}</strong><br><small style="font-size: 9px; font-weight: 700;">(em ${i.diffDays} dias)</small></td>
-                    </tr>`).join('');
-            }
-        }
-
-        window.imprimirPDF = function() { 
-            if (cargoAtual !== 'CHEFE') return window.showToast("Operação restrita. Privilégio insuficiente.", "error");
-            document.getElementById('print-data').innerText = "Documento Gerado em: " + new Date().toLocaleString('pt-PT'); 
-            window.print(); 
-        }
-        
-        window.editarContagem = function(idx) { 
-            indexEdicao = idx; window.abrirModal(contagens[idx], false); 
-            document.getElementById('m-qtd').value = contagens[idx].fisico; 
-            document.getElementById('m-lote').value = contagens[idx].lote || ''; 
-            document.getElementById('m-validade').value = contagens[idx].validade || ''; 
-            document.getElementById('m-obs').value = contagens[idx].obs || ''; 
-        }
-        
-        window.baixarExcel = function(t) { 
-            if (cargoAtual !== 'CHEFE') return window.showToast("Operação bloqueada! Credenciais de gestão necessárias.", "error");
-            if (contagens.length === 0) return window.showToast("A base de dados encontra-se vazia.", "warning"); 
-            
-            const dataToExport = (t === 'erros' ? contagens.filter(i => i.dif !== 0) : contagens).map(c => ({
-                "Código do Produto": c.codigo || '', "Descrição do Produto": c.descricao || '', "Família de Produto": c.familia || '',
-                "Código EAN / GTIN (Atualizado)": c.gtin || '', "Unidade": c.unidade || '', "Quantidade Sistema": Number(c.sistema) || 0,
-                "Quantidade Física": Number(c.fisico) || 0, "Diferença": Number(c.dif) || 0, "CMC Unitário": Number(c.cmc_unitario) || 0,
-                "Impacto Financeiro": (Number(c.dif) || 0) * (Number(c.cmc_unitario) || 0), "Local de Estoque": c.local || '',
-                "Lote": c.lote || '', "Validade": c.validade || '', "Observações": c.obs || '', "Operador Auditor": c.operador || '', "Registo Temporal": c.data || ''
-            }));
-
-            const ws = XLSX.utils.json_to_sheet(dataToExport); const wb = XLSX.utils.book_new(); 
-            XLSX.utils.book_append_sheet(wb, ws, "Auditoria"); XLSX.writeFile(wb, `Inventario_Sincronizado_${new Date().toLocaleDateString('pt-PT').replace(/\//g,'-')}.xlsx`); 
-        }
-
-        window.baixarPendentesExcel = function() {
-            if (cargoAtual !== 'CHEFE') return window.showToast("Operação bloqueada! Credenciais de gestão necessárias.", "error");
-            const pendentes = baseDados.filter(i => !contagens.some(c => c.codigo === i.codigo && c.local === i.local));
-            if (pendentes.length === 0) return window.showToast("Não existem produtos pendentes para exportar.", "warning"); 
-            
-            const dataToExport = pendentes.map(p => ({
-                "Código do Produto": p.codigo || '', "Descrição do Produto": p.descricao || '', "Família de Produto": p.familia || '',
-                "Código EAN / GTIN": p.gtin || '', "Unidade": p.unidade || '', "Quantidade Sistema": Number(p.sistema) || 0,
-                "Custo Unitário (CMC)": Number(p.cmc) || 0, "Local de Estoque": p.local || ''
-            }));
-
-            const ws = XLSX.utils.json_to_sheet(dataToExport); const wb = XLSX.utils.book_new(); 
-            XLSX.utils.book_append_sheet(wb, ws, "Pendentes"); XLSX.writeFile(wb, `Inventario_Pendentes_${new Date().toLocaleDateString('pt-PT').replace(/\//g,'-')}.xlsx`); 
-            window.showToast("Exportação de pendentes concluída!", "success");
-        }
-        
-        window.limparTudo = async function() { 
-            if (cargoAtual !== 'CHEFE') return window.showToast("Ação severa bloqueada! Apenas o gestor tem acesso.", "error");
-            if (!currentUser) return window.showToast("Falha de conexão com os servidores na nuvem.", "error");
-            
-            window.customConfirm("PERIGO: Ação Destrutiva!\n\nDeseja apagar permanentemente todas as contabilizações registadas na nuvem por toda a equipa?", async () => {
-                window.showToast("A processar a aniquilação dos registos da nuvem...", "info");
-                try {
-                    let batch = writeBatch(db); let opCount = 0;
-                    const promises = [];
-                    for(const c of contagens) { 
-                        batch.delete(doc(db, 'artifacts', appId, 'public', 'data', 'contagens', c.id));
-                        opCount++;
-                        if (opCount >= 400) { await batch.commit(); batch = writeBatch(db); opCount = 0; }
-                    }
-                    if (opCount > 0) await batch.commit();
-                    
-                    window.addLog("Reiniciou toda a auditoria", "warning"); 
-                    window.fecharModalConfig();
-                } catch(e) { window.showToast("Erro ao eliminar auditoria.", "error"); }
-            }, "btn-red");
-        }
-
-        window.controlarCamera = async function() {
-            if (!currentUser) return window.showToast("Ligue-se primeiro à rede para ativar o scanner.", "error");
-            if(audioCtx.state === 'suspended') audioCtx.resume();
-            const btn = document.getElementById('btn-cam');
-            if (btn.innerText.includes("INICIAR")) {
-                document.getElementById('reader').style.display = "block"; document.getElementById('scanner-controls').style.display = "flex"; 
-                btn.innerText = "🛑 PARAR CÂMERA"; btn.className = "btn-red"; window.toggleModoGatilho(); 
-
-                if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
-                try {
-                    await html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, async (txt) => {
-                        if(window.lastScan === txt && Date.now() - window.lastScanTime < 2000) return;
-                        const usarGatilho = document.getElementById('modo-gatilho').checked;
-                        if (usarGatilho && !window.gatilhoDisparado) return; 
-                        if (usarGatilho) window.resetarEstadoGatilho();
-
-                        window.lastScan = txt; window.lastScanTime = Date.now();
-                        const cod = txt.trim().toUpperCase(); const itemBase = baseDados.find(i => i.codigo === cod || i.gtin === cod);
-                        const isContinuo = document.getElementById('modo-continuo').checked;
-
-                        if (isContinuo) {
-                            window.playBeep('success'); 
-                            let itemContado = contagens.find(c => c.codigo === cod || c.gtin === cod);
-                            const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
-                            if (itemContado) {
-                                if (cargoAtual !== 'CHEFE' && itemContado.operador !== operadorAtual) {
-                                    window.playBeep('error'); return window.showToast("Violou a segurança: Este registo pertence a outro utilizador!", "error");
-                                }
-                                const payload = {...itemContado, fisico: itemContado.fisico + 1, dif: (itemContado.fisico + 1) - (Number(itemContado.sistema) || 0), data: new Date().toLocaleString('pt-PT'), timestamp: Date.now(), operador: operadorAtual};
-                                await setDoc(doc(colRef, itemContado.id), payload);
-                                window.addLog(`+1 Auto: ${itemContado.descricao}`); window.showToast(`+1 ${itemContado.descricao}`, 'success');
-                            } else {
-                                let novoItem = itemBase || {codigo: cod, gtin: cod, descricao: "PRODUTO NÃO IDENTIFICADO", local: "SCAN DIRETO", sistema: 0, cmc: 0, unidade: "UN"};
-                                const cleanCod = String(novoItem.codigo || '').replace(/[^a-zA-Z0-9_-]/g, '');
-                                const cleanLoc = String(novoItem.local || '').replace(/[^a-zA-Z0-9_-]/g, '');
-                                let docId = `${cleanCod}_${cleanLoc}`;
-                                if (!cleanCod || docId.startsWith('_')) docId = `PROD_${Date.now()}_${Math.floor(Math.random()*100000)}`;
-
-                                const payload = {
-                                    codigo: novoItem.codigo, descricao: novoItem.descricao, local: novoItem.local, sistema: 0, unidade: novoItem.unidade,
-                                    fisico: 1, dif: 1, cmc_unitario: novoItem.cmc || 0, gtin: novoItem.gtin || '', lote: "", validade: "", 
-                                    obs: "INSERÇÃO VIA MODO CONTÍNUO", operador: operadorAtual, data: new Date().toLocaleString('pt-PT'), timestamp: Date.now()
-                                };
-                                await setDoc(doc(colRef, docId), payload);
-                                window.addLog(`Criou e +1 Auto: ${novoItem.descricao}`); window.showToast(`Registado: ${novoItem.descricao}`, 'success');
-                            }
-                        } else {
-                            window.playBeep('success'); window.desligarCam(); indexEdicao = -1; 
-                            let itemModal = itemBase || {codigo: cod, gtin: cod, descricao: "NOVO PRODUTO", local: "NOVO REGISTO", sistema: 0, cmc: 0, unidade: "UN"};
-                            window.abrirModal(itemModal, itemModal.descricao === "NOVO PRODUTO");
-                        }
-                    });
-                } catch (err) { window.showToast("Falha na inicialização da câmara do dispositivo.", "error"); window.desligarCam(); }
-            } else { window.desligarCam(); }
-        }
-        
-        window.desligarCam = function() { 
-            const resetUI = () => { 
-                document.getElementById('reader').style.display = "none"; document.getElementById('scanner-controls').style.display = "none"; 
-                document.getElementById('btn-cam').innerText = "📷 INICIAR SCANNER"; document.getElementById('btn-cam').className = "btn-blue"; 
-                window.resetarEstadoGatilho();
-            };
-            if (html5QrCode) { 
-                try { 
-                    const stopPromise = html5QrCode.stop(); 
-                    if (stopPromise) stopPromise.then(() => resetUI()).catch(() => resetUI()); 
-                    else resetUI(); 
-                } catch (err) { resetUI(); } 
-            } else { resetUI(); }
-        }
-
-        document.getElementById('busca-input').oninput = function() {
-            const rawT = this.value; const t = removerAcentos(rawT.toUpperCase().trim()); 
-            const res = document.getElementById('resultados'); res.innerHTML = '';
-            
-            const lS = window.getLocsSel().map(v => removerAcentos(v.toUpperCase())); 
-            const fS = Array.from(document.querySelectorAll('.check-f:checked')).map(cb => removerAcentos(cb.value.toUpperCase()));
-            
-            const fill = baseDados.filter(i => {
-                const desc = removerAcentos(String(i.descricao || '').toUpperCase()); const cod = removerAcentos(String(i.codigo || '').toUpperCase()); const gtin = removerAcentos(String(i.gtin || '').toUpperCase());
-                const matchesSearch = t.length < 1 ? true : (desc.includes(t) || cod.includes(t) || gtin.includes(t));
-                const itemLocal = removerAcentos(String(i.local || '').toUpperCase()); const itemFam = removerAcentos(String(i.familia || '').toUpperCase());
-                const matchesLocal = lS.length === 0 || lS.includes(itemLocal); const matchesFamily = fS.length === 0 || fS.includes(itemFam);
-                return matchesSearch && matchesLocal && matchesFamily;
-            });
-            
-            if (fill.length > 0) {
-                fill.slice(0, 50).forEach(i => {
-                    const d = document.createElement('div'); d.className = 'item-res'; 
-                    d.innerHTML = `<strong>${i.descricao}</strong><small style="color:var(--gray); font-size:11px; font-weight: 500;">${i.local} | No Sistema: <b>${i.sistema}</b></small>`;
-                    d.onclick = () => { indexEdicao = -1; window.abrirModal(i, false); }; res.appendChild(d);
-                });
-            } else if (t.length > 0) {
-                const btnNovo = document.createElement('button'); btnNovo.className = 'btn-blue'; btnNovo.style.marginTop = '10px'; btnNovo.innerHTML = `➕ CADASTRAR NOVO: "${rawT}"`;
-                btnNovo.onclick = () => { 
-                    indexEdicao = -1; const tTrim = rawT.trim(); const isNumeric = /^\d+$/.test(tTrim); 
-                    window.abrirModal({
-                        codigo: 'MAN_' + Date.now(), gtin: isNumeric ? tTrim : '', descricao: isNumeric ? '' : tTrim.toUpperCase(), 
-                        local: lS.length > 0 ? lS[0] : 'MANUAL', familia: 'SEM FAMÍLIA', sistema: 0, cmc: 0, unidade: 'UN'
-                    }, true); 
-                }; res.appendChild(btnNovo);
-            }
-        };
-
-        const normalizeHeader = (str) => {
-            return String(str || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toUpperCase();
-        };
-
-        document.getElementById('file-input').onchange = async function(e) {
-            if (cargoAtual !== 'CHEFE') return window.showToast("Operação bloqueada! Credenciais de gestão necessárias.", "error");
-            if (!e.target.files || e.target.files.length === 0) return;
-            
-            window.showToast("A ler ficheiro Omie...", "info"); 
-            const reader = new FileReader();
-            reader.onload = async function(evt) {
-                try {
-                    const workbook = XLSX.read(new Uint8Array(evt.target.result), {type: 'array'});
-                    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1});
-                    let idxCod=-1, idxDesc=-1, idxFam=-1, idxSist=-1, idxLoc=-1, idxCmc=-1, idxUn=-1, idxGtin=-1, hRow=-1;
-                    
-                    for(let r=0; r<rows.length; r++) {
-                        if(!rows[r]) continue; 
-                        let line = rows[r].map(c => normalizeHeader(c));
-                        if(line.includes("CODIGO DO PRODUTO") || line.includes("CODIGO") || line.includes("SKU") || line.includes("DESCRICAO DO PRODUTO") || line.includes("DESCRICAO") || line.includes("NOME")) {
-                            hRow = r; 
-                            line.forEach((cell, c) => {
-                                const norm = cell;
-                                if(norm === "CODIGO DO PRODUTO" || norm === "CODIGO" || norm === "SKU" || norm === "REFERENCIA") idxCod = c; 
-                                else if(norm === "CODIGO EAN" || norm === "EAN" || norm === "GTIN" || norm === "CODIGO DE BARRAS") idxGtin = c;
-                                else if(norm === "DESCRICAO DO PRODUTO" || norm === "DESCRICAO" || norm === "PRODUTO" || norm === "NOME") idxDesc = c; 
-                                else if(norm === "FAMILIA DE PRODUTO" || norm === "FAMILIA" || norm === "CATEGORIA" || norm === "GRUPO") idxFam = c;
-                                else if(norm === "QUANTIDADE" || norm === "QUANT" || norm === "SALDO" || norm === "ESTOQUE" || norm === "QTD") idxSist = c; 
-                                else if(norm === "LOCAL DE ESTOQUE" || norm === "DESCRICAO DO LOCAL" || norm === "LOCAL" || norm === "ARMAZEM") idxLoc = c;
-                                else if(norm === "CMC UNITARIO" || norm === "CUSTO UNITARIO" || norm === "CUSTO" || norm === "PRECO" || norm === "VALOR") idxCmc = c; 
-                                else if(norm === "UNIDADE" || norm === "UNID" || norm === "UN") idxUn = c;
-                            }); 
-                            break; 
-                        }
-                    }
-                    if (idxDesc === -1) return window.showToast("Matriz Inválida: Não foi possível detetar a coluna DESCRIÇÃO.", "error");
-
-                    const temporarios = [];
-                    for(let r=hRow+1; r<rows.length; r++) {
-                        let row = rows[r]; 
-                        if (row && row[idxDesc]) {
-                            const l = idxLoc !== -1 ? String(row[idxLoc] || 'ESTOQUE PRINCIPAL').trim().toUpperCase() : 'ESTOQUE PRINCIPAL'; 
-                            const f = idxFam !== -1 ? String(row[idxFam] || 'SEM FAMÍLIA').trim().toUpperCase() : 'SEM FAMÍLIA';
-                            
-                            // Correção de Código Vazio
-                            const codRaw = idxCod !== -1 ? String(row[idxCod] || '').trim().toUpperCase() : '';
-                            
-                            const sistemaVal = idxSist !== -1 ? parseFloat(String(row[idxSist] || '0').replace(',','.')) : 0;
-                            const cmcVal = idxCmc !== -1 ? parseFloat(String(row[idxCmc] || '0').replace(',','.')) : 0;
-                            
-                            temporarios.push({ 
-                                codigo: codRaw, descricao: String(row[idxDesc]).trim().toUpperCase(), gtin: idxGtin !== -1 ? String(row[idxGtin] || '').trim() : '', 
-                                familia: f, local: l, sistema: isNaN(sistemaVal) ? 0 : sistemaVal, cmc: isNaN(cmcVal) ? 0 : cmcVal, unidade: idxUn !== -1 ? String(row[idxUn] || 'UN').trim().toUpperCase() : 'UN'
-                            });
-                        }
-                    }
-                    if (temporarios.length === 0) return window.showToast("Planilha submetida encontra-se sem itens registados.", "error");
-
-                    window.showToast(`A iniciar upload sequencial de ${temporarios.length} produtos...`, "info");
-                    
-                    try {
-                        const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'catalogo');
-                        let batch = writeBatch(db);
-                        let opCount = 0;
-                        let total = 0;
-
-                        // Envio sequencial à prova de falhas (Bloqueia crashes no Firestore)
-                        for (const item of temporarios) {
-                            const cleanCod = String(item.codigo || '').replace(/[^a-zA-Z0-9_-]/g, '');
-                            const cleanLoc = String(item.local || '').replace(/[^a-zA-Z0-9_-]/g, '');
-                            let docId = `${cleanCod}_${cleanLoc}_${total}`;
-                            
-                            // Impede a sobreposição de produtos que não tenham código na planilha
-                            if (!cleanCod || docId.startsWith('_')) {
-                                docId = `PROD_${Date.now()}_${Math.floor(Math.random() * 100000)}_${total}`;
-                            }
-                            
-                            item.id = docId;
-                            batch.set(doc(colRef, docId), item);
-                            opCount++;
-                            total++;
-                            
-                            if (opCount >= 400) {
-                                await batch.commit(); // Espera acabar antes de enviar o próximo pacote
-                                batch = writeBatch(db);
-                                opCount = 0;
-                            }
-                        }
-                        
-                        if (opCount > 0) {
-                            await batch.commit();
-                        }
-
-                        window.showToast(`Sincronização 100% concluída! (${total} produtos)`, "success");
-                    } catch (e) {
-                        window.showToast("Erro ao sincronizar matriz com a nuvem.", "error");
-                        console.error(e);
-                    }
-
-                    e.target.value = '';
-                    window.fecharModalConfig();
-
-                } catch (error) { window.showToast("O ficheiro foi corrompido ou negado pelo sistema.", "error"); }
-            };
-            reader.readAsArrayBuffer(e.target.files[0]);
-        };
-
-        window.checkLogin();
-    </script>
-</body>
-</html>
+                    for (const docSnap of snapshot.docs) {
+                        batch.delete(docSnap.ref
