@@ -929,19 +929,32 @@
                 try {
                     let batch = writeBatch(db); 
                     let opCount = 0;
+                    const promises = [];
+
                     for(const b of baseDados) {
-                        const cleanCod = String(b.codigo).replace(/[^a-zA-Z0-9_-]/g, '');
-                        const cleanLoc = String(b.local).replace(/[^a-zA-Z0-9_-]/g, '');
-                        const docId = `${cleanCod}_${cleanLoc}`;
+                        const cleanCod = String(b.codigo || '').replace(/[^a-zA-Z0-9_-]/g, '');
+                        const cleanLoc = String(b.local || '').replace(/[^a-zA-Z0-9_-]/g, '');
+                        let docId = `${cleanCod}_${cleanLoc}`;
+                        if (docId === '_' || !docId) continue;
+                        
                         batch.delete(doc(db, 'artifacts', appId, 'public', 'data', 'catalogo', docId));
                         opCount++;
-                        if (opCount >= 100) { await batch.commit(); batch = writeBatch(db); opCount = 0; }
+                        
+                        if (opCount >= 450) { 
+                            promises.push(batch.commit()); 
+                            batch = writeBatch(db); 
+                            opCount = 0; 
+                        }
                     }
-                    if (opCount > 0) await batch.commit();
+                    if (opCount > 0) promises.push(batch.commit());
+                    
+                    await Promise.all(promises);
+                    
                     window.showToast("Matriz da nuvem removida com sucesso!", "success");
                     window.fecharModalConfig();
                 } catch(e) {
                     window.showToast("Erro ao tentar limpar catálogo.", "error");
+                    console.error(e);
                 }
             }, "btn-red");
         }
@@ -1101,22 +1114,25 @@
             const pendentes = baseDados.filter(i => !contagens.some(c => c.codigo === i.codigo && c.local === i.local));
             if(pendentes.length === 0) return window.showToast("Perfeito! Não há produtos pendentes.", "info");
             
-            window.customConfirm(`Atenção: Existem ${pendentes.length} produtos não auditados na base de dados. Confirma a inserção de QTD Zero nestes itens em lote?`, async () => {
+            window.customConfirm(`Atenção: Existem ${pendentes.length} produtos não auditados. Confirma a inserção de QTD Zero nestes itens em lote?`, async () => {
                 window.showToast("A registar zeramentos em bloco na nuvem...", "info");
                 const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
                 
                 try {
                     let batch = writeBatch(db);
                     let opCount = 0; let totalZeradados = 0;
+                    const promises = [];
 
                     for (const i of pendentes) {
                         const cleanCod = String(i.codigo || '').replace(/[^a-zA-Z0-9_-]/g, '');
                         const cleanLoc = String(i.local || '').replace(/[^a-zA-Z0-9_-]/g, '');
-                        const docId = `${cleanCod}_${cleanLoc}`;
+                        let docId = `${cleanCod}_${cleanLoc}`;
+                        if (docId === '_' || !docId) docId = `MANUAL_${Date.now()}_${Math.floor(Math.random()*10000)}`;
+                        
                         const payload = {
                             codigo: i.codigo, descricao: i.descricao, local: i.local,
                             sistema: i.sistema, unidade: i.unidade, familia: i.familia, cmc: i.cmc,
-                            fisico: 0, dif: 0 - i.sistema, cmc_unitario: i.cmc || 0, gtin: i.gtin || '',
+                            fisico: 0, dif: 0 - (Number(i.sistema) || 0), cmc_unitario: i.cmc || 0, gtin: i.gtin || '',
                             lote: "", validade: "", obs: "REGISTO ZERADO AUTOMATICAMENTE", 
                             operador: operadorAtual, data: new Date().toLocaleString('pt-PT'), timestamp: Date.now()
                         };
@@ -1124,17 +1140,21 @@
                         batch.set(doc(colRef, docId), payload);
                         opCount++; totalZeradados++;
 
-                        if (opCount >= 100) {
-                            await batch.commit();
-                            batch = writeBatch(db); opCount = 0;
+                        if (opCount >= 450) {
+                            promises.push(batch.commit());
+                            batch = writeBatch(db); 
+                            opCount = 0;
                         }
                     }
-                    if (opCount > 0) await batch.commit();
+                    if (opCount > 0) promises.push(batch.commit());
+
+                    await Promise.all(promises);
 
                     window.addLog(`Limpeza: Zerou ${totalZeradados} itens.`, 'warning'); 
                     window.showToast("Inventário restante zerado com sucesso!", "success"); 
                 } catch(e) {
                     window.showToast("Erro ao processar zeramento na nuvem.", "error");
+                    console.error(e);
                 }
             }, "btn-red");
         }
@@ -1274,14 +1294,15 @@
 
             const codRaw = String(itemAtual.codigo || '').replace(/[^a-zA-Z0-9]/g, '');
             const locRaw = String(itemAtual.local || '').replace(/[^a-zA-Z0-9]/g, '');
-            const docId = targetId || `${codRaw}_${locRaw}`;
+            let docId = targetId || `${codRaw}_${locRaw}`;
+            if (docId === '_' || !docId) docId = `MANUAL_${Date.now()}_${Math.floor(Math.random()*1000)}`;
             
             const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
 
             const payload = {
                 codigo: itemAtual.codigo, descricao: itemAtual.descricao, local: itemAtual.local,
                 sistema: itemAtual.sistema || 0, unidade: itemAtual.unidade || 'UN', familia: itemAtual.familia || 'SEM FAMÍLIA',
-                cmc: itemAtual.cmc || 0, fisico: novaQtd, dif: novaQtd - (itemAtual.sistema || 0), 
+                cmc: itemAtual.cmc || 0, fisico: novaQtd, dif: novaQtd - (Number(itemAtual.sistema) || 0), 
                 cmc_unitario: itemAtual.cmc || 0, gtin: novoGtin, lote: document.getElementById('m-lote').value.toUpperCase(), 
                 validade: document.getElementById('m-validade').value, obs: obs, operador: operadorAtual, 
                 data: new Date().toLocaleString('pt-PT'), timestamp: Date.now()
@@ -1533,12 +1554,15 @@
                 window.showToast("A processar a aniquilação dos registos da nuvem...", "info");
                 try {
                     let batch = writeBatch(db); let opCount = 0;
+                    const promises = [];
                     for(const c of contagens) { 
                         batch.delete(doc(db, 'artifacts', appId, 'public', 'data', 'contagens', c.id));
                         opCount++;
-                        if (opCount >= 100) { await batch.commit(); batch = writeBatch(db); opCount = 0; }
+                        if (opCount >= 450) { promises.push(batch.commit()); batch = writeBatch(db); opCount = 0; }
                     }
-                    if (opCount > 0) await batch.commit();
+                    if (opCount > 0) promises.push(batch.commit());
+                    
+                    await Promise.all(promises);
                     
                     window.addLog("Reiniciou toda a auditoria", "warning"); 
                     window.fecharModalConfig();
@@ -1574,14 +1598,16 @@
                                 if (cargoAtual !== 'CHEFE' && itemContado.operador !== operadorAtual) {
                                     window.playBeep('error'); return window.showToast("Violou a segurança: Este registo pertence a outro utilizador!", "error");
                                 }
-                                const payload = {...itemContado, fisico: itemContado.fisico + 1, dif: (itemContado.fisico + 1) - itemContado.sistema, data: new Date().toLocaleString('pt-PT'), timestamp: Date.now(), operador: operadorAtual};
+                                const payload = {...itemContado, fisico: itemContado.fisico + 1, dif: (itemContado.fisico + 1) - (Number(itemContado.sistema) || 0), data: new Date().toLocaleString('pt-PT'), timestamp: Date.now(), operador: operadorAtual};
                                 await setDoc(doc(colRef, itemContado.id), payload);
                                 window.addLog(`+1 Auto: ${itemContado.descricao}`); window.showToast(`+1 ${itemContado.descricao}`, 'success');
                             } else {
                                 let novoItem = itemBase || {codigo: cod, gtin: cod, descricao: "PRODUTO NÃO IDENTIFICADO", local: "SCAN DIRETO", sistema: 0, cmc: 0, unidade: "UN"};
                                 const cleanCod = String(novoItem.codigo).replace(/[^a-zA-Z0-9_-]/g, '');
                                 const cleanLoc = String(novoItem.local).replace(/[^a-zA-Z0-9_-]/g, '');
-                                const docId = `${cleanCod}_${cleanLoc}`;
+                                let docId = `${cleanCod}_${cleanLoc}`;
+                                if (docId === '_' || !docId) docId = `PROD_${Date.now()}_${Math.floor(Math.random()*1000)}`;
+
                                 const payload = {
                                     codigo: novoItem.codigo, descricao: novoItem.descricao, local: novoItem.local, sistema: 0, unidade: novoItem.unidade,
                                     fisico: 1, dif: 1, cmc_unitario: novoItem.cmc || 0, gtin: novoItem.gtin || '', lote: "", validade: "", 
@@ -1705,30 +1731,43 @@
                         const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'catalogo');
                         let batch = writeBatch(db);
                         let opCount = 0;
+                        const promises = [];
 
                         for (const item of temporarios) {
                             const cleanCod = String(item.codigo).replace(/[^a-zA-Z0-9_-]/g, '');
                             const cleanLoc = String(item.local).replace(/[^a-zA-Z0-9_-]/g, '');
-                            const docId = `${cleanCod}_${cleanLoc}`;
+                            let docId = `${cleanCod}_${cleanLoc}`;
+                            
+                            // Bloqueio de segurança anti-crash: evita criar IDs vazios que bloqueiam a Base de Dados
+                            if (docId === '_' || !docId) {
+                                docId = `PROD_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+                            }
                             
                             batch.set(doc(colRef, docId), item);
                             opCount++;
                             
-                            if (opCount >= 100) {
-                                await batch.commit();
+                            // Aumento da margem para 450 (o máximo nativo do Firebase é 500)
+                            if (opCount >= 450) {
+                                promises.push(batch.commit());
                                 batch = writeBatch(db);
                                 opCount = 0;
                             }
                         }
-                        if (opCount > 0) await batch.commit();
+                        
+                        // Empurra os itens restantes
+                        if (opCount > 0) {
+                            promises.push(batch.commit());
+                        }
 
-                        window.showToast("Catálogo sincronizado com sucesso para toda a equipa!", "success");
+                        // Executa as promessas massivas todas em simultâneo (MUITO mais rápido)
+                        await Promise.all(promises);
+
+                        window.showToast(`Catálogo sincronizado (${temporarios.length} produtos)!`, "success");
                     } catch (e) {
                         window.showToast("Erro ao sincronizar matriz com a nuvem.", "error");
                         console.error(e);
                     }
 
-                    // Limpa o input file para que o mesmo ficheiro possa ser carregado novamente se necessário
                     e.target.value = '';
                     window.fecharModalConfig();
 
