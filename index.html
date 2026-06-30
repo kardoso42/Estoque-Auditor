@@ -898,6 +898,44 @@
             }, 4000);
         }
 
+        window.baixarCatalogoDaNuvem = async function() {
+            if (!currentUser) return;
+            try {
+                const statusEl = document.getElementById('status-catalog');
+                const alertaEl = document.getElementById('alerta-catalogo-vazio');
+                
+                if (statusEl) { statusEl.innerText = "☁️ A transferir matriz da nuvem..."; statusEl.style.color = 'var(--orange)'; }
+                
+                // Mostrar ecrã de carregamento para o Operador
+                if (alertaEl && baseDados.length === 0) {
+                    alertaEl.innerHTML = `<p style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--blue);">☁️ A Sincronizar Catálogo...</p><p style="margin: 0; font-size: 12px; color: var(--gray);">A transferir os produtos da base de dados. Por favor aguarde.</p>`;
+                    alertaEl.style.borderColor = 'var(--blue)';
+                    alertaEl.style.background = 'rgba(37, 99, 235, 0.05)';
+                    alertaEl.style.display = 'block';
+                }
+
+                const colRefCatalogo = collection(db, 'artifacts', appId, 'public', 'data', 'catalogo');
+                const querySnapshot = await getDocs(colRefCatalogo);
+                
+                const newCatalogo = [];
+                querySnapshot.forEach(docSnap => newCatalogo.push(docSnap.data()));
+                
+                if (newCatalogo.length > 0) {
+                    baseDados = newCatalogo;
+                    try { localStorage.setItem('catalogo_local_enc', CryptoJS.AES.encrypt(JSON.stringify(baseDados), _HASH_V).toString()); } catch(e) {}
+                    window.atualizarFiltrosDOM();
+                    if (operadorAtual) window.render();
+                    window.showToast(`Catálogo atualizado: ${baseDados.length} itens.`, "success");
+                } else {
+                    window.atualizarFiltrosDOM();
+                }
+            } catch (error) {
+                console.error("Erro ao transferir catálogo:", error);
+                window.showToast("Falha ao comunicar com a nuvem.", "error");
+                window.atualizarFiltrosDOM();
+            }
+        };
+
         window.atualizarFiltrosDOM = function() {
             let locs = new Set();
             let fams = new Set();
@@ -916,7 +954,12 @@
                 document.getElementById('filtro-family-multi').innerHTML = Array.from(fams).sort().map((f, i) => `<div class="multi-select-item"><input type="checkbox" class="check-f" id="fam-${i}" value="${f}" checked><label for="fam-${i}">${f}</label></div>`).join('');
             } else {
                 if (statusEl) { statusEl.innerText = "☁️ O Catálogo da Nuvem está vazio."; statusEl.style.color = 'var(--orange)'; }
-                if (alertaEl && operadorAtual) alertaEl.style.display = 'block';
+                if (alertaEl && operadorAtual) {
+                    alertaEl.innerHTML = `<p style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--orange);">⚠️ Sem catálogo na Nuvem!</p><p style="margin: 0 0 16px; font-size: 12px; color: var(--text);">Aguarde a importação da planilha pelo Chefe de Setor ou aceda às Opções para sincronizar.</p><button class="btn-blue" onclick="abrirModalConfig()" style="max-width: 280px; margin: 0 auto; padding: 14px;">📁 ABRIR OPÇÕES</button>`;
+                    alertaEl.style.borderColor = 'var(--orange)';
+                    alertaEl.style.background = 'rgba(245, 158, 11, 0.08)';
+                    alertaEl.style.display = 'block';
+                }
                 document.getElementById('filtro-local-multi').innerHTML = `<small style="color:var(--gray); padding: 5px;">Aguarde o catálogo da nuvem...</small>`;
                 document.getElementById('filtro-family-multi').innerHTML = `<small style="color:var(--gray); padding: 5px;">Aguarde o catálogo da nuvem...</small>`;
             }
