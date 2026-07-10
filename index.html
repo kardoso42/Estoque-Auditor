@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Estoque V-50.4 - SaaS Secure</title>
+    <title>Smart Estoque V-50.5 - SaaS Secure</title>
     <!-- Bibliotecas de Terceiros Autorizadas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
@@ -425,7 +425,7 @@
         <p id="loading-msg" style="color: #cbd5e1; margin-top: 10px; font-size: 14px;">Por favor, não feche a aplicação...</p>
     </div>
 
-    <!-- TELA DE LOGIN (SaaS Premium) -->
+    <!-- TELA DE LOGIN -->
     <div id="view-login">
         <div class="login-card">
             <div class="app-logo" style="margin-bottom: 24px; width: 100px; height: 100px; border-radius: 28px;">
@@ -460,9 +460,7 @@
     <!-- APLICAÇÃO PRINCIPAL -->
     <div id="view-app" style="display:none;">
         
-        <!-- HEADER TOP-NAV SAAS -->
         <div class="app-header">
-            <!-- Esquerda: Logo e Info -->
             <div class="header-info">
                 <div class="app-logo">
                     <img src="logo-smartestoque.png" alt="Logo" id="logo-header-img" onerror="tentarCarregarDuplo(this)">
@@ -476,7 +474,6 @@
                 </div>
             </div>
 
-            <!-- Direita: Mini Dashboard e Menu -->
             <div class="header-actions print-hide">
                 <div class="mini-stats-group">
                     <div class="mini-stat-card">
@@ -487,7 +484,6 @@
                         <span class="label">Peças</span>
                         <span class="value" id="dash-pecas">0</span>
                     </div>
-                    <!-- NOVO: Mini Cartão Financeiro (Visível apenas para Chefe) -->
                     <div class="mini-stat-card" id="mini-stat-financeiro" style="display: none; border-color: var(--orange);">
                         <span class="label" style="color: var(--orange);">Finanças</span>
                         <span class="value" id="dash-financeiro">R$ 0,00</span>
@@ -505,7 +501,6 @@
         <!-- ECRÃ DE AUDITORIA -->
         <div id="view-auditoria">
             
-            <!-- NOVO PAINEL DE SINCRONIZAÇÃO FRONTAL PARA OPERADOR -->
             <div id="painel-sincronizacao" class="card print-hide">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                     <div>
@@ -519,7 +514,6 @@
             </div>
 
             <div id="alerta-catalogo-vazio" class="card print-hide" style="display:none; background: rgba(245, 158, 11, 0.08); border: 2px dashed var(--orange); text-align: center;">
-                <!-- Este alerta é gerido via JavaScript -->
             </div>
 
             <div class="card print-hide">
@@ -634,39 +628,6 @@
                 </div>
             </div>
 
-            <!-- CONTROLO DE VALIDADES: VENCIDOS E A VENCER -->
-            <div class="report-grid print-hide" style="grid-template-columns: 1fr; gap: 20px;">
-                <!-- PRODUTOS VENCIDOS -->
-                <div class="card" style="margin-bottom: 0; border-color: rgba(239, 68, 68, 0.3); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.05);">
-                    <h3 style="margin-top: 0; font-size: 15px; color: var(--red); border-bottom: 1px solid rgba(239, 68, 68, 0.2); padding-bottom: 12px;">
-                        Produtos Vencidos (<span id="qtd-vencidos-rel" style="color: var(--red); font-weight: 800;">0</span>)
-                    </h3>
-                    <div style="max-height: 250px; overflow-y: auto; margin-top: 12px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2);">
-                        <table style="margin-top: 0; border: none;">
-                            <thead style="position: sticky; top: 0; z-index: 1; background: #fef2f2;"><tr><th style="text-align: left; color: var(--red);">Produto</th><th style="color: var(--red);">Lote</th><th style="color: var(--red);">Validade</th></tr></thead>
-                            <tbody id="tabela-vencidos-body">
-                                <tr><td colspan="3" style="color:var(--gray); padding:20px; text-align:center;">A aguardar dados...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- PRODUTOS A VENCER EM BREVE -->
-                <div class="card" style="margin-bottom: 0; border-color: rgba(245, 158, 11, 0.3); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.05);">
-                    <h3 style="margin-top: 0; font-size: 15px; color: var(--orange); border-bottom: 1px solid rgba(245, 158, 11, 0.2); padding-bottom: 12px;">
-                        A Vencer em Breve (≤ 30 dias) (<span id="qtd-avencer-rel" style="color: var(--orange); font-weight: 800;">0</span>)
-                    </h3>
-                    <div style="max-height: 250px; overflow-y: auto; margin-top: 12px; border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.2);">
-                        <table style="margin-top: 0; border: none;">
-                            <thead style="position: sticky; top: 0; z-index: 1; background: #fffbeb;"><tr><th style="text-align: left; color: var(--orange);">Produto</th><th style="color: var(--orange);">Lote</th><th style="color: var(--orange);">Validade</th></tr></thead>
-                            <tbody id="tabela-avencer-body">
-                                <tr><td colspan="3" style="color:var(--gray); padding:20px; text-align:center;">A aguardar dados...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
             <div class="print-only signature-block">
                 <div class="signature-line">Assinatura do Auditor</div>
                 <div class="signature-line">Visto da Gestão</div>
@@ -675,10 +636,10 @@
             <button id="chefe-pdf-btn" class="btn-outline print-hide" onclick="imprimirPDF()" style="margin-top: 10px; display:none;">🖨️ IMPRIMIR RELATÓRIO OFICIAL</button>
         </div>
         
-        <!-- Botão Flutuante de Log (Estilo App Nativo) -->
+        <!-- Botão Flutuante de Log -->
         <button id="btn-floating-log" class="print-hide" onclick="abrirModalLog()" title="Ver Histórico">🕒</button>
 
-    </div> <!-- FIM DO VIEW-APP -->
+    </div>
 
     <div id="toast-container"></div>
 
@@ -713,7 +674,7 @@
                     </div>
                 </div>
 
-                <!-- SINCRONIZAÇÃO E CACHE (Visível para todos: Chefe e Operador) -->
+                <!-- SINCRONIZAÇÃO E CACHE -->
                 <div style="background: var(--surface); padding: 20px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px; text-align: center;">
                     <h4 style="margin: 0 0 16px 0; font-size: 13px; font-weight: 800; color: var(--blue-dark); text-transform: uppercase;">🔄 Sincronização e Cache</h4>
                     <div id="status-catalog" style="font-size: 12px; font-weight: 700; color: var(--orange); margin-bottom: 15px; padding: 10px; background: var(--bg); border-radius: 8px;">☁️ A escutar a nuvem...</div>
@@ -852,7 +813,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT TIPO MÓDULO PARA IMPORTAR FIREBASE SDK CLIENT-SIDE -->
+    <!-- SCRIPT DA APLICAÇÃO (CÓDIGO ÚNICO E LIMPO) -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
@@ -879,8 +840,12 @@
         let baseDados = []; 
         let contagens = [];  
         let logAcoes = [];
-        let itemAtual = null; let indexEdicao = -1; let html5QrCode = null;
-        let operadorAtual = ""; let cargoAtual = "OPERADOR"; let currentUser = null;
+        let itemAtual = null; 
+        let indexEdicao = -1; 
+        let html5QrCode = null;
+        let operadorAtual = ""; 
+        let cargoAtual = "OPERADOR"; 
+        let currentUser = null;
 
         try {
             const rawOp = localStorage.getItem('op_enc');
@@ -923,7 +888,6 @@
         onAuthStateChanged(auth, (u) => {
             currentUser = u;
             if (currentUser) {
-                // Ouvinte apenas para as contagens em tempo real
                 const colRefContagens = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
                 onSnapshot(colRefContagens, (snapshot) => {
                     const newContagens = [];
@@ -1108,7 +1072,7 @@
                         opCount++;
                         
                         if (opCount >= 400) { 
-                            await batch.commit(); // Execução sequencial para não engarrafar a rede do Firebase
+                            await batch.commit(); 
                             batch = writeBatch(db); 
                             opCount = 0; 
                         }
@@ -1167,7 +1131,6 @@
                     window.mudarAba('auditoria');
                 }
                 
-                // Se não há dados forçamos sempre o download na entrada
                 if (baseDados.length === 0) {
                     window.baixarCatalogoDaNuvem();
                 } else {
@@ -1467,11 +1430,10 @@
             itemAtual = item; const isCego = document.getElementById('modo-cego')?.checked;
             
             // INTELIGÊNCIA ARTIFICIAL ATIVADA: 
-            // O botão "Associar" aparece sempre que a descrição indique que o produto não foi encontrado.
-            // Seja por inserção manual (isNovo), ou após ter lido via scanner contínuo ("NÃO IDENTIFICADO")
+            // O botão "Associar" aparece sempre que o produto seja desconhecido
             const precisaAssociar = isNovo || 
-                String(item.descricao).toUpperCase().includes("NOVO PRODUTO") || 
-                String(item.descricao).toUpperCase().includes("NÃO IDENTIFICADO") || 
+                String(item.descricao).toUpperCase() === "NOVO PRODUTO" || 
+                String(item.descricao).toUpperCase() === "PRODUTO NÃO IDENTIFICADO" || 
                 String(item.codigo).startsWith("MAN_");
 
             const containerAssoc = document.getElementById('m-busca-associacao');
@@ -1883,7 +1845,7 @@
                         } else {
                             window.playBeep('success'); window.desligarCam(); indexEdicao = -1; 
                             let itemModal = itemBase || {codigo: cod, gtin: cod, descricao: "NOVO PRODUTO", local: "SCAN DIRETO", sistema: 0, cmc: 0, unidade: "UN"};
-                            window.abrirModal(itemModal, itemModal.descricao === "NOVO PRODUTO");
+                            window.abrirModal(itemModal, !itemBase);
                         }
                     });
                 } catch (err) { window.showToast("Falha na inicialização da câmara do dispositivo.", "error"); window.desligarCam(); }
