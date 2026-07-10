@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Estoque V-49.0 - SaaS Secure</title>
+    <title>Smart Estoque V-50.3 - SaaS Secure</title>
     <!-- Bibliotecas de Terceiros Autorizadas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
@@ -13,34 +13,49 @@
         /* Importação da tipografia oficial da marca: Poppins */
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
         
+        /* Paleta SaaS Premium - UI Refresh 2026 */
         :root { 
-            /* Paleta SaaS Premium - Modo Claro */
-            --blue: #2563eb;        /* Azul Vibrante Moderno */
-            --blue-dark: #0f172a;   /* Slate 900 - Textos principais */
-            --green: #10b981;       /* Emerald 500 */
-            --red: #ef4444;         /* Red 500 */
-            --gray: #64748b;        /* Slate 500 */
-            --orange: #f59e0b;      /* Amber 500 */
-            --bg: #f8fafc;          /* Slate 50 - Fundo super leve */
-            --surface: #ffffff;     /* Branco puro para os cartões */
-            --text: #1e293b;        /* Slate 800 */
-            --border: #e2e8f0;      /* Slate 200 - Bordas sutis */
+            --blue: #2563eb;        
+            --blue-dark: #0f172a;   
+            --green: #10b981;       
+            --red: #ef4444;         
+            --gray: #64748b;        
+            --orange: #f59e0b;      
+            --bg: #f8fafc;          
+            --surface: #ffffff;     
+            --text: #1e293b;        
+            --border: #e2e8f0;      
             --logo-bg: #ffffff;
+            
+            /* Novas Variáveis Refresh 2026 */
+            --surface-soft: #f1f5f9;
+            --ink-muted: #475569;
+            --cyan: #06b6d4;
+            --violet: #7c3aed;
+            --shadow-soft: 0 1px 2px rgba(15, 23, 42, 0.06), 0 12px 24px rgba(15, 23, 42, 0.06);
+            --shadow-hover: 0 10px 22px rgba(15, 23, 42, 0.10);
+            --ring: rgba(37, 99, 235, 0.16);
         }
 
         body.dark-mode {
-            /* Paleta SaaS Premium - Modo Escuro */
             --blue: #3b82f6;        
             --blue-dark: #f8fafc;   
             --green: #10b981; 
             --red: #f87171; 
             --gray: #94a3b8; 
             --orange: #fbbf24; 
-            --bg: #0f172a;          /* Fundo Marinho muito escuro */
-            --surface: #1e293b;     /* Cartões escuros */
+            --bg: #0f172a;          
+            --surface: #1e293b;     
             --text: #f1f5f9;        
             --border: #334155;      
-            --logo-bg: #f8fafc;     
+            --logo-bg: #f8fafc;
+            
+            /* Novas Variáveis Refresh 2026 (Modo Escuro) */
+            --surface-soft: #111827;
+            --ink-muted: #cbd5e1;
+            --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.25), 0 18px 34px rgba(0, 0, 0, 0.25);
+            --shadow-hover: 0 18px 34px rgba(0, 0, 0, 0.32);
+            --ring: rgba(59, 130, 246, 0.22);
         }
 
         /* Cores da Marca (Brand) */
@@ -50,25 +65,35 @@
         
         body { 
             font-family: 'Poppins', system-ui, -apple-system, sans-serif; 
-            margin: 0; padding: 15px; background: var(--bg); color: var(--text); 
-            -webkit-font-smoothing: antialiased; transition: background-color 0.3s ease, color 0.3s ease;
-            user-select: none; -webkit-user-select: none;
+            margin: 0; 
+            padding: 18px; 
+            background: linear-gradient(180deg, rgba(37, 99, 235, 0.05), transparent 260px), var(--bg); 
+            color: var(--text); 
+            -webkit-font-smoothing: antialiased; 
+            transition: background-color 0.3s ease, color 0.3s ease;
+            user-select: none; 
+            -webkit-user-select: none;
         }
 
+        /* Bloqueia arrastamento visual do texto exceto inputs */
         input, select, textarea, td, .selectable {
             user-select: text !important; -webkit-user-select: text !important;
+        }
+
+        #view-app {
+            width: min(1180px, 100%);
+            margin: 0 auto;
         }
         
         /* Configurações Globais do Logo */
         .app-logo {
             display: flex; align-items: center; justify-content: center;
             margin: 0 auto 16px auto; width: 90px; height: 90px;
-            background: var(--logo-bg); border-radius: 24px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+            background: var(--logo-bg); border-radius: 8px;
             border: 1px solid var(--border); overflow: hidden; 
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .app-logo:hover { transform: scale(1.04); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1); }
+        .app-logo:hover { transform: scale(1.04); }
         .app-logo svg, .app-logo img { width: 100%; height: 100%; object-fit: contain; display: block; }
 
         /* Novo Layout SaaS do Top-Nav (Cabeçalho) */
@@ -81,246 +106,6 @@
             margin-bottom: 24px; 
             margin-top: 5px; 
             gap: 16px;
-        }
-        
-        .header-info { display: flex; gap: 12px; align-items: center; flex: 1; }
-        .header-info .app-logo { 
-            margin: 0; width: 52px; height: 52px; border-radius: 16px; flex-shrink: 0;
-            background: var(--logo-bg); display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06); border: 1px solid var(--border); overflow: hidden; 
-        }
-        .header-info .app-logo img { width: 100%; height: 100%; object-fit: contain; display: block; }
-        .header-info h2 { font-size: 18px; font-weight: 800; margin: 0; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; letter-spacing: -0.5px; }
-        
-        .header-actions { display: flex; align-items: center; gap: 10px; position: static; }
-        .mini-stats-group { display: flex; gap: 8px; }
-        .mini-stat-card {
-            background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-            padding: 6px 12px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.02); transition: all 0.2s ease;
-        }
-        .mini-stat-card:hover { border-color: var(--blue); transform: translateY(-1px); box-shadow: 0 6px 15px rgba(0,0,0,0.05); }
-        .mini-stat-card span.label { font-size: 9px; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: 0.5px; }
-        .mini-stat-card span.value { font-size: 15px; font-weight: 800; color: var(--blue-dark); line-height: 1.1; }
-
-        #btn-config {
-            width: 44px; height: 44px; padding: 0; border-radius: 50%; background: var(--surface); 
-            border: 1px solid var(--border); font-size: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); 
-            color: var(--text); display: flex; align-items: center; justify-content: center; 
-            cursor: pointer; transition: all 0.2s ease;
-        }
-        #btn-config:hover { background: var(--bg); transform: scale(1.05); }
-
-        /* Estilo dos Cartões Redesenhado */
-        .card { 
-            background: var(--surface); padding: 24px; border-radius: 24px; 
-            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); 
-            margin-bottom: 20px; border: 1px solid var(--border); transition: all 0.3s ease;
-        }
-        
-        .multi-select-box { border: 1px solid var(--border); border-radius: 12px; padding: 5px; max-height: 140px; overflow-y: auto; background: var(--bg); margin-top: 8px; }
-        .multi-select-item { display: flex; align-items: center; gap: 10px; font-size: 12px; padding: 12px 14px; border-bottom: 1px solid var(--border); transition: background 0.2s; }
-        .multi-select-item:hover { background: var(--surface); border-radius: 8px; }
-        .multi-select-item:last-child { border-bottom: none; }
-        .multi-select-item input { margin: 0; width: 16px; height: 16px; cursor: pointer; accent-color: var(--blue); }
-        .multi-select-item label { flex: 1; cursor: pointer; font-weight: 500; color: var(--text); margin: 0; }
-        
-        /* Inputs unificados e modernos */
-        input[type="text"], input[type="number"], input[type="password"], input[type="date"], input[type="file"], select { 
-            width: 100%; box-sizing: border-box; padding: 16px; border: 1px solid var(--border); 
-            border-radius: 14px; font-size: 14px; background: var(--bg); color: var(--text); 
-            transition: all 0.2s ease; font-family: inherit; font-weight: 500;
-        }
-        input[type="file"] { padding: 12px; font-size: 12px; background: var(--surface); border: 2px dashed var(--border); cursor: pointer; }
-        input:focus, select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15); background: var(--surface); }
-        
-        /* CORREÇÃO FORÇADA: Visibilidade de Inputs e Autofill no Modo Escuro */
-        body.dark-mode input, 
-        body.dark-mode select {
-            color: #f8fafc !important;
-            background-color: var(--bg) !important;
-        }
-        body.dark-mode input:focus, 
-        body.dark-mode select:focus {
-            background-color: var(--surface) !important;
-            color: #f8fafc !important;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
-        }
-        body.dark-mode input:-webkit-autofill,
-        body.dark-mode input:-webkit-autofill:hover, 
-        body.dark-mode input:-webkit-autofill:focus, 
-        body.dark-mode input:-webkit-autofill:active {
-            -webkit-box-shadow: 0 0 0 30px var(--surface) inset !important;
-            -webkit-text-fill-color: #f8fafc !important;
-            transition: background-color 5000s ease-in-out 0s;
-        }
-
-        /* Classe para destacar a Qtd Física sem quebrar o Modo Escuro */
-        .highlight-input {
-            color: var(--blue-dark) !important;
-            background: #eff6ff !important;
-        }
-        body.dark-mode .highlight-input {
-            color: var(--orange) !important;
-            background: var(--surface) !important;
-            border-color: var(--orange) !important;
-        }
-
-        input[type="text"] { text-transform: uppercase; }
-        
-        .grid-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
-        
-        /* Botões Redesenhados */
-        button { 
-            width: 100%; padding: 16px; border-radius: 14px; border: none; font-weight: 700; 
-            cursor: pointer; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;
-            transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-        button:hover:not(:disabled) { filter: brightness(1.05); transform: translateY(-1px); box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
-        button:active:not(:disabled) { transform: scale(0.98); }
-        
-        .btn-blue { background: var(--blue); color: white; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2); }
-        .btn-green { background: var(--green); color: white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); }
-        .btn-orange { background: var(--orange); color: white; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.2); }
-        .btn-red { background: var(--red); color: white; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2); }
-        .btn-outline { background: transparent; border: 2px solid var(--border); color: var(--text); font-size: 12px; padding: 14px; }
-        .btn-outline:hover { border-color: var(--blue); color: var(--blue); background: var(--surface); }
-        
-        .calc-shortcuts { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 8px; margin-bottom: 16px; }
-        .btn-calc { padding: 10px 4px; font-size: 14px; font-weight: 800; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 10px; text-transform: none; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .btn-calc:hover { background: var(--surface); border-color: var(--blue); color: var(--blue); }
-        .btn-calc:active { background: var(--border); }
-
-        #btn-gatilho { font-size: 15px; padding: 20px; border-radius: 16px; margin-bottom: 12px; font-weight: 800; box-shadow: 0 6px 12px rgba(245, 158, 11, 0.2); }
-
-        /* Tabelas mais limpas */
-        table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 15px; border-radius: 16px; overflow: hidden; background: var(--surface); border: 1px solid var(--border); }
-        th { background: var(--bg); color: var(--gray); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 16px 12px; border-bottom: 1px solid var(--border); text-align: center; }
-        td { padding: 16px 12px; text-align: center; border-bottom: 1px solid var(--border); color: var(--text); font-weight: 500; }
-        tbody tr { transition: background-color 0.2s ease; }
-        tbody tr:last-child td { border-bottom: none; }
-        tbody tr:hover { background-color: var(--bg); cursor: pointer; }
-        
-        .item-res { border: 1px solid var(--border); border-radius: 14px; margin-bottom: 10px; padding: 16px; cursor: pointer; text-align: left; background: var(--surface); transition: all 0.2s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        .item-res:hover { border-color: var(--blue); box-shadow: 0 4px 12px rgba(37,99,235,0.08); transform: translateY(-1px); }
-        .item-res strong { display: block; color: var(--blue-dark); margin-bottom: 6px; font-size: 14px; font-weight: 700; }
-        
-        .switch-container { display: flex; align-items: center; justify-content: space-between; background: var(--surface); border: 1px solid var(--border); padding: 16px 20px; border-radius: 16px; margin-top: 12px; transition: border-color 0.2s; }
-        .switch-container:hover { border-color: var(--blue); }
-        .switch-container label { font-size: 13px; font-weight: 600; color: var(--text); }
-        .switch { position: relative; display: inline-block; width: 48px; height: 26px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border); transition: .4s; border-radius: 26px; }
-        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        input:checked + .slider { background-color: var(--green); }
-        input:checked + .slider:before { transform: translateX(22px); }
-
-        /* Modal com fundo Blur */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 10000; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box; }
-        .modal-content { background: var(--surface); width: 100%; max-width: 420px; padding: 32px 24px; border-radius: 28px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); border: 1px solid var(--border); }
-        .m-info-box { background: var(--bg); padding: 16px 20px; border-radius: 16px; margin: 16px 0; border: 1px solid var(--border); border-left: 5px solid var(--blue); }
-        .m-info-box p { margin: 6px 0; }
-        
-        #toast-container { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 10001; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-        .toast { background: var(--blue-dark); color: white; padding: 16px 28px; border-radius: 30px; font-size: 14px; font-weight: 600; text-align: center; width: max-content; max-width: 90vw; transition: opacity 0.3s; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .toast.success { background: var(--green); }
-        .toast.error { background: var(--red); }
-        .toast.warning { background: var(--orange); color: #fff; }
-        
-        .tabs { display: flex; background: var(--bg); padding: 6px; border-radius: 18px; margin: 0 auto 24px; max-width: 400px; border: 1px solid var(--border); }
-        .tab-btn { flex: 1; padding: 12px; border-radius: 14px; font-size: 13px; font-weight: 700; color: var(--gray); background: transparent; text-transform: none; transition: all 0.3s ease; border: none; cursor: pointer; }
-        .tab-btn.active { background: var(--surface); color: var(--blue-dark); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
-        
-        .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
-        .report-card { background: var(--surface); padding: 20px 15px; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
-        .report-card h5 { margin: 0; color: var(--gray); font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
-        .report-card.red p { color: var(--red); }
-        .report-card.green p { color: var(--green); }
-        .report-card p { margin: 8px 0 0; font-size: 20px; font-weight: 800; }
-        
-        .progress-container { width: 100%; background: var(--border); border-radius: 12px; height: 14px; margin-top: 12px; overflow: hidden; }
-        .progress-bar { height: 100%; background: var(--green); width: 0%; transition: width 0.5s ease; border-radius: 12px; }
-
-        .chart-row { display: flex; align-items: center; margin-bottom: 12px; font-size: 12px; }
-        .chart-label { width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px; font-weight: 600; color: var(--text); text-align: right; }
-        .chart-bar-container { flex: 1; background: var(--border); border-radius: 8px; height: 18px; overflow: hidden; }
-        .chart-bar { height: 100%; background: var(--blue); border-radius: 8px; transition: width 0.5s ease; }
-        .chart-value { width: 50px; text-align: right; font-weight: 800; color: var(--blue-dark); padding-left: 10px; }
-
-        .log-entry { font-size: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .log-entry:last-child { border-bottom: none; }
-        .log-time { color: var(--gray); font-weight: 700; width: 60px; font-size: 11px; }
-        .log-msg { flex: 1; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .log-operador { font-weight: 800; color: var(--blue-dark); margin-right: 6px; }
-
-        /* Botão Flutuante de Histórico (Log) */
-        #btn-floating-log {
-            position: fixed; bottom: 24px; right: 24px; width: 60px; height: 60px; border-radius: 50%;
-            background: var(--blue-dark); color: white; display: flex; align-items: center; justify-content: center;
-            font-size: 24px; box-shadow: 0 8px 25px rgba(15, 23, 42, 0.3); border: none; cursor: pointer;
-            z-index: 999; transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s;
-        }
-        #btn-floating-log:hover { transform: scale(1.1); background: var(--blue); }
-        #btn-floating-log:active { transform: scale(0.95); }
-
-        /* ========================================================= */
-        /* ECRÃ DE LOGIN (SaaS Premium)                              */
-        /* ========================================================= */
-        #view-login { 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            min-height: 100vh; background: var(--bg);
-        }
-        .login-card { 
-            background: var(--surface); padding: 48px 36px; border-radius: 32px; 
-            box-shadow: 0 20px 50px -15px rgba(0,0,0,0.08); 
-            border: 1px solid var(--border); width: 100%; max-width: 400px; box-sizing: border-box;
-        }
-        .login-title { font-size: 30px; font-weight: 800; margin: 0 0 6px 0; text-align: center; letter-spacing: -1px; }
-        .login-subtitle { font-size: 14px; color: var(--gray); margin: 0 0 36px 0; text-align: center; font-weight: 500; }
-        .input-group { margin-bottom: 22px; position: relative; text-align: left; }
-        .input-group label { display: block; font-size: 13px; font-weight: 700; color: var(--blue-dark); margin-bottom: 10px; }
-        .login-btn { width: 100%; padding: 18px; background: var(--blue); color: white; border: none; border-radius: 16px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; transition: all 0.2s; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25); }
-        .login-btn:hover { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 12px 25px rgba(37, 99, 235, 0.35); }
-        .login-btn:active { transform: scale(0.98); }
-
-        .user-badge { background: var(--blue-dark); color: white; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.1); }
-        .cloud-badge { background: var(--blue); color: white; padding: 3px 10px; border-radius: 12px; font-size: 10px; vertical-align: middle; margin-left: 6px; font-weight: 800; }
-
-        /* Proteção Visual */
-        #pantalla-bloqueada { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--blue-dark); color: #fff; z-index: 1000000; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; text-align: center; padding: 30px; }
-        .print-only { display: none; }
-        /* UI Refresh 2026 - foco operacional, leitura rapida e menos peso visual */
-        :root {
-            --surface-soft: #f1f5f9;
-            --ink-muted: #475569;
-            --cyan: #06b6d4;
-            --violet: #7c3aed;
-            --shadow-soft: 0 1px 2px rgba(15, 23, 42, 0.06), 0 12px 24px rgba(15, 23, 42, 0.06);
-            --shadow-hover: 0 10px 22px rgba(15, 23, 42, 0.10);
-            --ring: rgba(37, 99, 235, 0.16);
-        }
-
-        body.dark-mode {
-            --surface-soft: #111827;
-            --ink-muted: #cbd5e1;
-            --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.25), 0 18px 34px rgba(0, 0, 0, 0.25);
-            --shadow-hover: 0 18px 34px rgba(0, 0, 0, 0.32);
-            --ring: rgba(59, 130, 246, 0.22);
-        }
-
-        body {
-            padding: 18px;
-            background: linear-gradient(180deg, rgba(37, 99, 235, 0.05), transparent 260px), var(--bg);
-            color: var(--text);
-        }
-
-        #view-app {
-            width: min(1180px, 100%);
-            margin: 0 auto;
-        }
-
-        .app-header {
             position: sticky;
             top: 12px;
             z-index: 900;
@@ -332,61 +117,37 @@
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
         }
-
-        body.dark-mode .app-header {
-            background: rgba(30, 41, 59, 0.88);
-            border-color: rgba(148, 163, 184, 0.22);
-        }
-
-        .header-info h2 {
-            letter-spacing: 0;
-            line-height: 1.1;
-        }
-
-        .header-info .app-logo,
-        .app-logo {
-            border-radius: 8px;
-            box-shadow: none;
-        }
-
-        .header-actions {
-            margin-left: auto;
-        }
-
-        .mini-stats-group {
+        body.dark-mode .app-header { background: rgba(30, 41, 59, 0.88); border-color: rgba(148, 163, 184, 0.22); }
+        
+        .header-info { display: flex; gap: 12px; align-items: center; flex: 1; }
+        .header-info .app-logo { margin: 0; width: 52px; height: 52px; flex-shrink: 0; box-shadow: none; }
+        .header-info h2 { font-size: 18px; font-weight: 800; margin: 0; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; letter-spacing: 0; line-height: 1.1; }
+        
+        .header-actions { display: flex; align-items: center; gap: 10px; position: static; margin-left: auto; }
+        .mini-stats-group { 
             display: grid;
             grid-template-columns: repeat(3, minmax(72px, auto));
             align-items: stretch;
+            gap: 8px; 
         }
-
         .mini-stat-card {
-            min-width: 72px;
-            border-radius: 8px;
-            padding: 8px 10px;
-            box-shadow: none;
-            background: var(--surface-soft);
+            background: var(--surface-soft); border: 1px solid var(--border); border-radius: 8px;
+            padding: 8px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: none; transition: all 0.2s ease; min-width: 72px;
         }
-
-        .mini-stat-card span.label {
-            font-size: 10px;
-            letter-spacing: 0;
-            color: var(--ink-muted);
-        }
-
-        .mini-stat-card span.value {
-            font-size: 16px;
-        }
+        .mini-stat-card span.label { font-size: 10px; font-weight: 700; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0; }
+        .mini-stat-card span.value { font-size: 16px; font-weight: 800; color: var(--blue-dark); line-height: 1.1; }
 
         #btn-config {
-            width: 42px;
-            height: 42px;
-            border-radius: 8px;
-            box-shadow: none;
-            background: var(--blue-dark);
-            color: #fff;
+            width: 42px; height: 42px; padding: 0; border-radius: 8px; background: var(--blue-dark); 
+            border: 1px solid var(--border); font-size: 18px; box-shadow: none; 
+            color: #fff; display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; transition: all 0.2s ease;
         }
+        #btn-config:hover { transform: scale(1.05); }
 
-        .tabs {
+        .tabs { 
+            display: flex; padding: 6px; margin: 0 auto 24px; border: 1px solid var(--border); 
             position: sticky;
             top: 92px;
             z-index: 800;
@@ -396,73 +157,82 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
         }
+        body.dark-mode .tabs { background: rgba(15, 23, 42, 0.72); }
+        .tab-btn { flex: 1; padding: 12px; border-radius: 6px; font-size: 13px; font-weight: 700; color: var(--gray); background: transparent; text-transform: none; letter-spacing: 0; transition: all 0.3s ease; border: none; cursor: pointer; }
+        .tab-btn.active { background: var(--surface); color: var(--blue-dark); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
 
-        body.dark-mode .tabs {
-            background: rgba(15, 23, 42, 0.72);
-        }
-
-        .tab-btn,
-        .tab-btn.active {
-            border-radius: 6px;
-            letter-spacing: 0;
-        }
-
-        .card,
-        .login-card,
-        .report-card,
-        .modal-content,
-        .m-info-box,
-        .multi-select-box,
-        .switch-container {
+        /* Estilo dos Cartões Redesenhado */
+        .card, .login-card, .report-card, .modal-content, .m-info-box, .multi-select-box, .switch-container {
             border-radius: 8px;
         }
 
-        .card {
-            padding: 20px;
-            box-shadow: var(--shadow-soft);
-            border-color: rgba(148, 163, 184, 0.28);
+        .card { 
+            background: var(--surface); padding: 20px; 
+            box-shadow: var(--shadow-soft); border-color: rgba(148, 163, 184, 0.28); 
+            margin-bottom: 20px; border: 1px solid var(--border); transition: all 0.3s ease;
         }
-
-        .card:hover {
-            box-shadow: var(--shadow-hover);
-        }
+        .card:hover { box-shadow: var(--shadow-hover); }
 
         #painel-sincronizacao.card {
             background: linear-gradient(90deg, rgba(37, 99, 235, 0.10), rgba(6, 182, 212, 0.08)) !important;
             border-left: 4px solid var(--cyan) !important;
         }
-
-        .login-card {
-            max-width: 420px;
-            padding: 34px 30px;
-            box-shadow: var(--shadow-soft);
+        
+        .multi-select-box { border: 1px solid var(--border); padding: 5px; max-height: 140px; overflow-y: auto; background: var(--bg); margin-top: 8px; }
+        .multi-select-item { display: flex; align-items: center; gap: 10px; font-size: 12px; padding: 12px 14px; border-bottom: 1px solid var(--border); transition: background 0.2s; }
+        .multi-select-item:hover { background: var(--surface); border-radius: 8px; }
+        .multi-select-item:last-child { border-bottom: none; }
+        .multi-select-item input { margin: 0; width: 16px; height: 16px; cursor: pointer; accent-color: var(--blue); }
+        .multi-select-item label { flex: 1; cursor: pointer; font-weight: 500; color: var(--text); margin: 0; }
+        
+        /* Inputs unificados e modernos */
+        input[type="text"], input[type="number"], input[type="password"], input[type="date"], input[type="file"], select { 
+            width: 100%; box-sizing: border-box; padding: 14px 15px; border: 1px solid rgba(148, 163, 184, 0.42); 
+            border-radius: 8px; font-size: 14px; background: var(--surface-soft); color: var(--text); 
+            transition: all 0.2s ease; font-family: inherit; font-weight: 500;
+        }
+        input[type="file"] { padding: 12px; font-size: 12px; background: var(--surface); border: 2px dashed var(--border); cursor: pointer; }
+        input:focus, select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 4px var(--ring); background: var(--surface); }
+        
+        /* CORREÇÃO FORÇADA: Visibilidade de Inputs e Autofill no Modo Escuro */
+        body.dark-mode input, body.dark-mode select { color: #f8fafc !important; background-color: var(--bg) !important; }
+        body.dark-mode input:focus, body.dark-mode select:focus { background-color: var(--surface) !important; color: #f8fafc !important; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); }
+        body.dark-mode input:-webkit-autofill, body.dark-mode input:-webkit-autofill:hover, body.dark-mode input:-webkit-autofill:focus, body.dark-mode input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px var(--surface) inset !important;
+            -webkit-text-fill-color: #f8fafc !important;
+            transition: background-color 5000s ease-in-out 0s;
         }
 
-        .login-title {
-            font-size: 28px;
-            letter-spacing: 0;
-        }
+        .highlight-input { color: var(--blue-dark) !important; background: #eff6ff !important; }
+        body.dark-mode .highlight-input { color: var(--orange) !important; background: var(--surface) !important; border-color: var(--orange) !important; }
 
-        .login-subtitle {
-            margin-bottom: 28px;
+        input[type="text"] { text-transform: uppercase; }
+        
+        .grid-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+        
+        /* Botões Redesenhados */
+        button, .login-btn, .btn-outline, .btn-calc { border-radius: 8px; letter-spacing: 0; }
+        button { 
+            width: 100%; padding: 16px; border: none; font-weight: 700; 
+            cursor: pointer; font-size: 13px; text-transform: uppercase; 
+            transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px;
         }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        button:hover:not(:disabled) { filter: none; box-shadow: var(--shadow-hover); transform: translateY(-1px); }
+        button:active:not(:disabled) { transform: scale(0.98); }
+        
+        .btn-blue { background: #2563eb; color: white; }
+        .btn-green { background: #059669; color: white; }
+        .btn-orange { background: #d97706; color: white; }
+        .btn-red { background: #dc2626; color: white; }
+        .btn-outline { background: var(--surface); border: 1px solid var(--border); color: var(--text); font-size: 12px; padding: 14px; }
+        .btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+        
+        .calc-shortcuts { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 8px; margin-bottom: 16px; }
+        .btn-calc { padding: 10px 4px; font-size: 14px; font-weight: 800; background: var(--bg); color: var(--text); border: 1px solid var(--border); text-transform: none; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .btn-calc:active { background: var(--border); }
 
-        input[type="text"],
-        input[type="number"],
-        input[type="password"],
-        input[type="date"],
-        input[type="file"],
-        select {
-            border-radius: 8px;
-            padding: 14px 15px;
-            background: var(--surface-soft);
-            border-color: rgba(148, 163, 184, 0.42);
-        }
-
-        input:focus,
-        select:focus {
-            box-shadow: 0 0 0 4px var(--ring);
-        }
+        #btn-gatilho { font-size: 15px; padding: 20px; border-radius: 8px; margin-bottom: 12px; font-weight: 800; box-shadow: 0 6px 12px rgba(245, 158, 11, 0.2); }
 
         #busca-input {
             position: sticky;
@@ -472,99 +242,101 @@
             background: var(--surface) !important;
         }
 
-        button,
-        .login-btn,
-        .btn-outline,
-        .btn-calc {
-            border-radius: 8px;
-            letter-spacing: 0;
-        }
+        #resultados { display: grid; gap: 10px; padding-right: 4px; }
+        .item-res { border: 1px solid var(--border); border-left: 4px solid var(--blue); border-radius: 8px; margin-bottom: 0; padding: 16px; cursor: pointer; text-align: left; background: var(--surface); transition: all 0.2s ease; box-shadow: none; }
+        .item-res:hover { box-shadow: var(--shadow-hover); transform: translateY(-1px); border-color: var(--blue); }
+        .item-res strong { display: block; color: var(--blue-dark); margin-bottom: 6px; font-size: 14px; font-weight: 700; letter-spacing: 0; }
+        
+        /* Tabelas mais limpas */
+        table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 15px; border-radius: 8px; overflow: hidden; background: var(--surface); border: 1px solid var(--border); }
+        th { position: sticky; top: 0; z-index: 1; letter-spacing: 0; background: var(--bg); color: var(--gray); font-weight: 700; text-transform: uppercase; padding: 16px 12px; border-bottom: 1px solid var(--border); text-align: center; }
+        td { padding: 16px 12px; text-align: center; border-bottom: 1px solid var(--border); color: var(--text); font-weight: 500; }
+        tbody tr { transition: background-color 0.2s ease; }
+        tbody tr:nth-child(even) { background: rgba(148, 163, 184, 0.06); }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background-color: var(--bg); cursor: pointer; }
+        
+        .switch-container { display: flex; align-items: center; justify-content: space-between; background: var(--surface); border: 1px solid var(--border); padding: 16px 20px; border-radius: 8px; margin-top: 12px; transition: border-color 0.2s; }
+        .switch-container:hover { border-color: var(--blue); }
+        .switch-container label { font-size: 13px; font-weight: 600; color: var(--text); }
+        .switch { position: relative; display: inline-block; width: 48px; height: 26px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border); transition: .4s; border-radius: 26px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        input:checked + .slider { background-color: var(--green); }
+        input:checked + .slider:before { transform: translateX(22px); }
 
-        button:hover:not(:disabled) {
-            filter: none;
-            box-shadow: var(--shadow-hover);
-        }
+        /* Modal com fundo Blur */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 10000; justify-content: center; align-items: flex-start; padding-top: 28px; padding-left: 15px; padding-right: 15px; padding-bottom: 15px; box-sizing: border-box; }
+        .modal-content { background: var(--surface); width: 100%; max-width: 420px; padding: 32px 24px; border-radius: 8px; max-height: 90vh; overflow-y: auto; box-sizing: border-box; box-shadow: 0 24px 48px rgba(15, 23, 42, 0.28); border: 1px solid var(--border); }
+        .m-info-box { background: var(--bg); padding: 16px 20px; border-radius: 8px; margin: 16px 0; border: 1px solid var(--border); border-left: 5px solid var(--blue); }
+        .m-info-box p { margin: 6px 0; }
+        
+        #toast-container { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 10001; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { background: var(--blue-dark); color: white; padding: 16px 28px; border-radius: 30px; font-size: 14px; font-weight: 600; text-align: center; width: max-content; max-width: 90vw; transition: opacity 0.3s; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .toast.success { background: var(--green); }
+        .toast.error { background: var(--red); }
+        .toast.warning { background: var(--orange); color: #fff; }
+        
+        .report-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .report-card { background: var(--surface-soft); padding: 20px 15px; border-radius: 8px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: none; }
+        .report-card h5 { margin: 0; color: var(--gray); font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+        .report-card.red p { color: var(--red); }
+        .report-card.green p { color: var(--green); }
+        .report-card p { margin: 8px 0 0; font-size: 20px; font-weight: 800; }
+        
+        .progress-container { width: 100%; background: var(--border); border-radius: 12px; height: 14px; margin-top: 12px; overflow: hidden; }
+        .progress-bar, .chart-bar { background: linear-gradient(90deg, var(--blue), var(--cyan)); }
+        .progress-bar { height: 100%; width: 0%; transition: width 0.5s ease; border-radius: 12px; }
 
-        .btn-blue { background: #2563eb; }
-        .btn-green { background: #059669; }
-        .btn-orange { background: #d97706; }
-        .btn-red { background: #dc2626; }
+        .chart-row { display: flex; align-items: center; margin-bottom: 12px; font-size: 12px; }
+        .chart-label { width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px; font-weight: 600; color: var(--text); text-align: right; }
+        .chart-bar-container { flex: 1; background: var(--border); border-radius: 8px; height: 18px; overflow: hidden; }
+        .chart-bar { height: 100%; border-radius: 8px; transition: width 0.5s ease; }
+        .chart-value { width: 50px; text-align: right; font-weight: 800; color: var(--blue-dark); padding-left: 10px; }
 
-        .btn-outline {
-            border-width: 1px;
-            background: var(--surface);
-        }
+        .log-entry { font-size: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .log-entry:last-child { border-bottom: none; }
+        .log-time { color: var(--gray); font-weight: 700; width: 60px; font-size: 11px; }
+        .log-msg { flex: 1; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .log-operador { font-weight: 800; color: var(--blue-dark); margin-right: 6px; }
 
-        #resultados {
-            display: grid;
-            gap: 10px;
-            padding-right: 4px;
-        }
-
-        .item-res {
-            margin-bottom: 0;
-            border-radius: 8px;
-            border-left: 4px solid var(--blue);
-            box-shadow: none;
-        }
-
-        .item-res:hover {
-            box-shadow: var(--shadow-hover);
-            transform: translateY(-1px);
-        }
-
-        .item-res strong {
-            letter-spacing: 0;
-        }
-
-        table {
-            border-radius: 8px;
-            font-size: 12px;
-        }
-
-        th {
-            position: sticky;
-            top: 0;
-            z-index: 1;
-            letter-spacing: 0;
-        }
-
-        tbody tr:nth-child(even) {
-            background: rgba(148, 163, 184, 0.06);
-        }
-
-        .report-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .report-card {
-            box-shadow: none;
-            background: var(--surface-soft);
-        }
-
-        .progress-bar,
-        .chart-bar {
-            background: linear-gradient(90deg, var(--blue), var(--cyan));
-        }
-
+        /* Botão Flutuante de Histórico (Log) */
         #btn-floating-log {
-            width: 52px;
-            height: 52px;
-            border-radius: 8px;
-            right: 18px;
-            bottom: 18px;
-            background: var(--violet);
+            position: fixed; width: 52px; height: 52px; border-radius: 8px; right: 18px; bottom: 18px; background: var(--violet);
+            color: white; display: flex; align-items: center; justify-content: center;
+            font-size: 24px; box-shadow: 0 8px 25px rgba(15, 23, 42, 0.3); border: none; cursor: pointer;
+            z-index: 999; transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s;
         }
 
-        .modal {
-            align-items: flex-start;
-            padding-top: 28px;
+        /* ECRÃ DE LOGIN (SaaS Premium) */
+        #view-login { 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            min-height: 100vh; background: var(--bg);
         }
-
-        .modal-content {
-            box-shadow: 0 24px 48px rgba(15, 23, 42, 0.28);
+        .login-card { 
+            background: var(--surface); border-radius: 8px; 
+            border: 1px solid var(--border); width: 100%; max-width: 420px; box-sizing: border-box;
+            padding: 34px 30px; box-shadow: var(--shadow-soft);
         }
+        .login-title { font-size: 28px; font-weight: 800; margin: 0 0 6px 0; text-align: center; letter-spacing: 0; }
+        .login-subtitle { font-size: 14px; color: var(--gray); margin: 0 0 28px 0; text-align: center; font-weight: 500; }
+        .input-group { margin-bottom: 22px; position: relative; text-align: left; }
+        .input-group label { display: block; font-size: 13px; font-weight: 700; color: var(--blue-dark); margin-bottom: 10px; }
+        .login-btn { width: 100%; padding: 18px; font-size: 16px; margin-top: 10px; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25); }
 
+        .user-badge { background: var(--blue-dark); color: white; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.1); }
+        .cloud-badge { background: var(--blue); color: white; padding: 3px 10px; border-radius: 12px; font-size: 10px; vertical-align: middle; margin-left: 6px; font-weight: 800; }
+
+        /* Proteção Visual */
+        #pantalla-bloqueada { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--blue-dark); color: #fff; z-index: 1000000; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; text-align: center; padding: 30px; }
+        
+        /* Ecrã de Bloqueio para Processos Longos */
+        #loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(5px); z-index: 999999; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; }
+        .spinner { width: 60px; height: 60px; border: 6px solid rgba(255,255,255,0.2); border-top-color: var(--orange); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Desktop Layout Avançado - 2 Colunas */
         @media (min-width: 900px) {
             #view-auditoria {
                 display: grid;
@@ -572,75 +344,33 @@
                 gap: 18px;
                 align-items: start;
             }
-
             #painel-sincronizacao,
             #alerta-catalogo-vazio {
                 grid-column: 1 / -1;
             }
-
             #view-relatorios {
                 max-width: 980px;
                 margin: 0 auto;
             }
         }
 
+        /* Otimizações Mobile */
         @media (max-width: 760px) {
-            body {
-                padding: 10px;
-            }
-
-            .app-header {
-                top: 8px;
-                padding: 10px;
-            }
-
-            .header-info {
-                min-width: 100%;
-            }
-
-            .header-actions {
-                width: 100%;
-                justify-content: space-between;
-            }
-
-            .mini-stats-group {
-                flex: 1;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-
-            #mini-stat-financeiro {
-                grid-column: 1 / -1;
-            }
-
-            .tabs {
-                top: 168px;
-                margin-bottom: 14px;
-            }
-
-            #busca-input {
-                top: 226px;
-            }
-
-            .card {
-                padding: 16px;
-                margin-bottom: 14px;
-            }
-
-            .report-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .modal {
-                padding: 10px;
-                align-items: center;
-            }
-
-            .modal-content {
-                padding: 22px 18px;
-                max-height: 92vh;
-            }
+            body { padding: 10px; }
+            .app-header { top: 8px; padding: 10px; }
+            .header-info { min-width: 100%; }
+            .header-actions { width: 100%; justify-content: space-between; }
+            .mini-stats-group { flex: 1; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            #mini-stat-financeiro { grid-column: 1 / -1; }
+            .tabs { top: 168px; margin-bottom: 14px; }
+            #busca-input { top: 226px; }
+            .card { padding: 16px; margin-bottom: 14px; }
+            .report-grid { grid-template-columns: 1fr; }
+            .modal { padding: 10px; align-items: center; }
+            .modal-content { padding: 22px 18px; max-height: 92vh; }
         }
 
+        .print-only { display: none; }
         @media print {
             body { background: white; color: black; padding: 0; margin: 0; }
             .app-header, .tabs, .print-hide, button, .toggle-box, .switch-container, #toast-container { display: none !important; }
@@ -688,6 +418,13 @@
         <p style="font-size: 12px; color: var(--gray);">A tentativa de clonagem ou inspeção foi reportada.</p>
     </div>
 
+    <!-- Ecrã de Bloqueio para Sincronizações Pesadas -->
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <h2 style="margin:0; font-weight: 800; font-size: 24px;">A Sincronizar Base de Dados</h2>
+        <p id="loading-msg" style="color: #cbd5e1; margin-top: 10px; font-size: 14px;">Por favor, não feche a aplicação...</p>
+    </div>
+
     <!-- TELA DE LOGIN (SaaS Premium) -->
     <div id="view-login">
         <div class="login-card">
@@ -716,7 +453,7 @@
                 <input type="password" id="login-pin" inputmode="numeric" maxlength="8" placeholder="••••" style="letter-spacing: 6px; font-size: 20px; font-weight: 800; border: 2px solid rgba(239, 68, 68, 0.4); text-align: center;">
             </div>
 
-            <button class="login-btn" onclick="fazerLogin()">Entrar no Sistema</button>
+            <button class="login-btn btn-blue" onclick="fazerLogin()">Entrar no Sistema</button>
         </div>
     </div>
 
@@ -769,14 +506,14 @@
         <div id="view-auditoria">
             
             <!-- NOVO PAINEL DE SINCRONIZAÇÃO FRONTAL PARA OPERADOR -->
-            <div id="painel-sincronizacao" class="card print-hide" style="background: rgba(37, 99, 235, 0.05); border-color: var(--blue);">
+            <div id="painel-sincronizacao" class="card print-hide">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                     <div>
                         <h4 style="margin: 0 0 4px 0; font-size: 13px; color: var(--blue-dark); display: flex; align-items: center; gap: 5px;">🔄 Matriz de Produtos</h4>
                         <p style="margin: 0; font-size: 11px; color: var(--gray);" id="status-catalog-main">A sincronizar com a nuvem...</p>
                     </div>
                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <button class="btn-blue" onclick="baixarCatalogoDaNuvem()" style="width: auto; padding: 10px 14px; font-size: 11px; margin: 0; box-shadow: none;">☁️ FORÇAR ATUALIZAÇÃO</button>
+                        <button id="btn-sincronizar-op" class="btn-blue" onclick="baixarCatalogoDaNuvem()" style="width: auto; padding: 10px 14px; font-size: 11px; margin: 0; box-shadow: none;">☁️ FORÇAR ATUALIZAÇÃO</button>
                     </div>
                 </div>
             </div>
@@ -876,7 +613,7 @@
                 </div>
             </div>
 
-            <!-- PRODUTOS PENDENTES COM BOTÕES CORRIGIDOS -->
+            <!-- PRODUTOS PENDENTES -->
             <div class="card print-hide">
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; flex-wrap: wrap; gap: 10px;">
                     <h3 style="margin: 0; font-size: 15px; color: var(--blue-dark);">
@@ -950,7 +687,7 @@
         <div class="modal-content" style="max-width: 500px;">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 16px;">
                 <h3 style="margin: 0; font-size: 18px; color: var(--blue-dark); font-weight: 800;">Histórico da Sessão</h3>
-                <button onclick="fecharModalLog()" style="background: var(--bg); border: 1px solid var(--border); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text); cursor: pointer;">✖</button>
+                <button onclick="fecharModalLog()" style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text); cursor: pointer;">✖</button>
             </div>
             <div id="log-container" style="max-height: 60vh; overflow-y: auto; padding-right: 8px;">
                 <div style="font-size:12px; color:var(--gray); text-align:center; padding:30px;">O histórico está vazio.</div>
@@ -964,12 +701,12 @@
             
             <div style="padding: 20px 24px; border-bottom: 1px solid var(--border); background: var(--surface); display: flex; justify-content: space-between; align-items: center; z-index: 10;">
                 <h3 style="margin: 0; font-size: 18px; color: var(--blue-dark); font-weight: 800; display: flex; align-items: center; gap: 8px;">⚙️ Opções do Sistema</h3>
-                <button onclick="fecharModalConfig()" style="background: var(--bg); border: 1px solid var(--border); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text); cursor: pointer; padding: 0; margin: 0; box-shadow: none;">✖</button>
+                <button onclick="fecharModalConfig()" style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text); cursor: pointer; padding: 0; margin: 0; box-shadow: none;">✖</button>
             </div>
 
             <div style="padding: 24px; overflow-y: auto; max-height: calc(90vh - 140px); background: var(--bg);">
                 
-                <div style="background: var(--surface); padding: 16px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px;">
+                <div style="background: var(--surface); padding: 16px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px;">
                     <div class="switch-container" style="margin: 0; border: none; padding: 0; background: transparent;">
                         <label for="modal-theme-toggle" style="font-size: 14px; color: var(--blue-dark);">🌙 Modo Escuro</label>
                         <label class="switch"><input type="checkbox" id="modal-theme-toggle" onchange="toggleDarkMode()"><span class="slider"></span></label>
@@ -977,17 +714,17 @@
                 </div>
 
                 <!-- SINCRONIZAÇÃO E CACHE (Visível para todos: Chefe e Operador) -->
-                <div style="background: var(--surface); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; text-align: center;">
+                <div style="background: var(--surface); padding: 20px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px; text-align: center;">
                     <h4 style="margin: 0 0 16px 0; font-size: 13px; font-weight: 800; color: var(--blue-dark); text-transform: uppercase;">🔄 Sincronização e Cache</h4>
-                    <div id="status-catalog" style="font-size: 12px; font-weight: 700; color: var(--orange); margin-bottom: 15px; padding: 10px; background: var(--bg); border-radius: 12px;">☁️ A escutar a nuvem...</div>
+                    <div id="status-catalog" style="font-size: 12px; font-weight: 700; color: var(--orange); margin-bottom: 15px; padding: 10px; background: var(--bg); border-radius: 8px;">☁️ A escutar a nuvem...</div>
                     <button onclick="limparCacheLocal()" class="btn-outline" style="font-size:11px; padding: 12px; color: var(--red); border-color: rgba(239,68,68,0.3); width: 100%; background: var(--bg);">🗑️ LIMPAR CACHE DO DISPOSITIVO</button>
                 </div>
 
                 <!-- IMPORTAÇÃO EXCEL (Apenas Chefe) -->
-                <div id="container-import-excel" style="display: none; background: var(--surface); padding: 20px; border-radius: 16px; border: 2px dashed var(--border); margin-bottom: 20px; text-align: center;">
+                <div id="container-import-excel" style="display: none; background: var(--surface); padding: 20px; border-radius: 8px; border: 2px dashed var(--border); margin-bottom: 20px; text-align: center;">
                     <h4 style="margin: 0 0 16px 0; font-size: 13px; font-weight: 800; color: var(--blue-dark); text-transform: uppercase;">📦 Matriz de Produtos (Omie)</h4>
                     
-                    <label for="file-input" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--blue); color: white; padding: 14px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(37,99,235,0.2); width: 100%; box-sizing: border-box;">
+                    <label for="file-input" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--blue); color: white; padding: 14px 20px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(37,99,235,0.2); width: 100%; box-sizing: border-box;">
                         📁 INJETAR NA NUVEM
                     </label>
                     <input type="file" id="file-input" accept=".xlsx, .xls, .csv" style="opacity: 0; position: absolute; z-index: -1; width: 0.1px; height: 0.1px;">
@@ -995,7 +732,7 @@
                     <button onclick="limparCatalogoNuvem()" class="btn-outline" style="margin-top: 12px; font-size:11px; padding: 12px; color: var(--red); border-color: rgba(239,68,68,0.3); width: 100%; background: var(--bg);">🗑️ ZERAR MATRIZ DA NUVEM</button>
                 </div>
                 
-                <div style="background: var(--surface); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px;">
+                <div style="background: var(--surface); padding: 20px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px;">
                     <h4 style="margin: 0 0 16px 0; font-size: 13px; font-weight: 800; color: var(--blue-dark); display: flex; align-items: center; gap: 6px;">📍 FILTROS DE AUDITORIA</h4>
                     <label style="font-size: 11px; font-weight: 700; color: var(--gray); margin-bottom: 8px; display: block;">FILTRAR POR LOCAIS:</label>
                     <div id="filtro-local-multi" class="multi-select-box" style="margin-bottom: 16px; background: var(--bg); border: 1px solid var(--border);"><small style="color:var(--gray); padding: 10px; display: block;">Aguarde o catálogo da nuvem...</small></div>
@@ -1003,7 +740,7 @@
                     <div id="filtro-family-multi" class="multi-select-box" style="margin-bottom: 0; background: var(--bg); border: 1px solid var(--border);"><small style="color:var(--gray); padding: 10px; display: block;">Aguarde o catálogo da nuvem...</small></div>
                 </div>
 
-                <div id="chefe-pin-change-area" style="display: none; background: rgba(239, 68, 68, 0.05); padding: 20px; border-radius: 16px; border: 1px solid rgba(239,68,68,0.2); margin-bottom: 0;">
+                <div id="chefe-pin-change-area" style="display: none; background: rgba(239, 68, 68, 0.05); padding: 20px; border-radius: 8px; border: 1px solid rgba(239,68,68,0.2); margin-bottom: 0;">
                     <h4 style="margin: 0 0 16px 0; font-size: 13px; font-weight: 800; color: var(--red); display: flex; align-items: center; gap: 6px;">🔑 SEGURANÇA DO SETOR</h4>
                     <input type="password" id="pin-antigo" placeholder="PIN Atual" style="margin-bottom: 12px; background: var(--surface);">
                     <input type="password" id="pin-novo" placeholder="Novo PIN Seguro" style="margin-bottom: 16px; background: var(--surface);">
@@ -1017,13 +754,22 @@
         </div>
     </div>
 
-    <!-- Modal de Contagem (Otimizado) -->
+    <!-- Modal de Contagem (Otimizado com Associação de GTIN) -->
     <div id="modal" class="modal">
         <div class="modal-content">
-            <div id="m-aviso-dup" style="display:none; background:rgba(245, 158, 11, 0.15); color:var(--orange); padding:16px; border-radius:16px; margin-bottom:16px; text-align:center; font-size: 13px; font-weight: 700; border: 1px solid rgba(245,158,11,0.3);"></div>
+            <div id="m-aviso-dup" style="display:none; background:rgba(245, 158, 11, 0.15); color:var(--orange); padding:16px; border-radius:8px; margin-bottom:16px; text-align:center; font-size: 13px; font-weight: 700; border: 1px solid rgba(245,158,11,0.3);"></div>
             
-            <label style="font-size: 12px; font-weight: 700; color: var(--blue-dark); margin-bottom: 6px; display: block;">PRODUTO EM AUDITORIA:</label>
-            <input type="text" id="m-nome-edit" style="margin-bottom:16px; font-weight:800; font-size: 15px; color: var(--blue-dark); background: var(--bg); border: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label style="font-size: 12px; font-weight: 700; color: var(--blue-dark); display: block; margin: 0;">PRODUTO EM AUDITORIA:</label>
+                <button type="button" id="btn-associar-modal" class="btn-outline" style="display:none; padding: 4px 10px; font-size: 10px; width: auto; margin: 0; border-radius: 6px; border-color: var(--blue); color: var(--blue);" onclick="toggleBuscaAssociacao()">🔗 ASSOCIAR A EXISTENTE</button>
+            </div>
+            
+            <input type="text" id="m-nome-edit" style="margin-bottom:8px; font-weight:800; font-size: 15px; color: var(--blue-dark); background: var(--bg); border: none;">
+            
+            <div id="m-busca-associacao" style="display: none; margin-bottom: 16px; border: 1px dashed var(--blue); padding: 12px; border-radius: 8px; background: rgba(37, 99, 235, 0.03);">
+                <input type="text" id="m-busca-input" placeholder="🔎 Buscar pelo nome para associar..." style="font-size: 12px; padding: 10px; background: var(--surface); margin-bottom: 0;">
+                <div id="m-busca-resultados" style="max-height: 140px; overflow-y: auto; margin-top: 8px; display: grid; gap: 6px;"></div>
+            </div>
             
             <label style="font-size:12px; font-weight:700; color: var(--blue-dark); display:block; margin-bottom:6px;">CÓDIGO DE BARRAS (EAN):</label>
             
@@ -1147,11 +893,6 @@
         window.gatilhoTimeout = null;
         window.html5QrCodeModal = null;
 
-        const safeToast = (msg, type = 'info') => {
-            if (typeof window.showToast === 'function') window.showToast(msg, type);
-            else console[type === 'error' ? 'error' : 'log'](msg);
-        };
-
         window.customConfirm = function(msg, onConfirm, confirmBtnClass = 'btn-blue') {
             document.getElementById('confirm-msg').innerText = msg;
             const btnOk = document.getElementById('btn-confirm-ok');
@@ -1175,14 +916,14 @@
                 } else {
                     await signInAnonymously(auth);
                 }
-            } catch(e) { safeToast("Erro de Autenticação", "error"); }
+            } catch(e) { window.showToast("Erro de Autenticação", "error"); }
         };
         initAuth();
 
         onAuthStateChanged(auth, (u) => {
             currentUser = u;
             if (currentUser) {
-                // 1. Ouvinte em Tempo Real para as Contagens
+                // Ouvinte apenas para as contagens em tempo real
                 const colRefContagens = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
                 onSnapshot(colRefContagens, (snapshot) => {
                     const newContagens = [];
@@ -1190,25 +931,6 @@
                     contagens = newContagens.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
                     if (operadorAtual) window.render();
                 });
-
-                // 2. Ouvinte em Tempo Real para o Catálogo (Sincroniza Chefes e Operadores automaticamente)
-                const colRefCatalogo = collection(db, 'artifacts', appId, 'public', 'data', 'catalogo');
-                onSnapshot(colRefCatalogo, (snapshot) => {
-                    const newCatalogo = [];
-                    snapshot.forEach(docSnap => newCatalogo.push(docSnap.data()));
-                    
-                    if (newCatalogo.length > 0) {
-                        baseDados = newCatalogo;
-                        try { localStorage.setItem('catalogo_local_enc', CryptoJS.AES.encrypt(JSON.stringify(baseDados), _HASH_V).toString()); } catch(e) {}
-                    } else if (baseDados.length > 0) {
-                        // Se a nuvem estiver vazia, limpamos a cache local também
-                        baseDados = [];
-                        localStorage.removeItem('catalogo_local_enc');
-                    }
-                    
-                    window.atualizarFiltrosDOM();
-                    if (operadorAtual) window.render();
-                }, (error) => { console.error("Erro ao escutar catálogo:", error); });
             }
         });
 
@@ -1288,11 +1010,13 @@
             try {
                 const statusEl = document.getElementById('status-catalog');
                 const statusMain = document.getElementById('status-catalog-main');
+                const btn = document.getElementById('btn-sincronizar-op');
                 
-                if (statusEl) { statusEl.innerText = "⏳ Transferindo matriz..."; statusEl.style.color = 'var(--orange)'; }
+                if (btn) btn.innerText = "⏳ A BAIXAR...";
+                if (statusEl) { statusEl.innerText = "⏳ A transferir matriz..."; statusEl.style.color = 'var(--orange)'; }
                 if (statusMain) { statusMain.innerText = "A descarregar produtos da nuvem. Aguarde..."; statusMain.style.color = 'var(--orange)'; }
                 
-                window.showToast("A sincronizar catálogo...", "info");
+                window.showToast("A descarregar catálogo seguro...", "info");
 
                 const colRefCatalogo = collection(db, 'artifacts', appId, 'public', 'data', 'catalogo');
                 const querySnapshot = await getDocs(colRefCatalogo);
@@ -1310,66 +1034,13 @@
                     window.showToast("A Nuvem não possui produtos cadastrados.", "warning");
                     window.atualizarFiltrosDOM();
                 }
+                
+                if (btn) btn.innerText = "☁️ FORÇAR ATUALIZAÇÃO";
             } catch (error) {
                 console.error(error);
                 window.showToast("Erro de rede. Não foi possível baixar.", "error");
-            }
-        };
-
-        window.renderResultadosCatalogo = function() {
-            const buscaInput = document.getElementById('busca-input');
-            const res = document.getElementById('resultados');
-            if (!buscaInput || !res) return;
-
-            const rawT = buscaInput.value || '';
-            const t = removerAcentos(rawT.toUpperCase().trim());
-            res.innerHTML = '';
-
-            const lS = window.getLocsSel().map(v => removerAcentos(v.toUpperCase()));
-            const fS = Array.from(document.querySelectorAll('.check-f:checked')).map(cb => removerAcentos(cb.value.toUpperCase()));
-
-            const fill = baseDados.filter(i => {
-                const desc = removerAcentos(String(i.descricao || '').toUpperCase());
-                const cod = removerAcentos(String(i.codigo || '').toUpperCase());
-                const gtin = removerAcentos(String(i.gtin || '').toUpperCase());
-                const matchesSearch = t.length < 1 ? true : (desc.includes(t) || cod.includes(t) || gtin.includes(t));
-                const itemLocal = removerAcentos(String(i.local || '').toUpperCase());
-                const itemFam = removerAcentos(String(i.familia || '').toUpperCase());
-                const matchesLocal = lS.length === 0 || lS.includes(itemLocal);
-                const matchesFamily = fS.length === 0 || fS.includes(itemFam);
-                return matchesSearch && matchesLocal && matchesFamily;
-            });
-
-            if (fill.length > 0) {
-                fill.slice(0, 100).forEach(i => {
-                    const d = document.createElement('div');
-                    d.className = 'item-res';
-                    d.innerHTML = `<strong>${i.descricao}</strong><small style="color:var(--gray); font-size:11px; font-weight: 500;">${i.local} | No Sistema: <b>${i.sistema}</b></small>`;
-                    d.onclick = () => { indexEdicao = -1; window.abrirModal(i, false); };
-                    res.appendChild(d);
-                });
-                if (fill.length > 100) {
-                    const aviso = document.createElement('div');
-                    aviso.className = 'item-res';
-                    aviso.style.cursor = 'default';
-                    aviso.innerHTML = `<small style="color:var(--gray); font-size:11px; font-weight: 700;">Mostrando os primeiros 100 de ${fill.length} produtos. Use a pesquisa para refinar.</small>`;
-                    res.appendChild(aviso);
-                }
-            } else if (t.length > 0) {
-                const btnNovo = document.createElement('button');
-                btnNovo.className = 'btn-blue';
-                btnNovo.style.marginTop = '10px';
-                btnNovo.innerHTML = `+ CADASTRAR NOVO: "${rawT}"`;
-                btnNovo.onclick = () => {
-                    indexEdicao = -1;
-                    const tTrim = rawT.trim();
-                    const isNumeric = /^\d+$/.test(tTrim);
-                    window.abrirModal({
-                        codigo: 'MAN_' + Date.now(), gtin: isNumeric ? tTrim : '', descricao: isNumeric ? '' : tTrim.toUpperCase(),
-                        local: lS.length > 0 ? lS[0] : 'MANUAL', familia: 'SEM FAMÍLIA', sistema: 0, cmc: 0, unidade: 'UN'
-                    }, true);
-                };
-                res.appendChild(btnNovo);
+                const btn = document.getElementById('btn-sincronizar-op');
+                if (btn) btn.innerText = "☁️ FORÇAR ATUALIZAÇÃO";
             }
         };
 
@@ -1387,19 +1058,17 @@
             
             if (baseDados.length > 0) {
                 if (statusEl) { statusEl.innerText = `☁️ Nuvem: ${baseDados.length} itens ativos.`; statusEl.style.color = 'var(--green)'; }
-                if (statusMain) { statusMain.innerText = `${baseDados.length} produtos carregados da nuvem.`; statusMain.style.color = 'var(--green)'; }
+                if (statusMain) { statusMain.innerText = `${baseDados.length} produtos prontos no seu telemóvel.`; statusMain.style.color = 'var(--green)'; }
                 if (alertaEl) alertaEl.style.display = 'none';
                 
                 document.getElementById('filtro-local-multi').innerHTML = Array.from(locs).sort().map((l, i) => `<div class="multi-select-item"><input type="checkbox" class="check-l" id="loc-${i}" value="${l}" checked><label for="loc-${i}">${l}</label></div>`).join('');
                 document.getElementById('filtro-family-multi').innerHTML = Array.from(fams).sort().map((f, i) => `<div class="multi-select-item"><input type="checkbox" class="check-f" id="fam-${i}" value="${f}" checked><label for="fam-${i}">${f}</label></div>`).join('');
-                
-                window.renderResultadosCatalogo();
             } else {
                 if (statusEl) { statusEl.innerText = "☁️ O Catálogo da Nuvem está vazio."; statusEl.style.color = 'var(--orange)'; }
-                if (statusMain) { statusMain.innerText = `A aguardar produtos da nuvem...`; statusMain.style.color = 'var(--orange)'; }
+                if (statusMain) { statusMain.innerText = `O telemóvel não tem produtos. Prima 'Atualização'.`; statusMain.style.color = 'var(--red)'; }
 
                 if (alertaEl && operadorAtual) {
-                    alertaEl.innerHTML = `<p style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--orange);">⚠️ Catálogo Indisponível</p><p style="margin: 0 0 16px; font-size: 12px; color: var(--text);">O sistema está a aguardar que a Gestão carregue a matriz de inventário. O processo ocorrerá automaticamente.</p>`;
+                    alertaEl.innerHTML = `<p style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--orange);">⚠️ Catálogo Indisponível</p><p style="margin: 0 0 16px; font-size: 12px; color: var(--text);">A base de dados na sua memória está vazia. Peça ao gestor para carregar o Excel ou tente atualizar o catálogo da nuvem.</p>`;
                     alertaEl.style.borderColor = 'var(--orange)';
                     alertaEl.style.background = 'rgba(245, 158, 11, 0.08)';
                     alertaEl.style.display = 'block';
@@ -1407,8 +1076,6 @@
 
                 document.getElementById('filtro-local-multi').innerHTML = `<small style="color:var(--gray); padding: 5px;">Aguarde o catálogo da nuvem...</small>`;
                 document.getElementById('filtro-family-multi').innerHTML = `<small style="color:var(--gray); padding: 5px;">Aguarde o catálogo da nuvem...</small>`;
-                const res = document.getElementById('resultados');
-                if (res) res.innerHTML = '';
             }
         }
 
@@ -1500,10 +1167,13 @@
                     window.mudarAba('auditoria');
                 }
                 
-                // Os dados agora são geridos de forma assíncrona pelo onSnapshot.
-                // A interface ajusta-se visualmente consoante existam dados na cache ou não.
-                window.atualizarFiltrosDOM();
-                window.render();
+                // Se não há dados forçamos sempre o download na entrada
+                if (baseDados.length === 0) {
+                    window.baixarCatalogoDaNuvem();
+                } else {
+                    window.atualizarFiltrosDOM();
+                    window.render();
+                }
             } else {
                 const elLogin = document.getElementById('view-login');
                 const elApp = document.getElementById('view-app');
@@ -1716,8 +1386,100 @@
             } else { resetUI(); }
         };
 
+        window.toggleBuscaAssociacao = function() {
+            const container = document.getElementById('m-busca-associacao');
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                document.getElementById('m-busca-input').focus();
+            } else {
+                container.style.display = 'none';
+            }
+        };
+
+        document.getElementById('m-busca-input').oninput = function() {
+            const rawT = this.value;
+            const t = removerAcentos(rawT.toUpperCase().trim());
+            const res = document.getElementById('m-busca-resultados');
+            res.innerHTML = '';
+            
+            if (t.length < 2) return;
+            
+            const fill = baseDados.filter(i => {
+                const desc = removerAcentos(String(i.descricao || '').toUpperCase());
+                const cod = removerAcentos(String(i.codigo || '').toUpperCase());
+                return desc.includes(t) || cod.includes(t);
+            });
+            
+            if (fill.length > 0) {
+                fill.slice(0, 15).forEach(i => {
+                    const d = document.createElement('div');
+                    d.className = 'item-res';
+                    d.style.padding = '10px';
+                    d.style.marginBottom = '0';
+                    d.innerHTML = `<strong>${i.descricao}</strong><small style="color:var(--gray); font-size:10px;">${i.local} | Cód: ${i.codigo}</small>`;
+                    d.onclick = () => { window.selecionarAssociacao(i); };
+                    res.appendChild(d);
+                });
+            } else {
+                res.innerHTML = '<div style="font-size: 11px; color: var(--gray); text-align: center; padding: 10px;">Nenhum produto encontrado.</div>';
+            }
+        };
+
+        window.selecionarAssociacao = function(produtoExistente) {
+            // Mantém o GTIN que estava a ser lido/inserido no ecrã de novo produto
+            const currentGtin = document.getElementById('m-gtin-edit').value.trim();
+            
+            // Atualiza o itemAtual com os dados do produto selecionado, fundindo com o GTIN novo
+            itemAtual = { ...produtoExistente, gtin: currentGtin || produtoExistente.gtin };
+            
+            // Atualiza o formulário visual do Modal
+            document.getElementById('m-nome-edit').value = itemAtual.descricao;
+            document.getElementById('m-nome-edit').readOnly = true;
+            document.getElementById('m-un-edit').value = itemAtual.unidade || 'UN';
+            document.getElementById('m-loc-cod').innerText = `📍 Local: ${itemAtual.local} | Cód: ${itemAtual.codigo}`;
+            
+            const isCego = document.getElementById('modo-cego')?.checked;
+            document.getElementById('modal-sist-area').style.display = isCego ? 'none' : 'block';
+            document.getElementById('m-sist-val').innerText = `QTD SISTEMA: ${itemAtual.sistema} ${itemAtual.unidade || 'UN'}`;
+            document.getElementById('m-cmc-val').innerText = `Custo Unitário (CMC): R$ ${(itemAtual.cmc || 0).toFixed(2)}`;
+
+            // Verifica de novo se este produto já foi contado (já que mudámos de produto)
+            const idxAnt = contagens.findIndex(c => c.codigo === itemAtual.codigo && c.local === itemAtual.local);
+            const alertDup = document.getElementById('m-aviso-dup');
+            
+            if (idxAnt !== -1) {
+                const itemContado = contagens[idxAnt];
+                alertDup.style.display = 'block';
+                alertDup.innerHTML = `⚠️ JÁ CONTADO POR <strong>${itemContado.operador || 'OUTRO OPERADOR'}</strong><br>Qtd Atual Lançada: <strong>${itemContado.fisico} ${itemContado.unidade || 'UN'}</strong>`;
+                document.getElementById('btn-salvar-normal').style.display = 'none';
+                document.getElementById('botoes-duplicado').style.display = 'flex';
+            } else {
+                alertDup.style.display = 'none';
+                document.getElementById('btn-salvar-normal').style.display = 'block';
+                document.getElementById('botoes-duplicado').style.display = 'none';
+            }
+
+            // Fecha a barra de pesquisa
+            document.getElementById('m-busca-associacao').style.display = 'none';
+            const bInput = document.getElementById('m-busca-input'); if(bInput) bInput.value = '';
+            const bRes = document.getElementById('m-busca-resultados'); if(bRes) bRes.innerHTML = '';
+            
+            window.showToast("Produto associado. Digite a quantidade física.", "success");
+            document.getElementById('m-qtd').focus();
+        };
+
         window.abrirModal = function(item, isNovo) {
             itemAtual = item; const isCego = document.getElementById('modo-cego')?.checked;
+            
+            // NOVO: Esconder a barra de associação e mostrar botão "Associar" apenas se for novo
+            const containerAssoc = document.getElementById('m-busca-associacao');
+            if (containerAssoc) containerAssoc.style.display = 'none';
+            const bInput = document.getElementById('m-busca-input'); if(bInput) bInput.value = '';
+            const bRes = document.getElementById('m-busca-resultados'); if(bRes) bRes.innerHTML = '';
+            
+            const btnAssociar = document.getElementById('btn-associar-modal');
+            if(btnAssociar) btnAssociar.style.display = isNovo ? 'block' : 'none';
+            
             document.getElementById('m-nome-edit').value = item.descricao; document.getElementById('m-nome-edit').readOnly = !isNovo;
             document.getElementById('m-un-edit').value = item.unidade || 'UN'; 
             document.getElementById('m-loc-cod').innerText = `📍 Local: ${item.local} | Cód: ${item.codigo}`;
@@ -1823,8 +1585,7 @@
 
             setDoc(doc(colRef, docId), payload).then(() => {
                 window.showToast("Gravação Confirmada", "success"); 
-                const prefixo = modo === 'somar' ? '+' : '';
-                window.addLog(`${prefixo} ${novaQtd}x ${itemAtual.descricao}`);
+                window.addLog(modo === 'somar' ? '+' : '' + " " + novaQtd + "x " + itemAtual.descricao);
             }).catch((e) => { window.showToast("Erro ao contatar os blocos de dados!", "error"); });
         }
 
@@ -1863,7 +1624,7 @@
 
         window.mudarAba = function(aba) {
             if (aba === 'relatorios' && cargoAtual !== 'CHEFE') return window.showToast("Área restrita à Gestão!", "error");
-            document.getElementById('view-auditoria').style.display = aba === 'auditoria' ? '' : 'none';
+            document.getElementById('view-auditoria').style.display = aba === 'auditoria' ? 'block' : 'none';
             document.getElementById('view-relatorios').style.display = aba === 'relatorios' ? 'block' : 'none';
             document.getElementById('tab-auditoria').className = aba === 'auditoria' ? 'tab-btn active' : 'tab-btn';
             document.getElementById('tab-relatorios').className = aba === 'relatorios' ? 'tab-btn active' : 'tab-btn';
@@ -2116,7 +1877,7 @@
                             }
                         } else {
                             window.playBeep('success'); window.desligarCam(); indexEdicao = -1; 
-                            let itemModal = itemBase || {codigo: cod, gtin: cod, descricao: "NOVO PRODUTO", local: "NOVO REGISTO", sistema: 0, cmc: 0, unidade: "UN"};
+                            let itemModal = itemBase || {codigo: cod, gtin: cod, descricao: "NOVO PRODUTO", local: "SCAN DIRETO", sistema: 0, cmc: 0, unidade: "UN"};
                             window.abrirModal(itemModal, itemModal.descricao === "NOVO PRODUTO");
                         }
                     });
@@ -2138,6 +1899,64 @@
                 } catch (err) { resetUI(); } 
             } else { resetUI(); }
         }
+
+        window.renderResultadosCatalogo = function() {
+            const buscaInput = document.getElementById('busca-input');
+            const res = document.getElementById('resultados');
+            if (!buscaInput || !res) return;
+
+            const rawT = buscaInput.value || '';
+            const t = removerAcentos(rawT.toUpperCase().trim());
+            res.innerHTML = '';
+
+            const lS = window.getLocsSel().map(v => removerAcentos(v.toUpperCase()));
+            const fS = Array.from(document.querySelectorAll('.check-f:checked')).map(cb => removerAcentos(cb.value.toUpperCase()));
+
+            const fill = baseDados.filter(i => {
+                const desc = removerAcentos(String(i.descricao || '').toUpperCase());
+                const cod = removerAcentos(String(i.codigo || '').toUpperCase());
+                const gtin = removerAcentos(String(i.gtin || '').toUpperCase());
+                const matchesSearch = t.length < 1 ? true : (desc.includes(t) || cod.includes(t) || gtin.includes(t));
+                const itemLocal = removerAcentos(String(i.local || '').toUpperCase());
+                const itemFam = removerAcentos(String(i.familia || '').toUpperCase());
+                const matchesLocal = lS.length === 0 || lS.includes(itemLocal);
+                const matchesFamily = fS.length === 0 || fS.includes(itemFam);
+                return matchesSearch && matchesLocal && matchesFamily;
+            });
+
+            if (fill.length > 0) {
+                fill.slice(0, 100).forEach(i => {
+                    const d = document.createElement('div');
+                    d.className = 'item-res';
+                    d.innerHTML = `<strong>${i.descricao}</strong><small style="color:var(--gray); font-size:11px; font-weight: 500;">${i.local} | No Sistema: <b>${i.sistema}</b></small>`;
+                    d.onclick = () => { indexEdicao = -1; window.abrirModal(i, false); };
+                    res.appendChild(d);
+                });
+                if (fill.length > 100) {
+                    const aviso = document.createElement('div');
+                    aviso.className = 'item-res';
+                    aviso.style.cursor = 'default';
+                    aviso.innerHTML = `<small style="color:var(--gray); font-size:11px; font-weight: 700;">Mostrando os primeiros 100 de ${fill.length} produtos. Use a pesquisa para refinar.</small>`;
+                    res.appendChild(aviso);
+                }
+            } else if (t.length > 0) {
+                const btnNovo = document.createElement('button');
+                btnNovo.className = 'btn-blue';
+                btnNovo.style.marginTop = '10px';
+                btnNovo.innerHTML = `➕ CADASTRAR NOVO: "${rawT}"`;
+                btnNovo.onclick = () => {
+                    indexEdicao = -1;
+                    const tTrim = rawT.trim();
+                    const isNumeric = /^\d+$/.test(tTrim);
+                    window.abrirModal({
+                        codigo: 'MAN_' + Date.now(), gtin: isNumeric ? tTrim : '', descricao: isNumeric ? '' : tTrim.toUpperCase(),
+                        local: lS.length > 0 ? lS[0] : 'MANUAL', familia: 'SEM FAMÍLIA', sistema: 0, cmc: 0, unidade: 'UN'
+                    }, true);
+                };
+                res.appendChild(btnNovo);
+            }
+        };
+
         document.getElementById('busca-input').oninput = function() {
             window.renderResultadosCatalogo();
         };
@@ -2155,7 +1974,7 @@
             reader.onload = async function(evt) {
                 try {
                     const workbook = XLSX.read(new Uint8Array(evt.target.result), {type: 'array'});
-                    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1});
+                    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1, defval: ""});
                     let idxCod=-1, idxDesc=-1, idxFam=-1, idxSist=-1, idxLoc=-1, idxCmc=-1, idxUn=-1, idxGtin=-1, hRow=-1;
                     
                     for(let r=0; r<rows.length; r++) {
@@ -2182,26 +2001,30 @@
                     const temporarios = [];
                     for(let r=hRow+1; r<rows.length; r++) {
                         let row = rows[r]; 
-                        if (row && row[idxDesc]) {
-                            const l = idxLoc !== -1 ? String(row[idxLoc] || 'ESTOQUE PRINCIPAL').trim().toUpperCase() : 'ESTOQUE PRINCIPAL'; 
-                            const f = idxFam !== -1 ? String(row[idxFam] || 'SEM FAMÍLIA').trim().toUpperCase() : 'SEM FAMÍLIA';
-                            
-                            // Correção de Código Vazio
-                            const codRaw = idxCod !== -1 ? String(row[idxCod] || '').trim().toUpperCase() : '';
-                            
-                            const sistemaVal = idxSist !== -1 ? parseFloat(String(row[idxSist] || '0').replace(',','.')) : 0;
-                            const cmcVal = idxCmc !== -1 ? parseFloat(String(row[idxCmc] || '0').replace(',','.')) : 0;
-                            
-                            temporarios.push({ 
-                                _linhaImportacao: temporarios.length,
-                                codigo: codRaw, descricao: String(row[idxDesc]).trim().toUpperCase(), gtin: idxGtin !== -1 ? String(row[idxGtin] || '').trim() : '', 
-                                familia: f, local: l, sistema: isNaN(sistemaVal) ? 0 : sistemaVal, cmc: isNaN(cmcVal) ? 0 : cmcVal, unidade: idxUn !== -1 ? String(row[idxUn] || 'UN').trim().toUpperCase() : 'UN'
-                            });
-                        }
+                        if (!row || row.length === 0) continue;
+                        
+                        let descricao = String(row[idxDesc] || "").trim().toUpperCase();
+                        
+                        // Ignorar linhas puramente vazias ou totais
+                        if (descricao === "" || descricao === "TOTAL" || descricao.includes("SUBTOTAL")) continue;
+
+                        const l = idxLoc !== -1 ? String(row[idxLoc] || 'ESTOQUE PRINCIPAL').trim().toUpperCase() : 'ESTOQUE PRINCIPAL'; 
+                        const f = idxFam !== -1 ? String(row[idxFam] || 'SEM FAMÍLIA').trim().toUpperCase() : 'SEM FAMÍLIA';
+                        const codRaw = idxCod !== -1 ? String(row[idxCod] || '').trim().toUpperCase() : '';
+                        
+                        const sistemaVal = idxSist !== -1 ? parseFloat(String(row[idxSist] || '0').replace(',','.')) : 0;
+                        const cmcVal = idxCmc !== -1 ? parseFloat(String(row[idxCmc] || '0').replace(',','.')) : 0;
+                        
+                        temporarios.push({ 
+                            _linhaImportacao: temporarios.length,
+                            codigo: codRaw, descricao: descricao, gtin: idxGtin !== -1 ? String(row[idxGtin] || '').trim() : '', 
+                            familia: f, local: l, sistema: isNaN(sistemaVal) ? 0 : sistemaVal, cmc: isNaN(cmcVal) ? 0 : cmcVal, unidade: idxUn !== -1 ? String(row[idxUn] || 'UN').trim().toUpperCase() : 'UN'
+                        });
                     }
                     if (temporarios.length === 0) return window.showToast("Planilha submetida encontra-se sem itens registados.", "error");
 
-                    window.showToast(`A iniciar upload sequencial de ${temporarios.length} produtos...`, "info");
+                    document.getElementById('loading-overlay').style.display = 'flex';
+                    const msgEl = document.getElementById('loading-msg');
                     
                     try {
                         const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'catalogo');
@@ -2228,6 +2051,7 @@
                             total++;
                             
                             if (opCount >= 400) {
+                                msgEl.innerText = `A injetar na nuvem: ${total} de ${temporarios.length} produtos...`;
                                 await batch.commit(); // Espera acabar antes de enviar o próximo pacote
                                 batch = writeBatch(db);
                                 opCount = 0;
@@ -2235,19 +2059,27 @@
                         }
                         
                         if (opCount > 0) {
+                            msgEl.innerText = `A finalizar injeção de ${total} produtos...`;
                             await batch.commit();
                         }
 
-                        window.showToast(`Sincronização 100% concluída! (${total} produtos)`, "success");
+                        baseDados = temporarios;
+                        try { localStorage.setItem('catalogo_local_enc', CryptoJS.AES.encrypt(JSON.stringify(baseDados), _HASH_V).toString()); } catch(e) {}
+                        
+                        window.atualizarFiltrosDOM();
+                        if (operadorAtual) window.render();
+
+                        window.showToast(`Upload 100% concluído! (${total} produtos)`, "success");
                     } catch (e) {
-                        window.showToast("Erro ao sincronizar matriz com a nuvem.", "error");
+                        window.showToast("Erro crítico de rede ao enviar para a nuvem.", "error");
                         console.error(e);
+                    } finally {
+                        document.getElementById('loading-overlay').style.display = 'none';
+                        e.target.value = '';
+                        window.fecharModalConfig();
                     }
 
-                    e.target.value = '';
-                    window.fecharModalConfig();
-
-                } catch (error) { window.showToast("O ficheiro foi corrompido ou negado pelo sistema.", "error"); }
+                } catch (error) { window.showToast("O ficheiro foi corrompido ou negado pelo sistema.", "error"); document.getElementById('loading-overlay').style.display = 'none'; }
             };
             reader.readAsArrayBuffer(e.target.files[0]);
         };
