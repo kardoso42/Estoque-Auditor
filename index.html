@@ -722,7 +722,8 @@
             
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                 <label style="font-size: 12px; font-weight: 700; color: var(--blue-dark); display: block; margin: 0;">PRODUTO EM AUDITORIA:</label>
-                <button type="button" id="btn-associar-modal" class="btn-outline" style="display:none; padding: 4px 10px; font-size: 10px; width: auto; margin: 0; border-radius: 6px; border-color: var(--blue); color: var(--blue);" onclick="toggleBuscaAssociacao()">🔗 ASSOCIAR A EXISTENTE</button>
+                <!-- O botão perdeu o 'display: none' para ficar 100% permanente -->
+                <button type="button" id="btn-associar-modal" class="btn-outline" style="padding: 4px 10px; font-size: 10px; width: auto; margin: 0; border-radius: 6px; border-color: var(--blue); color: var(--blue);" onclick="toggleBuscaAssociacao()">🔗 BUSCAR / ASSOCIAR</button>
             </div>
             
             <input type="text" id="m-nome-edit" style="margin-bottom:8px; font-weight:800; font-size: 15px; color: var(--blue-dark); background: var(--bg); border: none;">
@@ -1429,24 +1430,20 @@
         window.abrirModal = function(item, isNovo) {
             itemAtual = item; const isCego = document.getElementById('modo-cego')?.checked;
             
-            // INTELIGÊNCIA ARTIFICIAL ATIVADA: 
-            // O botão "Associar" aparece sempre que o produto seja desconhecido
-            const precisaAssociar = isNovo || 
-                String(item.descricao).toUpperCase() === "NOVO PRODUTO" || 
-                String(item.descricao).toUpperCase() === "PRODUTO NÃO IDENTIFICADO" || 
-                String(item.codigo).startsWith("MAN_");
+            // Garantir que a edição livre do nome é permitida apenas em novos produtos
+            const isDesconhecido = isNovo || 
+                String(item.descricao).toUpperCase().includes("NOVO") || 
+                String(item.descricao).toUpperCase().includes("NÃO IDENTIFICADO") || 
+                String(item.codigo).startsWith("MAN_") ||
+                String(item.codigo).startsWith("PROD_");
 
             const containerAssoc = document.getElementById('m-busca-associacao');
             if (containerAssoc) containerAssoc.style.display = 'none';
             const bInput = document.getElementById('m-busca-input'); if(bInput) bInput.value = '';
             const bRes = document.getElementById('m-busca-resultados'); if(bRes) bRes.innerHTML = '';
             
-            const btnAssociar = document.getElementById('btn-associar-modal');
-            if(btnAssociar) btnAssociar.style.display = precisaAssociar ? 'block' : 'none';
-            
-            // Permitir escrever o nome livremente apenas se for mesmo um registo novo solto sem associação prévia
             document.getElementById('m-nome-edit').value = item.descricao; 
-            document.getElementById('m-nome-edit').readOnly = !precisaAssociar;
+            document.getElementById('m-nome-edit').readOnly = !isDesconhecido;
             
             document.getElementById('m-un-edit').value = item.unidade || 'UN'; 
             document.getElementById('m-loc-cod').innerText = `📍 Local: ${item.local} | Cód: ${item.codigo}`;
