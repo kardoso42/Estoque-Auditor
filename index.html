@@ -846,6 +846,53 @@
         let operadorAtual = ""; 
         let cargoAtual = "OPERADOR"; 
         let currentUser = null;
+        let catalogoSnapshotUnsub = null;
+        let importandoCatalogo = false;
+        let ultimoCatalogoSincronizado = 0;
+
+        const normalizarNumero = (valor, padrao = 0) => {
+            if (valor === null || valor === undefined || valor === '') return padrao;
+            if (typeof valor === 'number') return Number.isFinite(valor) ? valor : padrao;
+            let s = String(valor).trim().replace(/[^0-9,.-]/g, '');
+            if (!s) return padrao;
+            // Suporta 1.234,56 (pt-BR) e 1234.56 sem destruir milhares.
+            if (s.includes(',') && s.includes('.')) {
+                if (s.lastIndexOf(',') > s.lastIndexOf('.')) s = s.replace(/\./g, '').replace(',', '.');
+                else s = s.replace(/,/g, '');
+            } else if (s.includes(',')) {
+                s = s.replace(',', '.');
+            }
+            const n = Number(s);
+            return Number.isFinite(n) ? n : padrao;
+        };
+
+        const normalizarTexto = (valor, padrao = '') => String(valor ?? padrao).trim();
+
+        const normalizarGTIN = (valor) => {
+            if (valor === null || valor === undefined || valor === '') return '';
+            let s = String(valor).trim().replace(/[^0-9A-Za-z_-]/g, '');
+            return s.toUpperCase();
+        };
+
+        const salvarCatalogoLocal = () => {
+            try { localStorage.setItem('catalogo_local_enc', CryptoJS.AES.encrypt(JSON.stringify(baseDados), _HASH_V).toString()); } catch(e) { console.warn('Cache local indisponível', e); }
+        };
+
+        const carregarCatalogoLocal = () => {
+            try {
+                const raw = localStorage.getItem('catalogo_local_enc');
+                if (!raw) return false;
+                const texto = CryptoJS.AES.decrypt(raw, _HASH_V).toString(CryptoJS.enc.Utf8);
+                if (!texto) return false;
+                const dados = JSON.parse(texto);
+                if (!Array.isArray(dados)) return false;
+                baseDados = dados;
+                return baseDados.length > 0;
+            } catch(e) {
+                localStorage.removeItem('catalogo_local_enc');
+                return false;
+            }
+        };
 
         try {
             const rawOp = localStorage.getItem('op_enc');
@@ -887,15 +934,38 @@
 
         onAuthStateChanged(auth, (u) => {
             currentUser = u;
-            if (currentUser) {
-                const colRefContagens = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
-                onSnapshot(colRefContagens, (snapshot) => {
-                    const newContagens = [];
-                    snapshot.forEach(docSnap => newContagens.push({ id: docSnap.id, ...docSnap.data() }));
-                    contagens = newContagens.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
-                    if (operadorAtual) window.render();
-                });
+            if (!currentUser) return;
+
+            // Recupera imediatamente o último catálogo local para o operador não ficar esperando a rede.
+            if (baseDados.length === 0 && carregarCatalogoLocal()) {
+                window.atualizarFiltrosDOM();
+                if (operadorAtual) window.render();
             }
+
+            const colRefContagens = collection(db, 'artifacts', appId, 'public', 'data', 'contagens');
+            onSnapshot(colRefContagens, (snapshot) => {
+                const newContagens = [];
+                snapshot.forEach(docSnap => newContagens.push({ id: docSnap.id, ...docSnap.data() }));
+                contagens = newContagens.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+                if (operadorAtual) window.render();
+            }, (error) => console.error('Erro no sincronismo das contagens:', error));
+
+            // CATÁLOGO EM TEMPO REAL: elimina a necessidade de "forçar atualização" em outros dispositivos.
+            if (catalogoSnapshotUnsub) catalogoSnapshotUnsub();
+            const colRefCatalogo = collection(db, 'artifacts', appId, 'public', 'data', 'catalogo');
+            catalogoSnapshotUnsub = onSnapshot(colRefCatalogo, (snapshot) => {
+                if (importandoCatalogo) return;
+                const novoCatalogo = [];
+                snapshot.forEach(docSnap => novoCatalogo.push({ id: docSnap.id, ...docSnap.data() }));
+                novoCatalogo.sort((a,b) => String(a.descricao || '').localeCompare(String(b.descricao || ''), 'pt-BR'));
+                const mudou = JSON.stringify(novoCatalogo) !== JSON.stringify(baseDados);
+                if (!mudou) return;
+                baseDados = novoCatalogo;
+                ultimoCatalogoSincronizado = Date.now();
+                salvarCatalogoLocal();
+                window.atualizarFiltrosDOM();
+                if (operadorAtual) window.render();
+            }, (error) => console.error('Erro no sincronismo do catálogo:', error));
         });
 
         const removerAcentos = (str) => {
@@ -975,34 +1045,25 @@
                 const statusEl = document.getElementById('status-catalog');
                 const statusMain = document.getElementById('status-catalog-main');
                 const btn = document.getElementById('btn-sincronizar-op');
-                
                 if (btn) btn.innerText = "⏳ A BAIXAR...";
                 if (statusEl) { statusEl.innerText = "⏳ A transferir matriz..."; statusEl.style.color = 'var(--orange)'; }
                 if (statusMain) { statusMain.innerText = "A descarregar produtos da nuvem. Aguarde..."; statusMain.style.color = 'var(--orange)'; }
-                
-                window.showToast("A descarregar catálogo seguro...", "info");
 
                 const colRefCatalogo = collection(db, 'artifacts', appId, 'public', 'data', 'catalogo');
                 const querySnapshot = await getDocs(colRefCatalogo);
-                
                 const newCatalogo = [];
-                querySnapshot.forEach(docSnap => newCatalogo.push(docSnap.data()));
-                
-                if (newCatalogo.length > 0) {
-                    baseDados = newCatalogo;
-                    try { localStorage.setItem('catalogo_local_enc', CryptoJS.AES.encrypt(JSON.stringify(baseDados), _HASH_V).toString()); } catch(e) {}
-                    window.atualizarFiltrosDOM();
-                    if (operadorAtual) window.render();
-                    window.showToast(`Sincronização concluída: ${baseDados.length} produtos.`, "success");
-                } else {
-                    window.showToast("A Nuvem não possui produtos cadastrados.", "warning");
-                    window.atualizarFiltrosDOM();
-                }
-                
-                if (btn) btn.innerText = "☁️ FORÇAR ATUALIZAÇÃO";
+                querySnapshot.forEach(docSnap => newCatalogo.push({ id: docSnap.id, ...docSnap.data() }));
+                newCatalogo.sort((a,b) => String(a.descricao || '').localeCompare(String(b.descricao || ''), 'pt-BR'));
+
+                baseDados = newCatalogo;
+                salvarCatalogoLocal();
+                window.atualizarFiltrosDOM();
+                if (operadorAtual) window.render();
+                window.showToast(newCatalogo.length ? `Sincronização concluída: ${newCatalogo.length} produtos.` : "A Nuvem não possui produtos cadastrados.", newCatalogo.length ? "success" : "warning");
             } catch (error) {
                 console.error(error);
                 window.showToast("Erro de rede. Não foi possível baixar.", "error");
+            } finally {
                 const btn = document.getElementById('btn-sincronizar-op');
                 if (btn) btn.innerText = "☁️ FORÇAR ATUALIZAÇÃO";
             }
@@ -1176,7 +1237,10 @@
                 localStorage.removeItem('cargo_enc');
                 document.getElementById('login-nome').value = '';
                 document.getElementById('login-pin').value = '';
-                window.checkLogin();
+                if (carregarCatalogoLocal()) {
+            window.atualizarFiltrosDOM();
+        }
+        window.checkLogin();
             }, "btn-red");
         }
 
@@ -1500,7 +1564,7 @@
             itemAtual.descricao = document.getElementById('m-nome-edit').value.toUpperCase(); 
             itemAtual.unidade = document.getElementById('m-un-edit').value.toUpperCase();
             
-            let novoGtin = document.getElementById('m-gtin-edit').value.trim().toUpperCase();
+            let novoGtin = normalizarGTIN(document.getElementById('m-gtin-edit').value);
             itemAtual.gtin = novoGtin;
             let obs = document.getElementById('m-obs').value.toUpperCase();
             
@@ -1552,7 +1616,7 @@
 
             setDoc(doc(colRef, docId), payload).then(() => {
                 window.showToast("Gravação Confirmada", "success"); 
-                window.addLog(modo === 'somar' ? '+' : '' + " " + novaQtd + "x " + itemAtual.descricao);
+                window.addLog(`${modo === 'somar' ? '+ ' : ''}${novaQtd}x ${itemAtual.descricao}`);
             }).catch((e) => { window.showToast("Erro ao contatar os blocos de dados!", "error"); });
         }
 
@@ -1941,7 +2005,7 @@
             reader.onload = async function(evt) {
                 try {
                     const workbook = XLSX.read(new Uint8Array(evt.target.result), {type: 'array'});
-                    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1, defval: ""});
+                    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1, defval: "", raw: false});
                     let idxCod=-1, idxDesc=-1, idxFam=-1, idxSist=-1, idxLoc=-1, idxCmc=-1, idxUn=-1, idxGtin=-1, hRow=-1;
                     
                     for(let r=0; r<rows.length; r++) {
@@ -1979,12 +2043,12 @@
                         const f = idxFam !== -1 ? String(row[idxFam] || 'SEM FAMÍLIA').trim().toUpperCase() : 'SEM FAMÍLIA';
                         const codRaw = idxCod !== -1 ? String(row[idxCod] || '').trim().toUpperCase() : '';
                         
-                        const sistemaVal = idxSist !== -1 ? parseFloat(String(row[idxSist] || '0').replace(',','.')) : 0;
-                        const cmcVal = idxCmc !== -1 ? parseFloat(String(row[idxCmc] || '0').replace(',','.')) : 0;
+                        const sistemaVal = idxSist !== -1 ? normalizarNumero(row[idxSist], 0) : 0;
+                        const cmcVal = idxCmc !== -1 ? normalizarNumero(row[idxCmc], 0) : 0;
                         
                         temporarios.push({ 
                             _linhaImportacao: temporarios.length,
-                            codigo: codRaw, descricao: descricao, gtin: idxGtin !== -1 ? String(row[idxGtin] || '').trim() : '', 
+                            codigo: codRaw, descricao: descricao, gtin: idxGtin !== -1 ? normalizarGTIN(row[idxGtin]) : '', 
                             familia: f, local: l, sistema: isNaN(sistemaVal) ? 0 : sistemaVal, cmc: isNaN(cmcVal) ? 0 : cmcVal, unidade: idxUn !== -1 ? String(row[idxUn] || 'UN').trim().toUpperCase() : 'UN'
                         });
                     }
@@ -1994,7 +2058,12 @@
                     const msgEl = document.getElementById('loading-msg');
                     
                     try {
+                        importandoCatalogo = true;
                         const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'catalogo');
+                        // IDs continuam determinísticos pela posição da linha. Assim, a mesma planilha
+                        // atualiza os mesmos documentos e não cria duplicatas a cada importação.
+                        const idsNovos = new Set();
+                        const snapshotAntigo = await getDocs(colRef);
                         let batch = writeBatch(db);
                         let opCount = 0;
                         let total = 0;
@@ -2011,6 +2080,7 @@
                                 docId = `PROD_${Date.now()}_${Math.floor(Math.random() * 100000)}_${linhaImportacao}`;
                             }
                             
+                            idsNovos.add(docId);
                             item.id = docId;
                             delete item._linhaImportacao;
                             batch.set(doc(colRef, docId), item);
@@ -2030,8 +2100,25 @@
                             await batch.commit();
                         }
 
+                        // Remove somente os documentos antigos que não fazem parte da nova matriz.
+                        // A nova matriz já foi gravada, portanto uma falha nesta limpeza não perde os dados novos.
+                        let deleteBatch = writeBatch(db);
+                        let deleteCount = 0;
+                        for (const docSnap of snapshotAntigo.docs) {
+                            if (!idsNovos.has(docSnap.id)) {
+                                deleteBatch.delete(docSnap.ref);
+                                deleteCount++;
+                                if (deleteCount >= 400) {
+                                    await deleteBatch.commit();
+                                    deleteBatch = writeBatch(db);
+                                    deleteCount = 0;
+                                }
+                            }
+                        }
+                        if (deleteCount > 0) await deleteBatch.commit();
+
                         baseDados = temporarios;
-                        try { localStorage.setItem('catalogo_local_enc', CryptoJS.AES.encrypt(JSON.stringify(baseDados), _HASH_V).toString()); } catch(e) {}
+                        salvarCatalogoLocal();
                         
                         window.atualizarFiltrosDOM();
                         if (operadorAtual) window.render();
@@ -2041,6 +2128,7 @@
                         window.showToast("Erro crítico de rede ao enviar para a nuvem.", "error");
                         console.error(e);
                     } finally {
+                        importandoCatalogo = false;
                         document.getElementById('loading-overlay').style.display = 'none';
                         e.target.value = '';
                         window.fecharModalConfig();
