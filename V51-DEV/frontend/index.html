@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Smart Estoque V51 — operação">
+  <title>Smart Estoque V51 — Operação</title>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <div><strong>Smart Estoque</strong><span class="version">V51 • DEV</span></div>
+    <button id="btn-options" class="icon-button" type="button" aria-label="Abrir opções">⚙️</button>
+  </header>
+
+  <main class="app-shell">
+    <section class="hero-card">
+      <div>
+        <span class="eyebrow">OPERAÇÃO</span>
+        <h1>Inventário</h1>
+        <p id="session-status">Ambiente de desenvolvimento V51.</p>
+      </div>
+      <span class="status">TESTE</span>
+    </section>
+
+    <section class="search-card" aria-label="Pesquisa de produto">
+      <label for="product-search">Pesquisar produto</label>
+      <input id="product-search" type="search" autocomplete="off" placeholder="Nome, SKU ou GTIN...">
+      <div id="search-results" class="results" aria-live="polite"></div>
+    </section>
+
+    <section class="actions" aria-label="Ações">
+      <button id="btn-scanner" class="primary" type="button">📷 Ligar scanner</button>
+      <button id="btn-count" type="button">➕ Iniciar contagem</button>
+    </section>
+
+    <section class="info-grid">
+      <article><span>Catálogo</span><strong id="catalog-count">—</strong></article>
+      <article><span>Sincronização</span><strong id="sync-status">Ambiente de teste</strong></article>
+    </section>
+  </main>
+
+  <div id="options-modal" class="modal" hidden>
+    <div class="modal-backdrop" data-close-options></div>
+    <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="options-title">
+      <div class="modal-header">
+        <div><span class="eyebrow">CONFIGURAÇÕES</span><h2 id="options-title">Opções</h2></div>
+        <button class="icon-button" type="button" data-close-options aria-label="Fechar">✕</button>
+      </div>
+      <div class="option-list">
+        <label class="option"><span><b>🔁 Modo contínuo</b><small>Avanço automático após salvar uma contagem.</small></span><input id="continuous-mode" type="checkbox"></label>
+        <label class="option"><span><b>👁️ Modo cego</b><small>Oculta o valor sistêmico durante a contagem.</small></span><input id="blind-mode" type="checkbox"></label>
+        <label class="option"><span><b>🌙 Modo escuro</b><small>Alterna a aparência do aplicativo.</small></span><input id="dark-mode" type="checkbox"></label>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
