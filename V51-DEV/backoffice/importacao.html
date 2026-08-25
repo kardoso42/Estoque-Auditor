@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Smart Estoque V51 — Importação</title>
+<link rel="stylesheet" href="../frontend/css/app.css">
+</head>
+<body>
+<header class="topbar"><div><strong>Smart Estoque</strong><span class="version">V51 • BACK-OFFICE • DEV</span></div></header>
+<main class="app-shell">
+<section class="hero-card"><div><span class="eyebrow">BACK-OFFICE</span><h1>Importar catálogo</h1><p>Ambiente exclusivo de testes da V51.</p></div><span class="status">TESTE</span></section>
+<section class="search-card">
+<label for="arquivo">Planilha Excel</label>
+<input id="arquivo" type="file" accept=".xlsx,.xls,.csv">
+<p id="arquivo-info" style="font-size:11px;color:#64748b">Nenhum arquivo selecionado.</p>
+<button id="btn-importar" class="primary" type="button" disabled>📥 Importar catálogo</button>
+</section>
+<section class="info-grid"><article><span>Produtos lidos</span><strong id="total">0</strong></article><article><span>Status</span><strong id="status">Aguardando arquivo</strong></article></section>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script type="module">
+import { importarPlanilha } from '../frontend/js/catalogo.js';
+const arquivo=document.getElementById('arquivo'), btn=document.getElementById('btn-importar');
+arquivo.addEventListener('change',()=>{const f=arquivo.files?.[0];document.getElementById('arquivo-info').textContent=f?`${f.name} • ${(f.size/1024/1024).toFixed(2)} MB`:'Nenhum arquivo selecionado.';btn.disabled=!f;});
+btn.addEventListener('click',async()=>{const f=arquivo.files?.[0];if(!f)return;btn.disabled=true;document.getElementById('status').textContent='Processando...';try{const r=await importarPlanilha(f);document.getElementById('total').textContent=r.total.toLocaleString('pt-BR');document.getElementById('status').textContent='Importação concluída';}catch(e){document.getElementById('status').textContent='Erro: '+e.message;console.error(e);}finally{btn.disabled=false;}});
+</script>
+</body></html>
