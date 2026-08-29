@@ -1,0 +1,51 @@
+name: Integrar Firebase V51
+
+on:
+  push:
+    branches: [V51-DEV]
+    paths-ignore:
+      - '.github/workflows/v51-integrar-firebase.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  integrar:
+    if: !contains(github.event.head_commit.message, '[firebase-v51]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Integrar Firebase V51 no app principal
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+
+          old = '''        let firebaseConfig = {\n            apiKey: "AIzaSyCUqfEuvJNSKERsE-Cj1U3ysbJ6GB_4IGg",\n            authDomain: "auditor-estoque.firebaseapp.com",\n            projectId: "auditor-estoque",\n            storageBucket: "auditor-estoque.firebasestorage.app",\n            messagingSenderId: "969025703082",\n            appId: "1:969025703082:web:11d3fa2060886071edd4d3"\n        };'''
+
+          new = '''        let firebaseConfig = {\n            apiKey: "AIzaSyAGwu-Gntk60VWU6C9nrgZNrRNsuAwmiU4",\n            authDomain: "smart-estoque-v51.firebaseapp.com",\n            projectId: "smart-estoque-v51",\n            storageBucket: "smart-estoque-v51.firebasestorage.app",\n            messagingSenderId: "530974032242",\n            appId: "1:530974032242:web:eaec6133d1505a0e4d1deb"\n        };'''
+
+          if old not in s:
+              raise SystemExit('Configuração Firebase antiga não encontrada; nenhuma alteração feita.')
+          s = s.replace(old, new, 1)
+          s = s.replace("const appId = typeof __app_id !== 'undefined' ? __app_id : 'auditor-estoque-v32';", "const appId = 'smart-estoque-v51';", 1)
+
+          old_catalog = "collection(db, 'artifacts', appId, 'public', 'data', 'catalogo')"
+          s = s.replace(old_catalog, "collection(db, 'catalogo')")
+          old_contagens = "collection(db, 'artifacts', appId, 'public', 'data', 'contagens')"
+          s = s.replace(old_contagens, "collection(db, 'contagens')")
+          s = s.replace("doc(db, 'artifacts', appId, 'public', 'data', 'catalogo', docId)", "doc(db, 'catalogo', docId)")
+
+          p.write_text(s, encoding='utf-8')
+
+      - name: Commit da integração
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "V51: integrar Firebase isolado ao app principal [firebase-v51]"
+          git push
