@@ -1,8 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/", "destination": "/V51-DEV/frontend/index.html" },
-    { "source": "/css/:match*", "destination": "/V51-DEV/frontend/css/:match*" },
-    { "source": "/js/:match*", "destination": "/V51-DEV/frontend/js/:match*" },
-    { "source": "/backoffice/:match*", "destination": "/V51-DEV/backoffice/:match*" }
-  ]
-}
